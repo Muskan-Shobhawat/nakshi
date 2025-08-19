@@ -1,0 +1,32 @@
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  padding-top: 3vh;
+} 
+
+.text-brown {
+  color: #7b4b2a;
+}
+
+.hero-section {
+  position: relative;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(83, 40, 40, 0.4);
+  z-index: 0; /* Put overlay behind text */
+  /* background-image: url(../src/assets/bb.png);   */
+}
+
+.hero-section .container {
+  position: relative;
+  z-index: 1; /* Ensure text & button are clickable */
+}
+
+.hrfix{
+  height:95vh !important;
+} 

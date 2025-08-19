@@ -1,0 +1,71 @@
+nav.navbar {
+  width: 100vw;
+  padding: 1rem;
+  position: fixed;
+   top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+/* Luxury Navbar Theme */
+.navbar.custom-navbar {
+  background: linear-gradient(90deg, #461523, #390010);
+  padding: 1rem;
+}
+
+.navbar.custom-navbar .navbar-brand {
+  color: #fff89c !important; /* Gold brand */
+  font-family: 'Playfair Display', serif; /* Elegant font */
+  font-size: 1.8rem;
+}
+
+.navbar.custom-navbar .nav-link {
+  color: #fff89c !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navbar.custom-navbar .nav-link:hover {
+  color: #fff !important; /* Gold hover */
+}
+
+.navbar.custom-navbar .navbar-toggler {
+  border-color: #fff89c;
+}
+
+.navbar.custom-navbar .navbar-toggler-icon {
+  background-image: none;
+}
+
+.navbar.custom-navbar .navbar-toggler-icon::before {
+  content: "☰";
+  color: #fff89c;
+  font-size: 1.5rem;
+}
+
+.navbar-icons {
+  color: #fff89c; /* Gold */
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navbar-icons:hover {
+  color: #ffffff; /* White on hover */
+}
+
+.logo{
+    height: 8vh;
+}
+
+#navbtn{
+  color: #3e2723   !important;
+  font-style: bold !important;
+  background-color: #fff89c !important;
+  border-color: #fff89c;
+}
+
+#navbtn:hover{
+    background-color: #d4af37 !important;
+    color: white !important;
+    border: #d4af37;
+}
