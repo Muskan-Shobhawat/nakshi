@@ -8,9 +8,29 @@ dotenv.config();
 
 const app = express();
 
+// ✅ Allowed origins (local + vercel frontend)
+const allowedOrigins = [
+  "http://localhost:5173", // local dev
+  "https://nakshifrontend-1vl0epva4-nakshis-projects.vercel.app", // vercel deployment
+];
+
 // middlewares
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(express.json()); // <- critical for parsing JSON bodies
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl, or postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json()); // parse JSON
 app.use(express.urlencoded({ extended: true }));
 
 // routes
@@ -30,6 +50,7 @@ app.use((err, req, res, next) => {
 // db + server
 const PORT = process.env.PORT || 5000;
 console.log("Mongo URI:", process.env.MONGO_URI);
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
