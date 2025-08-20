@@ -11,7 +11,7 @@ const app = express();
 // ✅ Allowed origins (local + vercel frontend)
 const allowedOrigins = [
   "http://localhost:5173", // local dev
-  "https://nakshifrontend-1vl0epva4-nakshis-projects.vercel.app", // vercel deployment
+  "https://nakshifrontend-two.vercel.app", // vercel deployment
 ];
 
 // middlewares
