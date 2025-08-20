@@ -104,6 +104,7 @@ export default function AuthForm() {
           email: formData.email || undefined, // optional
           password: formData.password,
         }),
+           credentials: "include", 
       });
 
       const data = await safeJSON(res);
@@ -136,6 +137,7 @@ export default function AuthForm() {
           phone: formData.phone,
           password: formData.password,
         }),
+         credentials: "include", 
       });
 
       const data = await safeJSON(res);

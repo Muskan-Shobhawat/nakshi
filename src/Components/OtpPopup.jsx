@@ -11,15 +11,16 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
     }
 
     try {
-        console.log("VERIFY REQUEST PAYLOAD:", { phone, otp: Number(otp) });
-
-      const res = await fetch("http://localhost:5000/api/user/verify-otp", {
+      console.log("VERIFY REQUEST PAYLOAD:", { phone, otp: Number(otp) });
+      const API = import.meta.env.VITE_APP_BACKEND_URI;
+      const res = await fetch(`${API}user/verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         // ✅ send OTP as number
         body: JSON.stringify({ phone, otp: Number(otp) }),
+           credentials: "include", 
       });
 
       const data = await res.json();
