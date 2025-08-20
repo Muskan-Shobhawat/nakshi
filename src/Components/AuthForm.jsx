@@ -94,7 +94,8 @@ export default function AuthForm() {
     if (!validate()) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/user/register", {
+      const API = import.meta.env.VITE_APP_BACKEND_URI;
+      const res = await fetch(`${API}user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -126,7 +127,9 @@ export default function AuthForm() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/user/login", {
+      const API = import.meta.env.VITE_APP_BACKEND_URI;
+
+      const res = await fetch(`${API}user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
