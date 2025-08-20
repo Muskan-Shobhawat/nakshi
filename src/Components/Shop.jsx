@@ -1,7 +1,7 @@
 // src/components/Shop.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../CSS/shop.css";
+import "../CSS/Shop.css";
 import {
   Button,
   Stack,
