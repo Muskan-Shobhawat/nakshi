@@ -18,7 +18,10 @@ export const register = async (req, res) => {
     }
 
     // Check if phone/email already exists in main users collection
-    const existing = await User.findOne({ $or: [{ phone }, { email }] });
+const query = [{ phone }];
+    if (email) query.push({ email }); // ✅ only check if email is provided
+
+    const existing = await User.findOne({ $or: query });
     if (existing) {
       return res.status(409).json({
         success: false,
@@ -41,7 +44,7 @@ export const register = async (req, res) => {
     req.app.locals.tempUsers[phone] = {
       name,
       phone,
-      email,
+       email: email || null, // ✅ allow null
       password: hashedPassword,
       otp,
     };

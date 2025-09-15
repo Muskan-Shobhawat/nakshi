@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,7 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       unique: true,
-      sparse: true, // allows multiple nulls
+      sparse: true, // allows multiple null values
       trim: true,
       lowercase: true,
     },
@@ -18,19 +17,12 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, required: true, unique: true, trim: true },
 
     password: { type: String, required: true },
-    verified: { type: Boolean, default: false }, 
 
-    // role: { type: String, default: "user" },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-
-// Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+// ❌ Removed pre("save") hook (since password is hashed in controller)
 
 export default mongoose.model("User", userSchema);
