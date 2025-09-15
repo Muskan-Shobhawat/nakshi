@@ -44,7 +44,7 @@ const query = [{ phone }];
     req.app.locals.tempUsers[phone] = {
       name,
       phone,
-       email: email || null, // ✅ allow null
+       email: email || undefined, // ✅ allow null
       password: hashedPassword,
       otp,
     };

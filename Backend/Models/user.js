@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema(
     // Optional email (unique only if provided)
     email: {
       type: String,
-      required: false,
       unique: true,
       sparse: true, // allows multiple null values
       trim: true,
