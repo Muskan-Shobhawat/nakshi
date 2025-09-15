@@ -12,6 +12,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // local dev
   "https://nakshifrontend-two.vercel.app", // vercel deployment
+  "https://nakshijewellers.com",           // new domain
 ];
 
 // middlewares
