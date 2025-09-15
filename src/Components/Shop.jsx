@@ -1,5 +1,6 @@
 // src/components/Shop.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "../CSS/Shop.css";
 import {
@@ -59,6 +60,7 @@ const products = Array.from({ length: 60 }, (_, i) => ({
 }));
 
 export default function Shop() {
+  const navigate = useNavigate();
   const [quantities, setQuantities] = useState({});
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState(null);
@@ -546,6 +548,7 @@ export default function Shop() {
           <Button
             variant="contained"
             sx={{ bgcolor: "white", color: "#a60019" }}
+            onClick={() => navigate("/cart")}
           >
             View Cart
           </Button>
