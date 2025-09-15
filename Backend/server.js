@@ -2,58 +2,59 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import userRoutes from "./Routes/user.js";
+import userRoutes from "./Routes/user.js"; // adjust the path if different
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Allowed origins
+// ✅ Allowed origins (local + vercel frontend)
 const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://nakshifrontend-two.vercel.app",
-  "https://nakshijewellers.com",
+  "http://localhost:5173", // local dev
+  "https://nakshifrontend-two.vercel.app", // vercel deployment
+   "https://nakshijewellers.com",
+  
 ];
 
-// ✅ Use cors middleware properly
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow requests like Postman
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
-  })
-);
+// middlewares
+app.use((req, res, next) => {
+  const allowedOrigin = "https://nakshijewellers.com";
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  
+  // Preflight request
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
-// ✅ Handle preflight requests globally
-app.options("*", cors());
-
-app.use(express.json());
+app.use(express.json()); // parse JSON
 app.use(express.urlencoded({ extended: true }));
 
 // routes
 app.use("/api/user", userRoutes);
 
-// 404 handler
+// 404 handler (returns JSON, not HTML)
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Not found" });
 });
 
-// error handler
+// error handler (returns JSON)
 app.use((err, req, res, next) => {
-  console.error("UNCAUGHT APP ERROR:", err.message);
+  console.error("UNCAUGHT APP ERROR:", err);
   res.status(500).json({ success: false, message: "Internal server error" });
 });
 
 // db + server
 const PORT = process.env.PORT || 5000;
+console.log("Mongo URI:", process.env.MONGO_URI);
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
