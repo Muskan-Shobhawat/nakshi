@@ -1,6 +1,6 @@
 import User from "../Models/user.js";
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
+// import fetch from "node-fetch";
 import bcrypt from "bcrypt";
 
 // Generate 6 digit OTP
