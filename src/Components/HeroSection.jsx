@@ -1,5 +1,5 @@
 import React from 'react';
-import heroImage from '../assets/heroimg2.jpg'; // Replace with jewelry image
+import heroImage from '../assets/heroimg2.JPG'; // Replace with jewelry image
 
 function HeroSection() {
   return (
