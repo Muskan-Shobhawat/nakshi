@@ -11,7 +11,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
     }
 
     try {
-      console.log("VERIFY REQUEST PAYLOAD:", { phone, otp: Number(otp) });
+      // console.log("VERIFY REQUEST PAYLOAD:", { phone, otp: Number(otp) });
       const API = import.meta.env.VITE_APP_BACKEND_URI;
       const res = await fetch(`${API}user/verify-otp`, {
         method: "POST",
@@ -20,7 +20,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
         },
         // ✅ send OTP as number
         body: JSON.stringify({ phone, otp: Number(otp) }),
-           credentials: "include", 
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -35,6 +35,8 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
     } catch (err) {
       console.error("VERIFY OTP ERROR:", err);
       alert("Something went wrong while verifying OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,8 +61,8 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleVerify}>
-          Verify
+        <Button variant="primary" onClick={handleVerify} disabled={loading}>
+          {loading ? "Verifying..." : "Verify"}
         </Button>
       </Modal.Footer>
     </Modal>
