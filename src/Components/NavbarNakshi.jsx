@@ -78,7 +78,7 @@ function NavbarNakshi() {
                 </Dropdown>
               ) : (
                 <Button id="navbtn" size="sm" onClick={handleLoginSignupClick}>
-                  Login / Signup
+                  Login / Signups
                 </Button>
               )}
             </div>
