@@ -3,6 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 export default function OtpPopup({ phone, show, onClose, onVerify }) {
   const [otp, setOtp] = useState("");
+   const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
     if (!otp || otp.length !== 6) {
@@ -12,6 +13,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
 
     try {
       // console.log("VERIFY REQUEST PAYLOAD:", { phone, otp: Number(otp) });
+      setLoading(true); 
       const API = import.meta.env.VITE_APP_BACKEND_URI;
       const res = await fetch(`${API}user/verify-otp`, {
         method: "POST",
