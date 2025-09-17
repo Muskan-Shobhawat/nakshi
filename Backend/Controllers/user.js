@@ -103,6 +103,9 @@ export const verifyOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: "No pending registration found" });
     }
 
+    console.log("REQ BODY", req.body);
+    console.log("TEMP USER", tempUser);
+
     // if (parseInt(tempUser.otp) !== parseInt(otp)) {
     //   return res.status(400).json({ success: false, message: "Invalid OTP" });
     // }
@@ -123,8 +126,8 @@ export const verifyOtp = async (req, res) => {
     }
 
     // Save verified user into DB
-  //  
-  // save user after verification
+    //  
+    // save user after verification
     const hashedPassword = await bcrypt.hash(tempUser.password, 10);
     const user = new User({
       name: tempUser.name,
