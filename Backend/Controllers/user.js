@@ -89,6 +89,8 @@ export const verifyOtp = async (req, res) => {
 
     const data = await response.json();
     console.log("MSG91 VERIFY OTP RESPONSE:", data);
+    console.log("Frontend OTP:", otp);
+
 
     if (data.type !== "success") {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
