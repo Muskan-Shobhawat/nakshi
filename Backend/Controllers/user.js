@@ -49,6 +49,7 @@ export const register = async (req, res) => {
 
     const data = await response.json();
     console.log("MSG91 SEND OTP RESPONSE:", data);
+      console.log("OTP sent to:", "91" + phone, "Response:", data);
 
     if (data.type !== "success") {
       return res
@@ -86,6 +87,7 @@ export const verifyOtp = async (req, res) => {
       `https://api.msg91.com/api/v5/otp/verify?authkey=${process.env.MSG91_AUTHKEY}&mobile=91${phone}&otp=${otp}`,
       { method: "POST" }
     );
+    console.log("Verifying OTP for:", "91" + phone, "Frontend OTP:", otp);
 
     const data = await response.json();
     console.log("MSG91 VERIFY OTP RESPONSE:", data);
