@@ -11,6 +11,7 @@ import Cart from "./Components/Cart.jsx";
 import ProductDetails from "./Components/ProductDetails.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AdminPanel from "./Components/AdminPanel.jsx";
 
 function Layout({ children }) {
   return (
@@ -57,6 +58,14 @@ function App() {
       element: (
         <Layout>
          <Cart />
+        </Layout>
+      ),
+    },
+    {
+      path: "/admin",
+      element: (
+        <Layout>
+         <AdminPanel />
         </Layout>
       ),
     },
