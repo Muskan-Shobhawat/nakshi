@@ -6,146 +6,130 @@ import bcrypt from "bcrypt";
 // Generate 6 digit OTP
 // const generateOtp = () => Math.floor(100000 + Math.random() * 900000);
 
-// ---------------- REGISTER ----------------
+// import fetch from "node-fetch"; // if not already available in Node 18+
+
+// REGISTER with OTP
 export const register = async (req, res) => {
   try {
     const { name, phone, email, password } = req.body;
 
-    if (!name || !phone || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Name, phone and password are required",
-      });
+    // hash password immediately
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // init tempUsers store
+    if (!req.app.locals.tempUsers) {
+      req.app.locals.tempUsers = {};
     }
 
-    // Check if phone/email already exists in main users collection
-    const query = [{ phone }];
-    if (email) query.push({ email }); // ✅ only check if email is provided
+    // save in temp store
+    req.app.locals.tempUsers[phone] = {
+      name,
+      phone,
+      email,
+      password: hashedPassword,
+    };
 
-    const existing = await User.findOne({ $or: query });
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: existing.phone === phone ? "Phone already registered" : "Email already registered",
-      });
-    }
+    console.log("TEMP USERS AFTER REGISTER:", req.app.locals.tempUsers);
 
-    // Hash password early
-    // hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-
-    // Generate OTP
-    // const otp = generateOtp();
-    // call MSG91 Send OTP
+    // send OTP via MSG91
     const response = await fetch("https://api.msg91.com/api/v5/otp", {
       method: "POST",
       headers: {
-        "authkey": process.env.MSG91_AUTHKEY,
+        authkey: process.env.MSG91_AUTHKEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        template_id: process.env.MSG91_TEMPLATE_ID,
         mobile: "91" + phone,
       }),
     });
+
     const data = await response.json();
+    console.log("MSG91 OTP RESPONSE:", data);
 
     if (data.type !== "success") {
-      return res.status(500).json({ success: false, message: "Failed to send OTP" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Failed to send OTP" });
     }
 
-
-    // Temporarily store user data + OTP in-memory (or Redis/DB)
-    // For demo: attach to session (NOT good for prod, better use Redis)
-    //     req.app.locals.tempUsers = req.app.locals.tempUsers || {};
-    //     req.app.locals.tempUsers[phone] = {
-    //       name,
-    //       phone,
-    //       email: email || undefined, // ✅ allow null
-    //       password: hashedPassword,
-    //       otp,
-    //     };
-
-    //     // TODO: Send via SMS/Email
-    //     console.log(`OTP for ${phone} is ${otp}`);
-
-    //     return res.status(200).json({
-    //       success: true,
-    //       message: "OTP sent, please verify your account",
-    //     });
-    //   } catch (err) {
-    //     console.error("REGISTER ERROR:", err);
-    //     return res.status(500).json({ success: false, message: "Internal server error" });
-    //   }
-
-    // temporarily store user info until OTP verified
-    req.app.locals.tempUsers = req.app.locals.tempUsers || {};
-    req.app.locals.tempUsers[phone] = { name, phone, email, password };
-
-    return res.status(200).json({ success: true, message: "OTP sent successfully" });
+    return res.json({
+      success: true,
+      message: "OTP sent successfully",
+      phone,
+    });
   } catch (err) {
     console.error("REGISTER ERROR:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
-// ---------------- VERIFY OTP ----------------
+// VERIFY OTP
 export const verifyOtp = async (req, res) => {
   try {
     const { phone, otp } = req.body;
+
+    console.log("VERIFY OTP BODY:", req.body);
+    console.log("ALL TEMP USERS:", req.app.locals.tempUsers);
 
     const tempUsers = req.app.locals.tempUsers || {};
     const tempUser = tempUsers[phone];
 
     if (!tempUser) {
-      return res.status(400).json({ success: false, message: "No pending registration found" });
+      console.log("No pending registration for phone:", phone);
+      return res
+        .status(400)
+        .json({ success: false, message: "No pending registration found" });
     }
 
-    console.log("REQ BODY", req.body);
-    console.log("TEMP USER", tempUser);
-
-    // if (parseInt(tempUser.otp) !== parseInt(otp)) {
-    //   return res.status(400).json({ success: false, message: "Invalid OTP" });
-    // }
-
-    // call MSG91 Verify API
+    // verify OTP with MSG91
     const response = await fetch("https://api.msg91.com/api/v5/otp/verify", {
       method: "POST",
       headers: {
-        "authkey": process.env.MSG91_AUTHKEY,
+        authkey: process.env.MSG91_AUTHKEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ mobile: "91" + phone, otp }),
+      body: JSON.stringify({
+        mobile: "91" + phone,
+        otp,
+      }),
     });
+
     const data = await response.json();
+    console.log("MSG91 VERIFY RESPONSE:", data);
 
     if (data.type !== "success") {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    // Save verified user into DB
-    //  
-    // save user after verification
-    const hashedPassword = await bcrypt.hash(tempUser.password, 10);
+    // create actual user
     const user = new User({
       name: tempUser.name,
       phone: tempUser.phone,
       email: tempUser.email,
-      password: hashedPassword,
+      password: tempUser.password, // already hashed
       verified: true,
     });
+
     await user.save();
 
+    // cleanup temp store
     delete req.app.locals.tempUsers[phone];
 
-    return res.json({ success: true, message: "Account verified successfully" });
+    return res.json({
+      success: true,
+      message: "Account verified successfully",
+      user,
+    });
   } catch (err) {
     console.error("VERIFY OTP ERROR:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
+
 
 
 // ---------------- LOGIN ----------------
