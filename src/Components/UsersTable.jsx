@@ -20,8 +20,8 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
 const initialMembers = [
-  { id: 1, name: "Muskan Shobhawat", phone: "+91 9876543210", email: "muskan@nakshi.no", role: "Developer", status: "Active" },
-  { id: 2, name: "Rohit K", phone: "+91 9876543210", email: "rohite@nakshi.no", role: "Lister", status: "Active" },
+  { id: 1, name: "Muskan Shobhawat", phone: "+91 9876543210", email: "muskan@nakshi.no", status: "Active" },
+  { id: 2, name: "Rohit K", phone: "+91 9876543210", email: "rohite@nakshi.no", status: "Active" },
 ];
 
 function StatusChip({ status }) {
@@ -52,9 +52,9 @@ export default function MembersTable() {
     <section className="members-card">
       <div className="members-header d-flex align-items-center justify-content-between mb-4">
         <div className="d-flex align-items-center gap-3">
-          <h2 className="members-title">Members</h2>
-          <Button variant="contained" startIcon={<PersonAddIcon />} size="small">Add new</Button>
-          <Button variant="outlined" size="small">Import</Button>
+          <h2 className="members-title">Users</h2>
+          {/* <Button variant="contained" startIcon={<PersonAddIcon />} size="small">Add new</Button> */}
+          {/* <Button variant="outlined" size="small">Import</Button> */}
           <Button variant="outlined" size="small">Export (Excel)</Button>
         </div>
 
@@ -83,7 +83,6 @@ export default function MembersTable() {
               <TableCell>Member name</TableCell>
               <TableCell>Mobile</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Operation</TableCell>
             </TableRow>
@@ -99,7 +98,6 @@ export default function MembersTable() {
                 <TableCell>{m.name}</TableCell>
                 <TableCell>{m.phone}</TableCell>
                 <TableCell>{m.email}</TableCell>
-                <TableCell>{m.role}</TableCell>
 
                 <TableCell>
                   <div className="d-flex align-items-center gap-2">

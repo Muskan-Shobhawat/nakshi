@@ -14,18 +14,18 @@ export default function Topbar() {
       </div>
 
       <div className="topbar-right d-flex align-items-center">
-        <div className="topbar-stats">
+        {/* <div className="topbar-stats">
           <div className="small-muted">Total</div>
           <div className="strong">2,000</div>
-        </div>
+        </div> */}
 
         <div className="profile-wrap d-flex align-items-center">
           <div className="profile-info">
             <div className="small-muted">Admin</div>
-            <div className="strong">Luke Asofe</div>
+            <div className="strong">Vinay</div>
           </div>
           <IconButton size="large">
-            <Avatar>LA</Avatar>
+            <Avatar>VK</Avatar>
           </IconButton>
         </div>
       </div>

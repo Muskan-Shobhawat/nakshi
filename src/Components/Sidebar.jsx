@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, List, ListItem, ListItemText, ListItemIcon } from "@mui/material";
+import { NavLink } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
@@ -21,19 +22,19 @@ export default function Sidebar() {
 
       <nav className="sidebar-nav">
         <List>
-          <ListItem button className="nav-item active">
+          <ListItem button component={NavLink} to="/admin/members" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
             <ListItemIcon className="nav-icon"><DashboardIcon /></ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
 
-          <ListItem button className="nav-item">
+          <ListItem button component={NavLink} to="/admin/users" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
             <ListItemIcon className="nav-icon"><PeopleIcon /></ListItemIcon>
             <ListItemText primary="Users" />
           </ListItem>
 
-          <ListItem button className="nav-item">
+          <ListItem button component={NavLink} to="/admin/products" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
             <ListItemIcon className="nav-icon"><WorkOutlineIcon /></ListItemIcon>
-            <ListItemText primary="Projects" />
+            <ListItemText primary="Products" />
           </ListItem>
 
           <ListItem button className="nav-item">

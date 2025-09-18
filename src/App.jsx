@@ -9,9 +9,12 @@ import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop.jsx";
 import Cart from "./Components/Cart.jsx";
 import ProductDetails from "./Components/ProductDetails.jsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AdminPanel from "./Components/AdminPanel.jsx";
+import MembersTable from "./Components/MembersTable.jsx";
+import UsersPage from "./Components/UsersTable.jsx";
+import ProductsTable from "./Components/ProductsTable.jsx";
 
 function Layout({ children }) {
   return (
@@ -64,10 +67,14 @@ function App() {
     {
       path: "/admin",
       element: (
-        <Layout>
          <AdminPanel />
-        </Layout>
       ),
+      children: [
+        { index: true, element: <Navigate to="members" /> }, // default redirect
+        { path: "members", element: <MembersTable /> },
+        { path: "users", element: <UsersPage /> },
+        { path: "products", element: <ProductsTable /> },
+      ],
     },
   ]);
   return (
