@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 // import MembersTable from "./MembersTable";
-import "../CSS/admin.css";
+import "../CSS/Admin.css";
 
 export default function AdminPanel() {
   return (
