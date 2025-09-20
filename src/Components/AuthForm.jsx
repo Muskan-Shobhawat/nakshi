@@ -17,8 +17,8 @@ export default function AuthForm() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-   const [showOtp, setShowOtp] = useState(false);
-  const [signupPhone, setSignupPhone] = useState(""); 
+  const [showOtp, setShowOtp] = useState(false);
+  const [signupPhone, setSignupPhone] = useState("");
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -57,7 +57,9 @@ export default function AuthForm() {
     // Email optional during signup; if provided, validate
     if (formData.email) {
       if (
-        !formData.email.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
+        !formData.email.match(
+          /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+        )
       ) {
         newErrors.email = "Please enter a valid email address.";
       }
@@ -95,30 +97,27 @@ export default function AuthForm() {
 
     try {
       const API = import.meta.env.VITE_APP_BACKEND_URI;
-      const res = await fetch(`${API}user/register`, {
+
+      // Step 1: send OTP
+      const res = await fetch(`${API}user/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.fullName,
-          phone: formData.phone,
-          email: formData.email || undefined, // optional
-          password: formData.password,
-        }),
-           credentials: "include", 
+        body: JSON.stringify({ phone: formData.phone }),
+        credentials: "include",
       });
 
       const data = await safeJSON(res);
       if (!res.ok || !data.success) {
-        alert(data.message || `Registration failed (status ${res.status}).`);
+        alert(data.message || `OTP sending failed (status ${res.status}).`);
         return;
       }
 
-       setSignupPhone(formData.phone);
+      alert("OTP sent successfully!");
+      setSignupPhone(formData.phone);
       setShowOtp(true);
-      resetForm();
     } catch (error) {
-      console.error("Registration Error:", error);
-      alert("Registration failed. Please try again.");
+      console.error("Send OTP Error:", error);
+      alert("Could not send OTP. Please try again.");
     }
   };
 
@@ -137,7 +136,7 @@ export default function AuthForm() {
           phone: formData.phone,
           password: formData.password,
         }),
-         credentials: "include", 
+        credentials: "include",
       });
 
       const data = await safeJSON(res);
@@ -291,9 +290,34 @@ export default function AuthForm() {
         phone={signupPhone}
         show={showOtp}
         onClose={() => setShowOtp(false)}
-        onVerify={() => {
-          resetForm();
-          setIsLogin(true); // go to login after OTP verified
+        onVerify={async () => {
+          // ✅ After OTP verification, now register the user
+          try {
+            const API = import.meta.env.VITE_APP_BACKEND_URI;
+            const res = await fetch(`${API}user/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: formData.fullName,
+                phone: signupPhone,
+                email: formData.email || undefined,
+                password: formData.password,
+              }),
+              credentials: "include",
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+              alert("Registration successful!");
+              resetForm();
+              setIsLogin(true); // ✅ switch to login after success
+            } else {
+              alert(data.message || "Registration failed");
+            }
+          } catch (err) {
+            console.error("Register Error after OTP:", err);
+            alert("Something went wrong while registering");
+          }
         }}
       />
     </div>
