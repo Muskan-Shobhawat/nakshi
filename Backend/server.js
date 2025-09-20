@@ -3,6 +3,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./Routes/user.js"; // adjust the path if different
+import productRoutes from "./Routes/products.js"; // adjust the path if different
+import otpRoutes from "./Routes/otp.js";
 
 dotenv.config();
 
@@ -39,6 +41,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes
 app.use("/api/user", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/user", otpRoutes);
+
 
 // 404 handler (returns JSON, not HTML)
 app.use((req, res) => {
