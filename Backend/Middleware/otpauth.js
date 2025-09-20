@@ -20,3 +20,6 @@ const requireOtpVerified = (req, res, next) => {
   }
   next();
 };
+
+export default requireOtpVerified;
+

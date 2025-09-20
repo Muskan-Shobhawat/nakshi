@@ -43,26 +43,28 @@ export const sendOtp = async (req, res) => {
 
 // Verify OTP
 export const verifyOtp = async (req, res) => {
-    try {
-        const { phone, otp } = req.body;
+  try {
+    const { phone, otp } = req.body;
 
-        const record = await Otp.findOne({ phone });
-        if (!record) return res.status(400).json({ success: false, message: "OTP not found" });
+    const record = await Otp.findOne({ phone });
+    if (!record) return res.status(400).json({ success: false, message: "OTP not found" });
 
-        if (record.expiresAt < Date.now()) {
-            return res.status(400).json({ success: false, message: "OTP expired" });
-        }
-
-        if (Number(otp) !== record.otp) {
-            return res.status(400).json({ success: false, message: "Invalid OTP" });
-        }
-
-        // ✅ OTP valid → you can mark user verified or create JWT/session
-        await Otp.deleteOne({ phone }); // cleanup
-
-        return res.json({ success: true, message: "OTP verified!" });
-    } catch (err) {
-        console.error("VERIFY OTP ERROR:", err);
-        return res.status(500).json({ success: false, message: "Server error" });
+    if (record.expiresAt < Date.now()) {
+      return res.status(400).json({ success: false, message: "OTP expired" });
     }
+
+    if (Number(otp) !== record.otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+
+    // ✅ Mark session as verified
+    req.session.verified = true;
+
+    await Otp.deleteOne({ phone });
+
+    return res.json({ success: true, message: "OTP verified!" });
+  } catch (err) {
+    console.error("VERIFY OTP ERROR:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
