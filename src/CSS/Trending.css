@@ -1,0 +1,145 @@
+/* src/components/CategoriesGrid.css
+   ONLY uses vw / vh units for sizing/spacing as requested.
+*/
+
+.cg-root {
+  width: 100vw;
+  height: 160vh;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* border: 2px solid red; */
+}
+
+/* each tile is 50vw x 50vh so grid becomes 2x2 filling the viewport */
+.cg-tile {
+  width: 50vw;
+  height: 80vh;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.45s ease, filter 0.45s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* subtle zoom on hover */
+.cg-tile:hover {
+  transform: scale(1.02);
+}
+
+/* a dark gradient overlay for text readability */
+.cg-overlay {
+  position: absolute;
+  inset: 0; /* uses 0 units — allowed (no unit) */
+  background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.25) 100%);
+  transition: background 0.35s ease;
+}
+
+/* make overlay stronger on hover */
+.cg-tile:hover .cg-overlay {
+  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 100%);
+}
+
+/* content sits bottom-left (use vw/vh units only for spacing) */
+.cg-content {
+  position: absolute;
+  left: 4vw;
+  bottom: 6vh;
+  color: #ffffff;
+  z-index: 2;
+  max-width: 40vw;
+  pointer-events: none; /* let the tile catch clicks; CTA overrides this */
+}
+
+/* Title style */
+.cg-title {
+  margin: 0 0 1vh 0;
+  font-size: 2.4vw;
+  letter-spacing: 0.3vw;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Subtitle / description */
+.cg-sub {
+  margin: 0 0 2vh 0;
+  font-size: 1.3vw;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+/* CTA button (we use pointer-events:auto on the button so it is clickable) */
+.cg-cta {
+  pointer-events: auto;
+  display: inline-block;
+  background: #ffffff;
+  color: #1a0505;
+  border: none;
+  padding: 1vh 2.2vw;
+  font-size: 1.05vw;
+  font-weight: 600;
+  border-radius: 1vw;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* small hover effect for the button itself */
+.cg-cta:hover {
+  transform: translateY(-0.5vh);
+  opacity: 0.95;
+}
+
+/* ---- Responsive adjustments using vw/vh breakpoints (only vw/vh used) ---- */
+/* When viewport becomes narrow, make tiles full width (single column) */
+@media (max-width: 60vw) {
+  .cg-root {
+    /* height will become taller (4 tiles stacked: tile height 40vh each = 160vh used),
+       we keep width/height in vw/vh only — no 'auto' used. */
+    height: 160vh;
+  }
+  .cg-tile {
+    width: 100vw;
+    height: 40vh;
+  }
+  .cg-content {
+    left: 4vw;
+    bottom: 5vh;
+    max-width: 88vw;
+  }
+  .cg-title {
+    font-size: 4.5vw;
+  }
+  .cg-sub {
+    font-size: 2.8vw;
+  }
+  .cg-cta {
+    font-size: 2.2vw;
+    padding: 1.6vh 4vw;
+    border-radius: 2vw;
+  }
+}
+
+/* further narrow screens */
+@media (max-width: 35vw) {
+  .cg-root {
+    height: 200vh;
+  }
+  .cg-tile {
+    height: 50vh;
+  }
+  .cg-title {
+    font-size: 5.5vw;
+  }
+  .cg-sub {
+    font-size: 3.2vw;
+  }
+  .cg-cta {
+    font-size: 2.6vw;
+    padding: 1.8vh 4.5vw;
+  }
+}

@@ -9,29 +9,29 @@ nav.navbar {
 
 /* Luxury Navbar Theme */
 .navbar.custom-navbar {
-  background: linear-gradient(90deg, #461523, #390010);
-  /* background-color: white; */
+  /* background: linear-gradient(90deg, #461523, #390010); */
+  background-color: white;
   padding: 1rem;
 }
 
 .navbar.custom-navbar .navbar-brand {
-  color: #fff89c !important; /* Gold brand */
+  color: #3f0012 !important; /* Gold brand */
   font-family: 'Playfair Display', serif; /* Elegant font */
   font-size: 1.8rem;
 }
 
 .navbar.custom-navbar .nav-link {
-  color: #fff89c !important;
+  color: #3f0012 !important;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .navbar.custom-navbar .nav-link:hover {
-  color: #fff !important; /* Gold hover */
+  color: #d4af37 !important; /* Gold hover */
 }
 
 .navbar.custom-navbar .navbar-toggler {
-  border-color: #fff89c;
+  border-color: #3f0012;
 }
 
 .navbar.custom-navbar .navbar-toggler-icon {
@@ -40,18 +40,18 @@ nav.navbar {
 
 .navbar.custom-navbar .navbar-toggler-icon::before {
   content: "☰";
-  color: #fff89c;
+  color: #3f0012;
   font-size: 1.5rem;
 }
 
 .navbar-icons {
-  color: #fff89c; /* Gold */
+  color: #3f0012; /* Gold */
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .navbar-icons:hover {
-  color: #ffffff; /* White on hover */
+  color: #3f0012; /* White on hover */
 }
 
 .logo{
@@ -59,14 +59,40 @@ nav.navbar {
 }
 
 #navbtn{
-  color: #3e2723   !important;
+  color: #fff89c   !important;
   font-style: bold !important;
-  background-color: #fff89c !important;
-  border-color: #fff89c;
+  background-color: #3f0012 !important;
+  border-color: #3f0012;
 }
 
 #navbtn:hover{
     background-color: #d4af37 !important;
     color: white !important;
     border: #d4af37;
+}
+
+.twin{
+  flex-direction: column;
+}
+
+.twin2{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.flexrow{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fficonrow{
+  height: 3vh;
+}
+
+.fftext{
+  color: #3f0012;
+  font-size: 14px;
 }

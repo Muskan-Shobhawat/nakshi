@@ -1,0 +1,222 @@
+/* GenderShowcase.css */
+
+/* root container */
+
+.gs-root {
+  width: 100vw;
+  padding-top: 4vh;
+  padding-bottom: 6vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vh;
+  font-family: "Inter", "Roboto", sans-serif;
+}
+
+/* Top tiles container: two tiles side-by-side */
+.gs-top {
+  width: 92vw;
+  display: flex;
+  justify-content: space-between;
+  gap: 4vw;
+}
+
+/* Each tile */
+.gs-tile {
+  width: 50vw;
+  height: 80vh;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 1.2vw;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s ease, filter 0.35s ease;
+  box-shadow: 0 0.6vh 1.4vh rgba(0,0,0,0.12);
+  display: flex;
+  align-items: flex-end;
+}
+
+/* active tile in color, inactive tile grayscale + slightly shrunken */
+.gs-tile.inactive {
+  filter: grayscale(100%) contrast(0.85) brightness(0.85);
+  transform: scale(0.985);
+  opacity: 0.92;
+}
+
+.gs-tile.active {
+  filter: none;
+  transform: scale(1.0);
+}
+
+.hero-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  width: 100vw;
+  height: 60vh;
+}
+
+.hero-item {
+  position: relative;
+  width: 50vw;
+  height: 85vh;
+    /* border: 2px solid red; */
+  cursor: pointer;
+  overflow: hidden;
+  filter: grayscale(100%); /* default black & white */
+  transition: filter 0.3s ease-in-out;
+}
+
+.hero-item.active {
+  filter: grayscale(0%); /* colored when selected */
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 2vh;
+  left: 2vw;
+  font-size: 2vw;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 0 1vw black;
+}
+
+
+/* Label area (bottom-left) */
+.gs-tile-label {
+  color: white;
+  background: rgba(0,0,0,0.35);
+  padding: 1vh 1.4vw;
+  margin: 2vh 0 2vh 2.2vw;
+  font-size: 2.2vw;
+  font-weight: 700;
+  border-radius: 0.6vw;
+  pointer-events: none;
+}
+
+/* Carousel container and arrows */
+.gs-carousel-wrap {
+  width: 92vw;
+  display: flex;
+  align-items: center;
+  gap: 1.6vw;
+  position: relative;
+}
+
+/* Arrows */
+.gs-arrow {
+  width: 4.4vw;
+  height: 4.4vw;
+  min-width: 4.4vw;
+  min-height: 4.4vw;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.06);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* main carousel: horizontally scrollable list of cards */
+.gs-carousel {
+  display: flex;
+  gap: 2vw;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.6vh 0;
+  scroll-behavior: smooth;
+  width: 82vw; /* remaining space after arrows */
+}
+
+/* card */
+.gs-card {
+  min-width: 28vw;
+  max-width: 28vw;
+  height: 33vh;
+  scroll-snap-align: center;
+  border-radius: 1vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* image region */
+.gs-card-media {
+  height: 22vh;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* content region */
+.gs-card-content {
+  padding: 1.2vh 1.2vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.6vh;
+}
+
+.gs-card-title {
+  font-size: 1.6vw;
+  font-weight: 600;
+}
+
+.gs-card-price {
+  font-size: 1.4vw;
+  color: #a60019;
+  font-weight: 700;
+}
+
+/* Responsive breakpoints using vw/vh units only */
+
+/* smaller screens: stack tiles vertically and make cards bigger width-wise */
+@media (max-width: 60vw) {
+  .gs-top {
+    flex-direction: column;
+    width: 94vw;
+    gap: 2.8vh;
+  }
+  .gs-tile {
+    width: 94vw;
+    height: 30vh;
+  }
+  .gs-tile-label {
+    font-size: 4.4vw;
+    margin-left: 3.6vw;
+    padding: 1.4vh 2.6vw;
+  }
+  .gs-carousel {
+    width: 86vw;
+  }
+  .gs-card {
+    min-width: 60vw;
+    max-width: 60vw;
+    height: 36vh;
+  }
+  .gs-card-title { font-size: 3.4vw; }
+  .gs-card-price { font-size: 3.2vw; }
+  .gs-arrow { width: 8vw; height: 8vw; min-width: 8vw; min-height: 8vw; }
+}
+
+/* very narrow screens */
+@media (max-width: 36vw) {
+  .gs-tile {
+    height: 28vh;
+  }
+  .gs-card {
+    min-width: 72vw;
+    max-width: 72vw;
+  }
+  .gs-card-media { height: 24vh; }
+  .gs-tile-label { font-size: 5.4vw; margin-left: 4vw; }
+}

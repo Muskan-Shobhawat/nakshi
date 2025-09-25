@@ -3,6 +3,7 @@ body, html, #root {
   padding: 0;
   width: 100%;
   padding-top: 3vh;
+  overflow-x: hidden;
 } 
 
 .text-brown {
@@ -17,7 +18,7 @@ body, html, #root {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(83, 40, 40, 0.4);
+  /* background: rgba(83, 40, 40, 0.4); */
   z-index: 0; /* Put overlay behind text */
   /* background-image: url(../src/assets/bb.png);   */
 }
@@ -25,8 +26,23 @@ body, html, #root {
 .hero-section .container {
   position: relative;
   z-index: 1; /* Ensure text & button are clickable */
+  /* border: 2px solid red; */
+  width: 35vw;
 }
 
 .hrfix{
-  height:95vh !important;
+  height:100vh !important;
+  color: #3f0012 !important;
+  /* border: 2px solid red; */
+  /* width: 100vw !important; */
 } 
+
+.exp{
+  background-color: #3f0012;
+  color: #d4af37;
+}
+
+.exp:hover{
+  background-color:#d4af37;
+  color: white;
+}

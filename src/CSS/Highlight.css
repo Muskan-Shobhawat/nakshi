@@ -1,0 +1,210 @@
+/* Highlights.css
+   Responsive layout using vw/vh units.
+   Put images in public/images or pass imported assets as `imageSrc` prop.
+*/
+
+:root {
+  --accent: #a60019;
+  --card-bg: rgba(255, 255, 255, 0.98);
+  --muted: #666;
+  --shadow: 0 0.6vh 2.2vh rgba(0, 0, 0, 0.12);
+  --radius: 0.8vw;
+  --gutter: 3vw;
+  --card-width: 44vw;
+}
+
+.hl-section {
+  width: 100vw;
+  padding: 4vh 4vw;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #fffafa 0%, #fff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* inner row: card (left) + image (right) */
+.hl-inner {
+  width: 92vw;
+  display: flex;
+  gap: 3vw;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4vh;
+  position: relative;
+}
+
+/* Card container (left) — visually floats above background */
+.hl-card-wrap {
+  flex: 1 1 var(--card-width);
+  min-width: 28vw;
+  max-width: var(--card-width);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* the card itself */
+.hl-card {
+  background: var(--card-bg);
+  padding: 3.2vh 3.2vw;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  box-sizing: border-box;
+  transform: translateY(0);
+}
+
+.hl-overline {
+  color: var(--accent);
+  font-size: 1.2vw;
+  letter-spacing: 0.12vw;
+  margin-bottom: 0.8vh;
+  font-weight: 600;
+}
+
+.hl-heading {
+  font-size: 3.2vh;
+  margin: 0 0 1.2vh 0;
+  color: #111;
+  font-weight: 700;
+}
+
+.hl-desc {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 2vh;
+  max-width: 36vw;
+}
+
+/* CTA */
+.hl-cta {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 1.1vh 2.2vw;
+  font-size: 16px;
+  border-radius: 0.6vw;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.hl-cta:hover {
+  transform: translateY(-0.2vh);
+  box-shadow: 0 0.8vh 2.4vh rgba(166, 0, 25, 0.12);
+}
+
+/* image side */
+.hl-image-wrap {
+  flex: 0 0 44%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 30vw;
+  max-width: 48vw;
+}
+
+.hl-image {
+  width: 46vw;
+  max-width: 46vw;
+  height: auto;
+  border-radius: 0.8vw;
+  object-fit: cover;
+  box-shadow: var(--shadow);
+  display: block;
+}
+
+/* Points row */
+.hl-points {
+  width: 92vw;
+  display: flex;
+  gap: 3.2vw;
+  justify-content: space-between;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+/* single point */
+.hl-point {
+  background: white;
+  flex: 1 1 0;
+  padding: 2vh 2vw;
+  border-radius: 0.8vw;
+  box-shadow: 0 0.6vh 1.6vh rgba(0, 0, 0, 0.06);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+}
+
+.h1-point-icon {
+  width: auto;
+  height: 5vw !important;
+  /* min-width: 4.4vw;
+  min-height: 4.4vw; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.4vh;
+}
+
+.hl-point-title {
+  font-size: 18px;
+  margin: 0;
+  color: #111;
+  font-weight: 700;
+}
+
+.hl-point-text {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0;
+  text-align: center;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 900px) {
+  .hl-inner {
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+
+  .hl-card {
+    width: 92vw;
+  }
+
+  .hl-image {
+    width: 92vw;
+    max-width: 92vw;
+  }
+
+  .hl-points {
+    flex-direction: column;
+    gap: 2vh;
+  }
+
+  .hl-point {
+    width: 92vw;
+  }
+
+  .hl-overline {
+    font-size: 2.6vw;
+  }
+
+  .hl-heading {
+    font-size: 4.4vw;
+  }
+
+  .hl-desc {
+    font-size: 3.2vw;
+    max-width: 90vw;
+  }
+
+  .hl-cta {
+    font-size: 3.2vw;
+    padding: 1.4vh 3vw;
+  }
+}

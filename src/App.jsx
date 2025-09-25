@@ -2,6 +2,7 @@
 import "./App.css";
 import NavbarNakshi from "./Components/NavbarNakshi.jsx";
 import HeroSection from "./Components/HeroSection.jsx";
+import ExploreSection from "./Components/ExploreSection.jsx";
 import CategoryGrid from "./Components/CategoryGrid.jsx";
 import PromoSection from "./Components/PromoSection.jsx";
 import StorySection from "./Components/StorySection.jsx";
@@ -15,6 +16,9 @@ import AdminPanel from "./Components/AdminPanel.jsx";
 import MembersTable from "./Components/MembersTable.jsx";
 import UsersPage from "./Components/UsersTable.jsx";
 import ProductsTable from "./Components/ProductsTable.jsx";
+import TrendingSection from "./Components/TrendingSection.jsx";
+import GenderShowcase from "./Components/GenderShowcase.jsx";
+import Highlight from "./Components/Highlight.jsx";
 
 function Layout({ children }) {
   return (
@@ -34,8 +38,12 @@ function App() {
       element: (
         <Layout>
           <HeroSection />
+          <ExploreSection />
+          <TrendingSection />
           <CategoryGrid />
-          <PromoSection />
+          <GenderShowcase />
+          <Highlight />
+          {/* <PromoSection /> */}
           <StorySection />
         </Layout>
       ),

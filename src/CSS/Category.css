@@ -1,0 +1,151 @@
+/* src/components/CategorySection.css */
+
+/* Basic section layout */
+.category-section {
+  padding: 6vh 0;
+  background: #fff; /* or any subtle background */
+}
+
+.section-heading {
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  font-size: 2.2vw;
+  margin-bottom: 1vh;
+}
+.section-desc {
+  text-align: center;
+  color: #6b6b6b;
+  margin-bottom: 3vh;
+  font-size: 1vw;
+}
+
+/* Card wrapper */
+.category-card {
+  position: relative;
+  height: 35vh;
+  overflow: hidden;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 260ms ease;
+}
+
+/* Slight lift on focus/hover */
+.category-card:hover,
+.category-card:focus {
+  transform: translateY(-0.8vh);
+}
+
+/* Both layers absolutely fill the card */
+.category-card .card-front,
+.category-card .card-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 360ms ease, transform 360ms ease;
+  will-change: opacity, transform;
+}
+
+/* FRONT = TEXT block style (visible when initial-text) */
+.card-front {
+  background-image: url('../assets/bg.png');
+  background-size: 30vw;
+  background-repeat: no-repeat;
+  color: #fff89c;             /* requested text color */
+  z-index: 2;
+  opacity: 1;
+  transform: translateY(0);
+  padding: 2vh;
+  text-align: center;
+}
+
+/* Styling of text inside front */
+.card-front .card-content .subtitle {
+  font-size: 1vw;
+  letter-spacing: 0.2vw;
+  margin-bottom: 1vh;
+  color: #fff89c;
+}
+.card-front .card-content .title {
+  font-family: "Playfair Display", serif;
+  font-size: 2vw;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #fff89c;
+}
+
+/* BACK = IMAGE block style */
+.card-back {
+  background: #f6f3ee;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(1.06);
+}
+
+.card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* --------------------------
+   Initial modes:
+   - .initial-text: show front text; on hover show image
+   - .initial-image: show image; on hover show text
+   -------------------------- */
+
+/* Default: initial-text */
+.initial-text .card-front { opacity: 1; transform: translateY(0); z-index: 2; }
+.initial-text .card-back  { opacity: 0; transform: scale(1.06); z-index: 1; }
+
+/* On hover, swap */
+.initial-text:hover .card-front,
+.initial-text:focus .card-front {
+  opacity: 0;
+  transform: translateY(1vh);
+}
+.initial-text:hover .card-back,
+.initial-text:focus .card-back {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* For cards that start with image visible */
+.initial-image .card-front { opacity: 0; transform: translateY(1vh); z-index: 1; }
+.initial-image .card-back  { opacity: 1; transform: scale(1); z-index: 2; }
+
+/* On hover, show text over image */
+.initial-image:hover .card-front,
+.initial-image:focus .card-front {
+  opacity: 1;
+  transform: translateY(0);
+  z-index: 3;
+}
+.initial-image:hover .card-back,
+.initial-image:focus .card-back {
+  opacity: 0;
+  transform: scale(1.06);
+  z-index: 1;
+}
+
+/* Small screens adjustments */
+@media (max-width: 767px) {
+  .category-card { height: 28vh; }
+  .card-front .title { font-size: 4vw; }
+  .card-front .subtitle { font-size: 2.5vw; }
+}
+
+/* Optional overlay for contrast */
+.initial-image .card-back::after,
+.initial-text .card-back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.06));
+  pointer-events: none;
+  transition: opacity 360ms ease;
+}

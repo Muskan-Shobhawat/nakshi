@@ -1,5 +1,5 @@
 import React from 'react';
-import heroImage from '../assets/heroimg2.JPG'; // Replace with jewelry image
+import heroImage from '../assets/heroimg2.png'; // Replace with jewelry image
 
 function HeroSection() {
   return (
@@ -8,7 +8,7 @@ function HeroSection() {
       style={{
         backgroundImage: `url(${heroImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: '0vw -5vh',
         height: '90vh'
       }}
     >
