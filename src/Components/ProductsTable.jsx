@@ -11,7 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-const API_URL = "https://nakshi.onrender.com/api/products"; // your backend URL
+const API_URL = "https://nakshi.onrender.com/api/products";
 
 export default function ProductsTable() {
   const [products, setProducts] = useState([]);
@@ -25,14 +25,15 @@ export default function ProductsTable() {
     price: "",
     quantity: "",
     mainPhoto: null,
-    photos: [null, null, null],
+    photo1: null,
+    photo2: null,
+    photo3: null,
     gender: "",
-    categoryType: "",
+    category: "",
     occasion: "",
   });
   const [errors, setErrors] = useState({});
 
-  // ✅ Fetch products on mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -49,14 +50,7 @@ export default function ProductsTable() {
   function handleChange(e) {
     const { name, value, files } = e.target;
     if (files) {
-      if (name === "mainPhoto") {
-        setForm((f) => ({ ...f, mainPhoto: files[0] }));
-      } else {
-        const index = parseInt(name.split("_")[1], 10);
-        const newPhotos = [...form.photos];
-        newPhotos[index] = files[0];
-        setForm((f) => ({ ...f, photos: newPhotos }));
-      }
+      setForm((f) => ({ ...f, [name]: files[0] }));
     } else {
       setForm((f) => ({ ...f, [name]: value }));
     }
@@ -80,28 +74,24 @@ export default function ProductsTable() {
     }
 
     if (!form.gender) newErrors.gender = "Gender is required";
-    if (!form.categoryType) newErrors.categoryType = "Category is required";
+    if (!form.category) newErrors.category = "Category is required";
     if (!form.occasion) newErrors.occasion = "Occasion is required";
+    if (!form.mainPhoto) newErrors.mainPhoto = "Main photo is required";
+    if (!form.photo1 || !form.photo2 || !form.photo3) {
+      newErrors.photos = "All 3 additional photos are required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
-  // ✅ Submit Add/Edit Product
   async function handleSubmit() {
     if (!validateForm()) return;
 
     try {
-      // using FormData to handle images
       const formData = new FormData();
       Object.entries(form).forEach(([key, value]) => {
-        if (key === "photos") {
-          value.forEach((file, i) => {
-            if (file) formData.append(`photos`, file);
-          });
-        } else {
-          formData.append(key, value);
-        }
+        if (value) formData.append(key, value);
       });
 
       if (editId) {
@@ -114,14 +104,13 @@ export default function ProductsTable() {
         });
       }
 
-      fetchProducts(); // refresh
+      fetchProducts();
       handleClose();
     } catch (error) {
       console.error("Error saving product:", error);
     }
   }
 
-  // ✅ Delete
   async function removeProduct(id) {
     try {
       await axios.delete(`${API_URL}/${id}`);
@@ -131,11 +120,13 @@ export default function ProductsTable() {
     }
   }
 
-  // ✅ Open edit form
   function openEditForm(product) {
     setForm({
       ...product,
-      photos: product.photos || [null, null, null],
+      mainPhoto: null,
+      photo1: null,
+      photo2: null,
+      photo3: null,
     });
     setEditId(product._id);
     setOpen(true);
@@ -148,9 +139,11 @@ export default function ProductsTable() {
       price: "",
       quantity: "",
       mainPhoto: null,
-      photos: [null, null, null],
+      photo1: null,
+      photo2: null,
+      photo3: null,
       gender: "",
-      categoryType: "",
+      category: "",
       occasion: "",
     });
     setErrors({});
@@ -167,7 +160,6 @@ export default function ProductsTable() {
 
   return (
     <section className="products-card">
-      {/* Header */}
       <div className="products-header d-flex align-items-center justify-content-between mb-4">
         <div className="d-flex align-items-center gap-3">
           <h2 className="products-title">Products</h2>
@@ -203,34 +195,36 @@ export default function ProductsTable() {
           <TextField label="Description" name="description" value={form.description} onChange={handleChange} error={!!errors.description} helperText={errors.description} multiline rows={3} required />
           <TextField label="Price" name="price" value={form.price} onChange={handleChange} error={!!errors.price} helperText={errors.price} required />
           <TextField label="Quantity" name="quantity" value={form.quantity} onChange={handleChange} error={!!errors.quantity} helperText={errors.quantity} required />
+          
           <TextField select label="Gender" name="gender" value={form.gender} onChange={handleChange} error={!!errors.gender} helperText={errors.gender} required>
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-            <MenuItem value="unisex">Unisex</MenuItem>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+            <MenuItem value="Unisex">Unisex</MenuItem>
           </TextField>
-          <TextField select label="Category" name="categoryType" value={form.categoryType} onChange={handleChange} error={!!errors.categoryType} helperText={errors.categoryType} required>
-            {["rings","chains","earrings","necklace","bangles","bracelet","mangalsutra","kada","watches"].map((c) => (
+          
+          <TextField select label="Category" name="category" value={form.category} onChange={handleChange} error={!!errors.category} helperText={errors.category} required>
+            {["Rings","Chains","Earrings","Necklace","Bangles","Bracelet","Mangalsutra","Kada","Watches"].map((c) => (
               <MenuItem key={c} value={c}>{c}</MenuItem>
             ))}
           </TextField>
+
           <TextField select label="Occasion" name="occasion" value={form.occasion} onChange={handleChange} error={!!errors.occasion} helperText={errors.occasion} required>
-            <MenuItem value="everyday">Everyday</MenuItem>
-            <MenuItem value="bridal">Bridal</MenuItem>
-            <MenuItem value="festive">Festive</MenuItem>
+            <MenuItem value="Everyday">Everyday</MenuItem>
+            <MenuItem value="Bridal">Bridal</MenuItem>
+            <MenuItem value="Festive">Festive</MenuItem>
           </TextField>
 
-          {/* Image Upload */}
           <div>
             <label>Main Photo *</label>
             <input type="file" name="mainPhoto" accept="image/*" onChange={handleChange} />
+            {errors.mainPhoto && <p style={{color:"red"}}>{errors.mainPhoto}</p>}
           </div>
           <div>
-            <label>Other Photos (3)</label>
-            {[0, 1, 2].map((i) => (
-              <div key={i}>
-                <input type="file" name={`photo_${i}`} accept="image/*" onChange={handleChange} />
-              </div>
-            ))}
+            <label>Other Photos (photo1, photo2, photo3)</label>
+            <input type="file" name="photo1" accept="image/*" onChange={handleChange} />
+            <input type="file" name="photo2" accept="image/*" onChange={handleChange} />
+            <input type="file" name="photo3" accept="image/*" onChange={handleChange} />
+            {errors.photos && <p style={{color:"red"}}>{errors.photos}</p>}
           </div>
         </DialogContent>
         <DialogActions>
@@ -260,15 +254,13 @@ export default function ProductsTable() {
           <TableBody>
             {filtered.map((p) => (
               <TableRow key={p._id}>
-                <TableCell>
-                  {p.mainPhoto ? <Avatar src={p.mainPhoto} /> : "-"}
-                </TableCell>
+                <TableCell>{p.mainPhoto ? <Avatar src={p.mainPhoto} /> : "-"}</TableCell>
                 <TableCell>{p.name}</TableCell>
                 <TableCell>{p.description}</TableCell>
                 <TableCell>₹{p.price}</TableCell>
                 <TableCell>{p.quantity}</TableCell>
                 <TableCell>{p.gender}</TableCell>
-                <TableCell>{p.categoryType}</TableCell>
+                <TableCell>{p.category}</TableCell>
                 <TableCell>{p.occasion}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit">
