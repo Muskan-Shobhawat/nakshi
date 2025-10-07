@@ -10,6 +10,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../Components/Firebase/Firebase.js";
 
 const API_URL = "https://nakshi.onrender.com/api/products";
 
@@ -18,6 +20,7 @@ export default function ProductsTable() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -60,54 +63,74 @@ export default function ProductsTable() {
     let newErrors = {};
     if (!form.name.trim()) newErrors.name = "Product name is required";
     if (!form.description.trim()) newErrors.description = "Description is required";
-
-    if (!form.price || isNaN(form.price)) {
-      newErrors.price = "Price must be a number";
-    } else if (parseFloat(form.price) < 1000) {
-      newErrors.price = "Price must be at least 1000";
-    }
-
-    if (!form.quantity || isNaN(form.quantity)) {
-      newErrors.quantity = "Quantity must be a number";
-    } else if (parseInt(form.quantity, 10) < 1) {
-      newErrors.quantity = "Quantity must be at least 1";
-    }
-
+    if (!form.price || isNaN(form.price)) newErrors.price = "Price must be a number";
+    else if (parseFloat(form.price) < 1000) newErrors.price = "Price must be at least 1000";
+    if (!form.quantity || isNaN(form.quantity)) newErrors.quantity = "Quantity must be a number";
+    else if (parseInt(form.quantity, 10) < 1) newErrors.quantity = "Quantity must be at least 1";
     if (!form.gender) newErrors.gender = "Gender is required";
     if (!form.category) newErrors.category = "Category is required";
     if (!form.occasion) newErrors.occasion = "Occasion is required";
     if (!form.mainPhoto) newErrors.mainPhoto = "Main photo is required";
-    if (!form.photo1 || !form.photo2 || !form.photo3) {
-      newErrors.photos = "All 3 additional photos are required";
-    }
+    if (!form.photo1 || !form.photo2 || !form.photo3) newErrors.photos = "All 3 additional photos are required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
 
+  async function uploadImageToFirebase(file, folder) {
+    return new Promise((resolve, reject) => {
+      const fileName = `${folder}/${Date.now()}-${file.name}`;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        () => {},
+        (error) => reject(error),
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        }
+      );
+    });
+  }
+
   async function handleSubmit() {
     if (!validateForm()) return;
 
+    setUploading(true);
+
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        if (value) formData.append(key, value);
-      });
+      // Upload all photos to Firebase
+      const mainPhotoURL = await uploadImageToFirebase(form.mainPhoto, "jewellery");
+      const photo1URL = await uploadImageToFirebase(form.photo1, "jewellery");
+      const photo2URL = await uploadImageToFirebase(form.photo2, "jewellery");
+      const photo3URL = await uploadImageToFirebase(form.photo3, "jewellery");
+
+      const payload = {
+        name: form.name,
+        description: form.description,
+        price: form.price,
+        quantity: form.quantity,
+        gender: form.gender,
+        category: form.category,
+        occasion: form.occasion,
+        mainPhoto: mainPhotoURL,
+        photos: [photo1URL, photo2URL, photo3URL],
+      };
 
       if (editId) {
-        await axios.put(`${API_URL}/${editId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await axios.put(`${API_URL}/${editId}`, payload);
       } else {
-        await axios.post(API_URL, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await axios.post(API_URL, payload);
       }
 
       fetchProducts();
       handleClose();
     } catch (error) {
       console.error("Error saving product:", error);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -168,6 +191,7 @@ export default function ProductsTable() {
             startIcon={<AddShoppingCartIcon />}
             size="small"
             onClick={() => setOpen(true)}
+            disabled={uploading}
           >
             Add new
           </Button>
@@ -195,13 +219,13 @@ export default function ProductsTable() {
           <TextField label="Description" name="description" value={form.description} onChange={handleChange} error={!!errors.description} helperText={errors.description} multiline rows={3} required />
           <TextField label="Price" name="price" value={form.price} onChange={handleChange} error={!!errors.price} helperText={errors.price} required />
           <TextField label="Quantity" name="quantity" value={form.quantity} onChange={handleChange} error={!!errors.quantity} helperText={errors.quantity} required />
-          
+
           <TextField select label="Gender" name="gender" value={form.gender} onChange={handleChange} error={!!errors.gender} helperText={errors.gender} required>
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
             <MenuItem value="Unisex">Unisex</MenuItem>
           </TextField>
-          
+
           <TextField select label="Category" name="category" value={form.category} onChange={handleChange} error={!!errors.category} helperText={errors.category} required>
             {["Rings","Chains","Earrings","Necklace","Bangles","Bracelet","Mangalsutra","Kada","Watches"].map((c) => (
               <MenuItem key={c} value={c}>{c}</MenuItem>
@@ -217,20 +241,23 @@ export default function ProductsTable() {
           <div>
             <label>Main Photo *</label>
             <input type="file" name="mainPhoto" accept="image/*" onChange={handleChange} />
-            {errors.mainPhoto && <p style={{color:"red"}}>{errors.mainPhoto}</p>}
+            {errors.mainPhoto && <p style={{ color: "red" }}>{errors.mainPhoto}</p>}
           </div>
+
           <div>
             <label>Other Photos (photo1, photo2, photo3)</label>
             <input type="file" name="photo1" accept="image/*" onChange={handleChange} />
             <input type="file" name="photo2" accept="image/*" onChange={handleChange} />
             <input type="file" name="photo3" accept="image/*" onChange={handleChange} />
-            {errors.photos && <p style={{color:"red"}}>{errors.photos}</p>}
+            {errors.photos && <p style={{ color: "red" }}>{errors.photos}</p>}
           </div>
+
+          {uploading && <p style={{ color: "blue" }}>Uploading images to Firebase...</p>}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmit}>
-            {editId ? "Update Product" : "Add Product"}
+          <Button variant="contained" onClick={handleSubmit} disabled={uploading}>
+            {uploading ? "Uploading..." : editId ? "Update Product" : "Add Product"}
           </Button>
         </DialogActions>
       </Dialog>
