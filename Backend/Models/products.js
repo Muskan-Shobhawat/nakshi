@@ -8,10 +8,10 @@ const productSchema = new mongoose.Schema(
     quantity: { type: Number, required: true, min: 1 },
 
     // Gender: Male, Female, Unisex
-    gender: { 
-      type: String, 
-      enum: ["Male", "Female", "Unisex"], 
-      required: true 
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Unisex"],
+      required: true
     },
 
     // Category: Rings, Chains, Earrings, etc.
@@ -40,9 +40,7 @@ const productSchema = new mongoose.Schema(
 
     // Photos
     mainPhoto: { type: String, required: true }, // store image URL or path
-    photo1: { type: String, required: true },
-    photo2: { type: String, required: true },
-    photo3: { type: String, required: true },
+    photos: [{ type: String, required: true }],
   },
   { timestamps: true }
 );
