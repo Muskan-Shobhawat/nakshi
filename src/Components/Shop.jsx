@@ -62,8 +62,12 @@ export default function Shop() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://nakshi.onrender.com/api/products"); // change to your backend URL
-        setProducts(res.data);
+        const res = await axios.get("https://nakshi.onrender.com/api/products");
+        // ✅ Ensure data is an array
+        setProducts(
+          Array.isArray(res.data) ? res.data : res.data.products || []
+        );
+        console.log("Fetched products:", res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -113,23 +117,26 @@ export default function Shop() {
   };
 
   // 🧩 Filtering logic
-  let filteredProducts = products.filter((p) => {
-    let genderMatch = genderFilter
-      ? p.gender.toLowerCase() === genderFilter.toLowerCase()
-      : true;
-    let typeMatch = typeFilter
-      ? p.category.toLowerCase() === typeFilter.toLowerCase()
-      : true;
-    let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
-    let quickFilterMatch = filter
-      ? filter === "Women" || filter === "Men"
-        ? p.gender === filter
-        : ["Ring", "Earring", "Necklace"].includes(filter)
-        ? p.category === filter
-        : true
-      : true;
-    return genderMatch && typeMatch && priceMatch && quickFilterMatch;
-  });
+let filteredProducts = Array.isArray(products)
+  ? products.filter((p) => {
+      let genderMatch = genderFilter
+        ? p.gender.toLowerCase() === genderFilter.toLowerCase()
+        : true;
+      let typeMatch = typeFilter
+        ? p.category.toLowerCase() === typeFilter.toLowerCase()
+        : true;
+      let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
+      let quickFilterMatch = filter
+        ? filter === "Women" || filter === "Men"
+          ? p.gender === filter
+          : ["Ring", "Earring", "Necklace"].includes(filter)
+          ? p.category === filter
+          : true
+        : true;
+      return genderMatch && typeMatch && priceMatch && quickFilterMatch;
+    })
+  : [];
+
 
   // ⚙️ Sorting
   if (sortOrder === "lowToHigh") {
@@ -161,7 +168,8 @@ export default function Shop() {
       <div className="shop-hero">
         <h1 className="shop-hero-title">Bridal & Everyday Collections</h1>
         <p className="shop-hero-tagline">
-          Golden touch to your everyday — Explore our timeless 1gm gold-plated jewelry.
+          Golden touch to your everyday — Explore our timeless 1gm gold-plated
+          jewelry.
         </p>
       </div>
 
@@ -268,9 +276,21 @@ export default function Shop() {
                   value={tempGenderFilter}
                   onChange={(e) => setTempGenderFilter(e.target.value)}
                 >
-                  <FormControlLabel value="Female" control={<Radio />} label="Women" />
-                  <FormControlLabel value="Male" control={<Radio />} label="Men" />
-                  <FormControlLabel value="Unisex" control={<Radio />} label="Unisex" />
+                  <FormControlLabel
+                    value="Female"
+                    control={<Radio />}
+                    label="Women"
+                  />
+                  <FormControlLabel
+                    value="Male"
+                    control={<Radio />}
+                    label="Men"
+                  />
+                  <FormControlLabel
+                    value="Unisex"
+                    control={<Radio />}
+                    label="Unisex"
+                  />
                 </RadioGroup>
               </FormControl>
 
@@ -291,7 +311,12 @@ export default function Shop() {
                     "Kada",
                     "Watches",
                   ].map((cat) => (
-                    <FormControlLabel key={cat} value={cat} control={<Radio />} label={cat} />
+                    <FormControlLabel
+                      key={cat}
+                      value={cat}
+                      control={<Radio />}
+                      label={cat}
+                    />
                   ))}
                 </RadioGroup>
               </FormControl>
@@ -347,8 +372,16 @@ export default function Shop() {
                   value={tempSortOrder}
                   onChange={(e) => setTempSortOrder(e.target.value)}
                 >
-                  <FormControlLabel value="lowToHigh" control={<Radio />} label="Price: Low to High" />
-                  <FormControlLabel value="highToLow" control={<Radio />} label="Price: High to Low" />
+                  <FormControlLabel
+                    value="lowToHigh"
+                    control={<Radio />}
+                    label="Price: Low to High"
+                  />
+                  <FormControlLabel
+                    value="highToLow"
+                    control={<Radio />}
+                    label="Price: High to Low"
+                  />
                 </RadioGroup>
               </FormControl>
 
@@ -383,7 +416,11 @@ export default function Shop() {
                   to={`/product/${item._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <img src={item.mainPhoto} alt={item.name} className="shop-img" />
+                  <img
+                    src={item.mainPhoto}
+                    alt={item.name}
+                    className="shop-img"
+                  />
                   <h3 className="shop-name">{item.name}</h3>
                   <p className="shop-price">₹{item.price.toLocaleString()}</p>
                   <p className="shop-description">{item.description}</p>
@@ -400,16 +437,36 @@ export default function Shop() {
                     Add to Cart
                   </Button>
                 ) : (
-                  <div className="added-section" style={{ marginTop: "0.5rem" }}>
-                    <Button variant="contained" color="success" fullWidth disabled sx={{ mb: 1 }}>
+                  <div
+                    className="added-section"
+                    style={{ marginTop: "0.5rem" }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      disabled
+                      sx={{ mb: 1 }}
+                    >
                       Added <CheckIcon sx={{ ml: 1 }} />
                     </Button>
-                    <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
-                      <Button variant="outlined" onClick={() => decreaseQty(item._id)}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Button
+                        variant="outlined"
+                        onClick={() => decreaseQty(item._id)}
+                      >
                         -
                       </Button>
                       <Typography variant="body1">{qty}</Typography>
-                      <Button variant="outlined" onClick={() => increaseQty(item._id)}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => increaseQty(item._id)}
+                      >
                         +
                       </Button>
                     </Stack>
