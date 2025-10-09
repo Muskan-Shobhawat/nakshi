@@ -423,10 +423,10 @@ let filteredProducts = Array.isArray(products)
                   />
                   <h3 className="shop-name">{item.name}</h3>
                   <p className="shop-price">₹{item.price.toLocaleString()}</p>
-                  <p className="shop-description">{item.description}</p>
+                  {/* <p className="shop-description">{item.description}</p> */}
                 </Link>
 
-                {qty === 0 ? (
+                {/* {qty === 0 ? (
                   <Button
                     variant="contained"
                     color="primary"
@@ -471,23 +471,23 @@ let filteredProducts = Array.isArray(products)
                       </Button>
                     </Stack>
                   </div>
-                )}
+                )} */}
               </div>
             );
           })
         )}
       </div>
 
-      <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
+      {/* <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
         <Pagination
           count={Math.ceil(filteredProducts.length / productsPerPage)}
           page={page}
           onChange={handlePageChange}
           color="primary"
         />
-      </Stack>
+      </Stack> */}
 
-      <Slide direction="up" in={showCartPopup} mountOnEnter unmountOnExit>
+      {/* <Slide direction="up" in={showCartPopup} mountOnEnter unmountOnExit>
         <Paper
           elevation={6}
           sx={{
@@ -514,7 +514,7 @@ let filteredProducts = Array.isArray(products)
             View Cart
           </Button>
         </Paper>
-      </Slide>
+      </Slide> */}
     </section>
   );
 }
