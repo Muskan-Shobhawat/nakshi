@@ -1,7 +1,8 @@
 /* src/CSS/shop.css */
 
 .shop-section {
-    background: linear-gradient(to right, #fff7e6, #f9efe1);
+    /* background: linear-gradient(to right, #fff7e6, #f9efe1); */
+    background: white;
     text-align: center;
 }
 
@@ -23,13 +24,13 @@
 
 .shop-card {
     background: #fff;
-    border: 0.2rem solid #d4af37;
+    /* border: 0.2rem solid #d4af37; */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     text-align: center;
-    padding: 1rem;
+    /* padding: 1rem; */
 }
 
 .shop-card:hover {
