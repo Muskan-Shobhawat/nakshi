@@ -45,7 +45,7 @@
 }
 
 .shop-img {
-  width: 100%;
+  width: 100vw;
   /* Maintain natural width */
   height: 30vh;
   /* Fixed height */
