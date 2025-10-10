@@ -45,11 +45,11 @@
 }
 
 .shop-img {
-  width: auto;
+  width: 100%;
   /* Maintain natural width */
   height: 30vh;
   /* Fixed height */
-  max-width: 100%;  
+  /* max-width: 100%;   */
   object-fit: contain;
   /* Prevent cropping */
   display: block;
