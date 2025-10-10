@@ -45,9 +45,9 @@
 }
 
 .shop-img {
-  width: auto;
+  width: 100%;
   /* Maintain natural width */
-  height: 100%;
+  height: auto;
   /* Fixed height */
   /* max-width: 100%;        Prevent overflow */
   object-fit: contain;
