@@ -48,14 +48,15 @@
   width: 30vw;
   /* Maintain natural width */
   height: 30vh;
+  overflow: hidden;
   /* Fixed height */
   /* max-width: 100%;   */
   /* object-fit: contain; */
   /* Prevent cropping */
-  /* display: block; */
-  /* margin: 0 auto; */
-  /* Center horizontally */
-  background-color: #fff;
+  display: block;
+  margin: 0 auto;
+  /* Center horizontally
+  background-color: #fff;*/
 }
 
 .shop-img{
