@@ -1,7 +1,7 @@
 // src/components/Shop.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import heroImage from "../assets/shopimg2.jpg"; 
+import heroImage from "../assets/shopimg2.jpg";
 import axios from "axios";
 import "../CSS/Shop.css";
 import {
@@ -450,11 +450,13 @@ export default function Shop() {
                   to={`/product/${item._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <img
-                    src={item.mainPhoto}
-                    alt={item.name}
-                    className="shop-img"
-                  />
+                  <div className="img">
+                    <img
+                      src={item.mainPhoto}
+                      alt={item.name}
+                      className="shop-img"
+                    />
+                  </div>
                   <h3 className="shop-name">{item.name}</h3>
                   <p className="shop-price">₹{item.price.toLocaleString()}</p>
                   {/* <p className="shop-description">{item.description}</p> */}
