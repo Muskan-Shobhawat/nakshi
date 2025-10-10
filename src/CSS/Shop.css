@@ -4,6 +4,8 @@
   /* background: linear-gradient(to right, #fff7e6, #f9efe1); */
   background: white;
   text-align: center;
+  margin-top: 15vh;
+  /* border: 2px solid red; */
 }
 
 
@@ -41,13 +43,17 @@
 }
 
 .shop-img {
-  width: 100%;            /* Maintain natural width */
-  height: 40vh;           /* Fixed height */
+  width: 100%;
+  /* Maintain natural width */
+  height: 40vh;
+  /* Fixed height */
   /* max-width: 100%;        Prevent overflow */
-  object-fit: contain;    /* Prevent cropping */
+  object-fit: contain;
+  /* Prevent cropping */
   display: block;
-  margin: 0 auto;         /* Center horizontally */
-  background-color: #fff; 
+  margin: 0 auto;
+  /* Center horizontally */
+  background-color: #fff;
 }
 
 .shop-name {
@@ -84,9 +90,10 @@
   padding: 2%;
   background-image: url("../assets/shopimg.jpg");
   background-repeat: none !important;
-  background-position: 0vw 2vh;
-  background-size: 50vw 50vh;
-  color: #fff89c;
+  background-position: 0vw -15vh;
+  background-size: 100vw 100vh;
+  /* color: #fff89c; */
+  color: #3f0012;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +108,8 @@
 .shop-hero-tagline {
   font-size: 1.1rem;
   margin-top: 0.5rem;
-  color: #fff;
+  /* color: #fff; */
+  color: #3f0012;
 }
 
 @media (max-width: 900px) {
