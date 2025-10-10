@@ -28,6 +28,8 @@
   background: #fff;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 10px;
+  width: 40vw;
+  height: 50vh;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   text-align: center;
@@ -43,9 +45,9 @@
 }
 
 .shop-img {
-  width: 100%;
+  width: auto;
   /* Maintain natural width */
-  height: 40vh;
+  height: 100%;
   /* Fixed height */
   /* max-width: 100%;        Prevent overflow */
   object-fit: contain;
