@@ -1,6 +1,7 @@
 // src/components/Shop.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import heroImage from "../assets/shopimg2.jpg"; 
 import axios from "axios";
 import "../CSS/Shop.css";
 import {
@@ -117,26 +118,25 @@ export default function Shop() {
   };
 
   // 🧩 Filtering logic
-let filteredProducts = Array.isArray(products)
-  ? products.filter((p) => {
-      let genderMatch = genderFilter
-        ? p.gender.toLowerCase() === genderFilter.toLowerCase()
-        : true;
-      let typeMatch = typeFilter
-        ? p.category.toLowerCase() === typeFilter.toLowerCase()
-        : true;
-      let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
-      let quickFilterMatch = filter
-        ? filter === "Women" || filter === "Men"
-          ? p.gender === filter
-          : ["Ring", "Earring", "Necklace"].includes(filter)
-          ? p.category === filter
-          : true
-        : true;
-      return genderMatch && typeMatch && priceMatch && quickFilterMatch;
-    })
-  : [];
-
+  let filteredProducts = Array.isArray(products)
+    ? products.filter((p) => {
+        let genderMatch = genderFilter
+          ? p.gender.toLowerCase() === genderFilter.toLowerCase()
+          : true;
+        let typeMatch = typeFilter
+          ? p.category.toLowerCase() === typeFilter.toLowerCase()
+          : true;
+        let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
+        let quickFilterMatch = filter
+          ? filter === "Women" || filter === "Men"
+            ? p.gender === filter
+            : ["Ring", "Earring", "Necklace"].includes(filter)
+            ? p.category === filter
+            : true
+          : true;
+        return genderMatch && typeMatch && priceMatch && quickFilterMatch;
+      })
+    : [];
 
   // ⚙️ Sorting
   if (sortOrder === "lowToHigh") {
@@ -172,6 +172,40 @@ let filteredProducts = Array.isArray(products)
           jewelry.
         </p>
       </div>
+
+      <section className="hb-root" aria-label="Shop hero banner">
+        <div className="hb-inner">
+          {/* Left text column */}
+          <div className="hb-left">
+            <h1 className="hb-title">
+              <span className="hb-title-line1">Luxury</span>
+              <span className="hb-title-line2">Jewellery</span>
+            </h1>
+
+            <p className="hb-sub">
+              Exquisitely crafted gold-plated jewellery — timeless pieces for
+              everyday elegance and special celebrations.
+            </p>
+
+            <div className="hb-cta">
+              <Button
+                className="hb-btn"
+                variant="outlined"
+                onClick={() => navigate("/shop")}
+              >
+                Shop Now
+              </Button>
+            </div>
+          </div>
+
+          {/* Right image column */}
+          {/* <div className="hb-right">
+            <div className="hb-image-wrap">
+              <img src={heroImage} alt="Jewellery hero" className="hb-image" />
+            </div>
+          </div> */}
+        </div>
+      </section>
 
       {/* Filter Buttons */}
       <Stack

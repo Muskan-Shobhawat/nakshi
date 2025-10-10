@@ -112,6 +112,180 @@
   color: #3f0012;
 }
 
+/* src/CSS/HeroBanner.css
+   NOTE: only vw / vh length units are used here per request.
+*/
+
+.hb-root {
+  width: 100vw;
+  /* border: 2px solid red; */
+  padding: 4vh 4vw;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* inner wrapper gives rounded box with subtle background */
+.hb-inner {
+  width: 100%;
+  height: 40vh;
+  /* border: 2px solid red; */
+  border-radius: 2vw;
+  /* background: linear-gradient(180deg, #fff8f5 0%, #fbf3ef 100%); */
+  background-image: url("../assets/shopimg2.jpg");
+  background-size: 100vw 100vh;
+  background-position: 10vw -10vh;
+  box-shadow: 0 0.6vh 2vh rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+  padding: 3vh 3vw;
+  box-sizing: border-box;
+}
+
+/* Left text column */
+.hb-left {
+  /* border: 2px solid red; */
+  width: 30vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2vh;
+  color: #3e2723;
+  align-items: flex-start;
+}
+
+/* Title split into two lines with a gold tone for first line */
+.hb-title {
+  font-weight: 700;
+  margin: 0;
+  line-height: 0.95;
+}
+
+.hb-title-line1 {
+  display: block;
+  font-size: 4.0vw;   /* larger, decorative */
+  color: #c99a3a;     /* gold */
+  font-family: "Times New Roman", serif;
+}
+
+.hb-title-line2 {
+  display: block;
+  font-size: 2.4vw;
+  color: #c99a3a;
+  font-family: "Times New Roman", serif;
+}
+
+/* Subtext */
+.hb-sub {
+  font-size: 1.1vw;
+  margin: 0;
+  max-width: 30vw;
+  color: white;
+  line-height: 1.65;
+}
+
+/* CTA button (overrides MUI defaults with !important to ensure vw/vh sizes) */
+.hb-cta {
+  margin-top: 1.6vh;
+}
+.hb-btn {
+  background-color: #ffffff !important;
+  color: #3e2723 !important;
+  border: 0.12vw solid #3e2723 !important;
+  padding: 1.0vh 2.6vw !important;
+  border-radius: 1.0vw !important;
+  font-size: 1.0vw !important;
+  text-transform: none !important;
+  box-shadow: 0 0.25vh 0.6vh rgba(0,0,0,0.04);
+}
+
+/* Right image column */
+.hb-right {
+  width: 40vw;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hb-image-wrap {
+  width: 38vw;
+  height: 34vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 1.2vw;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+}
+
+/* image should scale and be centered */
+.hb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Responsive: stack vertically on narrower viewports (uses vw threshold) */
+@media (max-width: 70vw) {
+  .hb-inner {
+    flex-direction: column;
+    height: auto;
+    padding: 3vh 3vw;
+  }
+
+  .hb-left {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 2vh;
+  }
+
+  .hb-title-line1 {
+    font-size: 8.0vw;
+  }
+  .hb-title-line2 {
+    font-size: 5.0vw;
+  }
+  .hb-sub {
+    font-size: 3.4vw;
+    max-width: 86vw;
+  }
+  .hb-btn {
+    font-size: 3.6vw !important;
+    padding: 1.6vh 8vw !important;
+    border-radius: 2.4vw !important;
+  }
+  .hb-right {
+    width: 100%;
+  }
+  .hb-image-wrap {
+    width: 86vw;
+    height: 40vh;
+    border-radius: 2.0vw;
+  }
+  .hb-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+/* Small mobile tweak */
+@media (max-width: 40vw) {
+  .hb-title-line1 { font-size: 10.0vw; }
+  .hb-title-line2 { font-size: 6.5vw; }
+  .hb-sub { font-size: 4.4vw; }
+  .hb-btn { font-size: 4.6vw !important; padding: 1.8vh 8vw !important; }
+}
+
+
 @media (max-width: 900px) {
   .shop-grid {
     grid-template-columns: repeat(2, 1fr);
