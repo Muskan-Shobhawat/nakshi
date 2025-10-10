@@ -28,7 +28,7 @@
   background: #fff;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 10px;
-  width: 40vw;
+  width: 35vw;
   height: 50vh;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -45,15 +45,15 @@
 }
 
 .shop-img {
-  width: 100%;
+  width: auto;
   /* Maintain natural width */
-  height: auto;
+  height: 30vh;
   /* Fixed height */
   /* max-width: 100%;        Prevent overflow */
   object-fit: contain;
   /* Prevent cropping */
   display: block;
-  margin: 0 auto;
+  /* margin: 0 ; */
   /* Center horizontally */
   background-color: #fff;
 }
