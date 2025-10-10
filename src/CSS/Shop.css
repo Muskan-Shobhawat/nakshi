@@ -15,9 +15,16 @@
   margin-bottom: 4vh;
 }
 
+.gridflex{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .shop-grid {
   border: 2px solid red;
   display: grid;
+  width: 80vw;
   grid-template-columns: repeat(3, 1fr);
   /* exactly 3 per row */
   gap: 1rem;

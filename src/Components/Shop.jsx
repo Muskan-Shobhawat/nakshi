@@ -436,6 +436,7 @@ export default function Shop() {
       </Drawer>
 
       {/* Product grid */}
+      <div className="gridflex">
       <div className="shop-grid">
         {paginatedProducts.length === 0 ? (
           <Typography align="center" sx={{ mt: 5 }}>
@@ -512,6 +513,7 @@ export default function Shop() {
             );
           })
         )}
+      </div>
       </div>
 
       {/* <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
