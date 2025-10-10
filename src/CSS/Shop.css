@@ -16,10 +16,11 @@
 }
 
 .shop-grid {
+  border: 2px solid red;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   /* exactly 3 per row */
-  gap: 1.5rem;
+  gap: 1rem;
   /* space between cards */
   padding: 1rem;
 }
