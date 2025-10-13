@@ -1,5 +1,5 @@
 // src/components/ProductDetails.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -18,12 +18,12 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 // Sample product images (in real app, fetch from backend)
 import heroImage from "../../assets/heroimg.jpg";
 
-const sampleImages = [
-  heroImage,
-  "https://via.placeholder.com/400x400?text=Image+2",
-  "https://via.placeholder.com/400x400?text=Image+3",
-  "https://via.placeholder.com/400x400?text=Image+4",
-];
+// const sampleImages = [
+//   heroImage,
+//   "https://via.placeholder.com/400x400?text=Image+2",
+//   "https://via.placeholder.com/400x400?text=Image+3",
+//   "https://via.placeholder.com/400x400?text=Image+4",
+// ];
 
 export default function ProductDetails() {
   const { id } = useParams();
