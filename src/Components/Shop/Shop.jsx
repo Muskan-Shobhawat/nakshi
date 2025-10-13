@@ -446,7 +446,8 @@ export default function Shop() {
           paginatedProducts.map((item) => {
             const qty = quantities[item._id] || 0;
             return (
-              <div className="shop-card" key={item._id}>
+              <div className="shop-card" key={item._id}  onClick={() => navigate(`/product/${item._id}`)}
+              style={{ cursor: "pointer" }}>
                 <Link
                   to={`/product/${item._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}

@@ -27,7 +27,7 @@
   width: 80vw;
   grid-template-columns: repeat(3, 1fr);
   /* exactly 3 per row */
-  gap: 1rem;
+  gap: 8vh;
   /* space between cards */
   padding: 1rem;
 }
