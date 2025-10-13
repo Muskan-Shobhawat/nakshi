@@ -1,5 +1,6 @@
 .bb{
-margin-top: 12vh;
+margin-top: 15vh;
+border: 2px solid red;
 }
 
 .thumbnail:hover {
