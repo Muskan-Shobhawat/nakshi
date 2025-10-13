@@ -1,5 +1,6 @@
 import React from 'react';
 import heroImage from '../../assets/heroimg2.png'; // Replace with jewelry image
+import "../../CSS/Home/HeroSection.css";
 
 function HeroSection() {
   return (
@@ -12,7 +13,7 @@ function HeroSection() {
         height: '90vh'
       }}
     >
-      <div className="container text-center">
+      <div className="container text-center ff">
         <h1 className="display-4 fw-bold">Golden Touch to Your Everyday</h1>
         <p className="lead">Premium 1gm Gold-Plated Designs for Timeless Beauty</p>
         <a href="#" className="btn btn-outline-light btn-lg mt-3 exp">

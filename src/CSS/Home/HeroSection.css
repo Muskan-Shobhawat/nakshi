@@ -1,0 +1,13 @@
+@media (max-width: 1170px) {
+    .hero-section {
+        background-position: 0vw -8vh;
+    }
+    .ff{
+        /* border: 2px solid red; */
+        width: 60vw !important;
+    }
+    h1{
+        /* width: 45vw; */
+        /* border: 2px solid red; */
+    }
+}

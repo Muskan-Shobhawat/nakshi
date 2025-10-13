@@ -2,10 +2,11 @@ nav.navbar {
   width: 100vw;
   padding: 1rem;
   position: fixed;
-   top: 0;
+  top: 0;
   left: 0;
   z-index: 9999;
 }
+
 
 /* Luxury Navbar Theme */
 .navbar.custom-navbar {
@@ -15,19 +16,22 @@ nav.navbar {
 }
 
 .navbar.custom-navbar .navbar-brand {
-  color: #3f0012 !important; /* Gold brand */
-  font-family: 'Playfair Display', serif; /* Elegant font */
+  color: #3f0012 !important;
+  font-family: "Cinzel Decorative", serif !important;
+  font-weight: bold;
   font-size: 1.8rem;
 }
 
 .navbar.custom-navbar .nav-link {
   color: #3f0012 !important;
-  font-weight: 500;
   transition: color 0.3s ease;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 400 !important;
 }
 
 .navbar.custom-navbar .nav-link:hover {
-  color: #d4af37 !important; /* Gold hover */
+  color: #d4af37 !important;
+  /* Gold hover */
 }
 
 .navbar.custom-navbar .navbar-toggler {
@@ -45,54 +49,97 @@ nav.navbar {
 }
 
 .navbar-icons {
-  color: #3f0012; /* Gold */
+  color: #3f0012;
+  /* Gold */
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .navbar-icons:hover {
-  color: #3f0012; /* White on hover */
+  color: #3f0012;
+  /* White on hover */
 }
 
-.logo{
-    height: 8vh;
+.logo {
+  height: 8vh;
 }
 
-#navbtn{
-  color: #fff89c   !important;
+#navbtn {
+  color: white !important;
+  font-family: "Poppins", sans-serif !important;
   font-style: bold !important;
   background-color: #3f0012 !important;
   border-color: #3f0012;
+  height: 5.5vh !important;
+  width: 10vw;
 }
 
-#navbtn:hover{
-    background-color: #d4af37 !important;
-    color: white !important;
-    border: #d4af37;
+#navbtn:hover {
+  background-color: #d4af37 !important;
+  color: white !important;
+  border: #d4af37;
 }
 
-.twin{
+.twin {
   flex-direction: column;
 }
 
-.twin2{
+.twin2 {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  /* gap: 2vh; */
 }
 
-.flexrow{
+.flexrow2 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 25vw;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 400 !important;
+}
+
+.flexrow {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 25vw;
 }
 
-.fficonrow{
-  height: 3vh;
+.fficonrow {
+  height: 3.5vh;
 }
 
-.fftext{
+.fftext {
   color: #3f0012;
   font-size: 14px;
+}
+
+.centerflex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .nav-link {
+    text-align: left;
+  }
+
+  .flexrow2 {
+    justify-content: flex-start;
+    width: 50vw;
+  }
+
+  .flexrow {
+    justify-content: flex-start;
+  }
+
+  #navbtn {
+    width: 15vw;
+    margin-bottom: 3vh;
+  }
+
 }
