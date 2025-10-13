@@ -44,13 +44,16 @@ export default function ProductDetails() {
     }
   };
 
-    // ✅ Fetch product details by ID
+  // ✅ Fetch product details by ID
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://nakshi.onrender.com/api/products/${id}`);
-        setProduct(res.data);
-        console.log(res.data);
+        const res = await axios.get(
+          `https://nakshi.onrender.com/api/products/${id}`
+        );
+        console.log("Fetched Product:", res.data);
+        console.log("Fetched Product:", res.data.product);
+        setProduct(res.data.product || res.data); // ✅ fixed line
       } catch (err) {
         console.error("Error fetching product details:", err);
       }
@@ -58,7 +61,7 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-   if (!product)
+  if (!product)
     return (
       <Typography align="center" sx={{ mt: 5 }}>
         Loading product details...
@@ -72,7 +75,7 @@ export default function ProductDetails() {
         <Grid item xs={12} md={6}>
           <Box
             component="img"
-           src={product.mainPhoto}
+            src={product.mainPhoto}
             alt={product.name}
             sx={{
               width: "100%",
@@ -83,21 +86,22 @@ export default function ProductDetails() {
           />
           <Stack direction="row" spacing={2}>
             {[product.photo1, product.photo2, product.photo3]
-              .filter(Boolean).map((img, index) => (
-              <Box
-                key={index}
-                component="img"
-                src={img}
-                alt={`thumbnail-${index}`}
-                sx={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 2,
-                  cursor: "pointer",
-                  border: "2px solid #ffd6e8",
-                }}
-              />
-            ))}
+              .filter(Boolean)
+              .map((img, index) => (
+                <Box
+                  key={index}
+                  component="img"
+                  src={img}
+                  alt={`thumbnail-${index}`}
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 2,
+                    cursor: "pointer",
+                    border: "2px solid #ffd6e8",
+                  }}
+                />
+              ))}
           </Stack>
         </Grid>
 
@@ -107,10 +111,10 @@ export default function ProductDetails() {
             {product.name}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
-           ₹{product?.price ? product.price.toLocaleString() : "0"}
+            ₹{product?.price ? product.price.toLocaleString() : "0"}
           </Typography>
           <Typography variant="body1" gutterBottom>
-             {product.description}
+            {product.description}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1, color: "gray" }}>
             Gender: {product.gender} | Category: {product.category} | Occasion:{" "}
@@ -145,7 +149,7 @@ export default function ProductDetails() {
         <Typography variant="h5" gutterBottom>
           Customer Reviews
         </Typography>
-         {reviews.length === 0 ? (
+        {reviews.length === 0 ? (
           <Typography>No reviews yet. Be the first to review!</Typography>
         ) : (
           reviews.map((review, index) => (
