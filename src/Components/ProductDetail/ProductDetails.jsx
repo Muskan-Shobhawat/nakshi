@@ -1,4 +1,3 @@
-// src/components/ProductDetails.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -15,8 +14,6 @@ import {
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -28,7 +25,25 @@ export default function ProductDetails() {
     { user: "Rohit", text: "Perfect for gifting. Elegant design." },
   ]);
   const [newReview, setNewReview] = useState("");
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImage, setCurrentImage] = useState(""); // for main image display
+  const [slideIndex, setSlideIndex] = useState(0); // for slider
+
+  // Fetch product by ID
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `https://nakshi.onrender.com/api/products/${id}`
+        );
+        const data = res.data.product || res.data;
+        setProduct(data);
+        setCurrentImage(data.mainPhoto);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   const handleAddReview = () => {
     if (newReview.trim()) {
@@ -37,21 +52,24 @@ export default function ProductDetails() {
     }
   };
 
-  // ✅ Fetch product details by ID
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await axios.get(
-          `https://nakshi.onrender.com/api/products/${id}`
-        );
-        console.log("Fetched Product:", res.data);
-        setProduct(res.data.product || res.data);
-      } catch (err) {
-        console.error("Error fetching product details:", err);
-      }
-    };
-    fetchProduct();
-  }, [id]);
+  // Slider: next / previous
+  const handleNext = () => {
+    if (product) {
+      const allImages = [product.mainPhoto, ...(product.photos || [])];
+      setSlideIndex((prev) => (prev + 1) % allImages.length);
+      setCurrentImage(allImages[(slideIndex + 1) % allImages.length]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (product) {
+      const allImages = [product.mainPhoto, ...(product.photos || [])];
+      setSlideIndex(
+        (prev) => (prev - 1 + allImages.length) % allImages.length
+      );
+      setCurrentImage(allImages[(slideIndex - 1 + allImages.length) % allImages.length]);
+    }
+  };
 
   if (!product)
     return (
@@ -60,128 +78,98 @@ export default function ProductDetails() {
       </Typography>
     );
 
-  // ✅ Combine all available images
-  const images = [product.mainPhoto, product.photo1, product.photo2, product.photo3].filter(Boolean);
-
-  const handlePrev = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? images.length - 1 : prev - 1
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentImageIndex((prev) =>
-      prev === images.length - 1 ? 0 : prev + 1
-    );
-  };
+  const allImages = [product.mainPhoto, ...(product.photos || [])];
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ p: "4vh" }}>
       <Grid container spacing={4}>
-        {/* Left Side: Product Images */}
+        {/* LEFT: Product Images */}
         <Grid item xs={12} md={6}>
           {/* Main Image Slider */}
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              height: "60vh",
-              overflow: "hidden",
-              borderRadius: 3,
-              boxShadow: 3,
-              mb: 2,
-            }}
-          >
+          <Box sx={{ position: "relative", textAlign: "center" }}>
             <Box
               component="img"
-              src={images[currentImageIndex]}
-              alt={`product-${currentImageIndex}`}
+              src={currentImage}
+              alt={product.name}
               sx={{
                 width: "100%",
-                height: "100%",
+                height: "60vh",
                 objectFit: "cover",
-                borderRadius: 3,
-                transition: "all 0.4s ease",
+                borderRadius: "1.5vh",
+                boxShadow: 3,
               }}
             />
-
-            {/* Navigation Arrows */}
-            {images.length > 1 && (
-              <>
-                <IconButton
-                  onClick={handlePrev}
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: 10,
-                    transform: "translateY(-50%)",
-                    backgroundColor: "rgba(255,255,255,0.7)",
-                    "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
-                  }}
-                >
-                  <ArrowBackIosNewIcon />
-                </IconButton>
-                <IconButton
-                  onClick={handleNext}
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    right: 10,
-                    transform: "translateY(-50%)",
-                    backgroundColor: "rgba(255,255,255,0.7)",
-                    "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
-                  }}
-                >
-                  <ArrowForwardIosIcon />
-                </IconButton>
-              </>
-            )}
+            {/* Slider Buttons */}
+            <Button
+              onClick={handlePrev}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "2%",
+                transform: "translateY(-50%)",
+                backgroundColor: "rgba(255,255,255,0.7)",
+              }}
+            >
+              ◀
+            </Button>
+            <Button
+              onClick={handleNext}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                right: "2%",
+                transform: "translateY(-50%)",
+                backgroundColor: "rgba(255,255,255,0.7)",
+              }}
+            >
+              ▶
+            </Button>
           </Box>
 
           {/* Thumbnails */}
-          <Stack direction="row" spacing={2} justifyContent="center">
-            {images.map((img, index) => (
+          <Stack direction="row" justifyContent="center" spacing={3} sx={{ mt: "2vh" }}>
+            {allImages.map((img, index) => (
               <Box
                 key={index}
                 component="img"
                 src={img}
                 alt={`thumb-${index}`}
-                onClick={() => setCurrentImageIndex(index)}
+                onClick={() => {
+                  setCurrentImage(img);
+                  setSlideIndex(index);
+                }}
                 sx={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 2,
+                  width: "10vw",
+                  height: "10vh",
                   objectFit: "cover",
+                  borderRadius: "1vh",
                   cursor: "pointer",
-                  border:
-                    index === currentImageIndex
-                      ? "3px solid #d4af37"
-                      : "2px solid #f5f5f5",
-                  transition: "border 0.3s ease",
+                  border: currentImage === img ? "2px solid #d4af37" : "2px solid transparent",
+                  transition: "0.3s",
                 }}
               />
             ))}
           </Stack>
         </Grid>
 
-        {/* Right Side: Product Info */}
+        {/* RIGHT: Product Info */}
         <Grid item xs={12} md={6}>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
             {product.name}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
-            ₹{product?.price ? product.price.toLocaleString() : "0"}
+            ₹{product?.price?.toLocaleString() || "0"}
           </Typography>
           <Typography variant="body1" gutterBottom>
             {product.description}
           </Typography>
-          <Typography variant="body2" sx={{ mt: 1, color: "gray" }}>
+          <Typography variant="body2" sx={{ mt: "1vh", color: "gray" }}>
             Gender: {product.gender} | Category: {product.category} | Occasion:{" "}
             {product.occasion}
           </Typography>
 
           {/* Wishlist & Rating */}
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: "2vh" }}>
             <IconButton onClick={() => setWishlist(!wishlist)} color="error">
               {wishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </IconButton>
@@ -192,37 +180,26 @@ export default function ProductDetails() {
             />
           </Stack>
 
-          {/* Add to Cart Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3, px: 4, py: 1 }}
-          >
+          <Button variant="contained" color="primary" sx={{ mt: "3vh", px: "4vw", py: "1vh" }}>
             Add to Cart
           </Button>
         </Grid>
       </Grid>
 
       {/* Reviews Section */}
-      <Box sx={{ mt: 6 }}>
+      <Box sx={{ mt: "6vh" }}>
         <Typography variant="h5" gutterBottom>
           Customer Reviews
         </Typography>
-        {reviews.length === 0 ? (
-          <Typography>No reviews yet. Be the first to review!</Typography>
-        ) : (
-          reviews.map((review, index) => (
-            <Paper key={index} sx={{ p: 2, mb: 2, backgroundColor: "#fff0f6" }}>
-              <Typography variant="subtitle2" fontWeight="bold">
-                {review.user}
-              </Typography>
-              <Typography variant="body2">{review.text}</Typography>
-            </Paper>
-          ))
-        )}
-
-        {/* Add Review */}
-        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+        {reviews.map((review, index) => (
+          <Paper key={index} sx={{ p: "2vh", mb: "2vh", backgroundColor: "#fff7e6" }}>
+            <Typography variant="subtitle2" fontWeight="bold">
+              {review.user}
+            </Typography>
+            <Typography variant="body2">{review.text}</Typography>
+          </Paper>
+        ))}
+        <Stack direction="row" spacing={2} sx={{ mt: "2vh" }}>
           <TextField
             fullWidth
             label="Write a review..."
