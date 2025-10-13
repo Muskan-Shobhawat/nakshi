@@ -55,7 +55,7 @@
 .img {
   width: 20vw;
   /* Maintain natural width */
-  height: 50vh;
+  height: auto;
   overflow: hidden;
   /* Fixed height */
   /* max-width: 100%;   */
