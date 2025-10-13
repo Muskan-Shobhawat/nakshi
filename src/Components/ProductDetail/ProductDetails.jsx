@@ -1,5 +1,6 @@
 // src/components/ProductDetails.jsx
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useParams } from "react-router-dom";
 import {
   Box,
