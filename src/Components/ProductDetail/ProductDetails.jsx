@@ -50,6 +50,7 @@ export default function ProductDetails() {
       try {
         const res = await axios.get(`https://nakshi.onrender.com/api/products/${id}`);
         setProduct(res.data);
+        console.log(res.data);
       } catch (err) {
         console.error("Error fetching product details:", err);
       }
