@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import "../../CSS/ProductDetail/ProductDetails.css";
+
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -81,7 +83,7 @@ export default function ProductDetails() {
   const allImages = [product.mainPhoto, ...(product.photos || [])];
 
   return (
-    <Box sx={{ p: "4vh" }}>
+    <Box sx={{ p: "4vh" }} className="bb">
       <Grid container spacing={4}>
         {/* LEFT: Product Images */}
         <Grid item xs={12} md={6}>
