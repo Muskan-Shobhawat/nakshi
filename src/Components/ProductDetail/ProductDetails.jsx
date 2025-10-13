@@ -106,7 +106,7 @@ export default function ProductDetails() {
             {product.name}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
-           ₹{product.price.toLocaleString()}
+           ₹{product?.price ? product.price.toLocaleString() : "0"}
           </Typography>
           <Typography variant="body1" gutterBottom>
              {product.description}
