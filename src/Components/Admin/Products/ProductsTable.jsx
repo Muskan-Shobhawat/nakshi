@@ -11,7 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../Components/Firebase/Firebase.js";
+import { storage } from "../../Firebase/Firebase.js";
 
 const API_URL = "https://nakshi.onrender.com/api/products";
 

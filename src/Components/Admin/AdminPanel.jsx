@@ -1,9 +1,9 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import Sidebar from "./Sidebar.jsx";
+import Topbar from "./Topbar.jsx";
 // import MembersTable from "./MembersTable";
-import "../CSS/Admin.css";
+import "../../CSS/Admin/Admin.css";
 
 export default function AdminPanel() {
   return (

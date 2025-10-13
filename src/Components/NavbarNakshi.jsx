@@ -15,7 +15,7 @@ import call from "../assets/call.png";
 import location from "../assets/location.png";
 import fb from "../assets/fb.png";
 import insta from "../assets/insta.png";
-import AuthForm from "./AuthForm"; // Login/Signup form
+import AuthForm from "./OTP/AuthForm.jsx"; // Login/Signup form
 import { Link } from "react-router-dom";
 
 function NavbarNakshi() {

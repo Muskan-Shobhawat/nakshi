@@ -4,7 +4,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
-import "../CSS/AuthForm.css";
+import "../../CSS/OTP/AuthForm.css";
 import OtpPopup from "./OtpPopup";
 
 export default function AuthForm() {

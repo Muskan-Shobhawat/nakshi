@@ -16,7 +16,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
 // Sample product images (in real app, fetch from backend)
-import heroImage from "../assets/heroimg.jpg";
+import heroImage from "../../assets/heroimg.jpg";
 
 const sampleImages = [
   heroImage,

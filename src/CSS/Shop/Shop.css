@@ -22,7 +22,7 @@
 }
 
 .shop-grid {
-  border: 2px solid red;
+  /* border: 2px solid red; */
   display: grid;
   width: 80vw;
   grid-template-columns: repeat(3, 1fr);

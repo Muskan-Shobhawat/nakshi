@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import "../CSS/Gender.css";
+import "../../CSS/Home/Gender.css";
 import {
   Card,
   CardMedia,
@@ -11,14 +11,14 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 // Replace these with your real images (place inside src/assets)
-import womenHero from "../assets/women.mp4";
-import menHero from "../assets/men.mp4";
-import w1 from "../assets/t1.JPG";
-import w2 from "../assets/t1.JPG";
-import w3 from "../assets/t1.JPG";
-import m1 from "../assets/t1.JPG";
-import m2 from "../assets/t1.JPG";
-import m3 from "../assets/t1.JPG";
+import womenHero from "../../assets/women.mp4";
+import menHero from "../../assets/men.mp4";
+import w1 from "../../assets/t1.JPG";
+import w2 from "../../assets/t1.JPG";
+import w3 from "../../assets/t1.JPG";
+import m1 from "../../assets/t1.JPG";
+import m2 from "../../assets/t1.JPG";
+import m3 from "../../assets/t1.JPG";
 
 export default function GenderShowcase() {
   const [selected, setSelected] = useState("women"); // 'women' or 'men'

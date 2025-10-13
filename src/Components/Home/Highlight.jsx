@@ -1,9 +1,9 @@
 import React from "react";
-import "../CSS/Highlight.css";
-import img from "../assets/necklace.JPG";
-import p1 from "../assets/premium.png";
-import p2 from "../assets/skin.png";
-import p3 from "../assets/warranty.png";
+import "../../CSS/Home/Highlight.css";
+import img from "../../assets/necklace.JPG";
+import p1 from "../../assets/premium.png";
+import p2 from "../../assets/skin.png";
+import p3 from "../../assets/warranty.png";
 
 /**
  * Props:

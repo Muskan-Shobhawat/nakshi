@@ -1,9 +1,9 @@
 // src/components/Shop.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import heroImage from "../assets/shopimg2.jpg";
+import heroImage from "../../assets/shopimg2.jpg";
 import axios from "axios";
-import "../CSS/Shop.css";
+import "../../CSS/Shop/Shop.css";
 import {
   Button,
   Stack,

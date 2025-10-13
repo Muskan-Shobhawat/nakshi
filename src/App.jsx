@@ -1,24 +1,24 @@
 // import { useState } from 'react'
 import "./App.css";
 import NavbarNakshi from "./Components/NavbarNakshi.jsx";
-import HeroSection from "./Components/HeroSection.jsx";
-import ExploreSection from "./Components/ExploreSection.jsx";
-import CategoryGrid from "./Components/CategoryGrid.jsx";
-import PromoSection from "./Components/PromoSection.jsx";
-import StorySection from "./Components/StorySection.jsx";
+import HeroSection from "./Components/Home/HeroSection.jsx";
+import ExploreSection from "./Components/Home/ExploreSection.jsx";
+import CategoryGrid from "./Components/Home/CategoryGrid.jsx";
+import PromoSection from "./Components/Home/PromoSection.jsx";
+import StorySection from "./Components/Home/StorySection.jsx";
 import FooterNakshi from "./Components/FooterNakshi.jsx";
-import Shop from "./Components/Shop.jsx";
-import Cart from "./Components/Cart.jsx";
-import ProductDetails from "./Components/ProductDetails.jsx";
+import Shop from "./Components/Shop/Shop.jsx";
+import Cart from "./Components/Orders/Cart.jsx";
+import ProductDetails from "./Components/ProductDetail/ProductDetails.jsx";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AdminPanel from "./Components/AdminPanel.jsx";
-import MembersTable from "./Components/MembersTable.jsx";
-import UsersPage from "./Components/UsersTable.jsx";
-import ProductsTable from "./Components/ProductsTable.jsx";
-import TrendingSection from "./Components/TrendingSection.jsx";
-import GenderShowcase from "./Components/GenderShowcase.jsx";
-import Highlight from "./Components/Highlight.jsx";
+import AdminPanel from "./Components/Admin/AdminPanel.jsx";
+import MembersTable from "./Components/Admin/Members/MembersTable.jsx";
+import UsersPage from "./Components/Admin/Users/UsersTable.jsx";
+import ProductsTable from "./Components/Admin/Products/ProductsTable.jsx";
+import TrendingSection from "./Components/Home/TrendingSection.jsx";
+import GenderShowcase from "./Components/Home/GenderShowcase.jsx";
+import Highlight from "./Components/Home/Highlight.jsx";
 
 function Layout({ children }) {
   return (

@@ -4,9 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col } from "react-bootstrap";
 import { Typography, Button, Box } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import "../CSS/Explore.css";
-import imageA from "../assets/exp1.JPG";
-import imageB from "../assets/exp2.JPG";
+import "../../CSS/Home/Explore.css";
+import imageA from "../../assets/exp1.JPG";
+import imageB from "../../assets/exp2.JPG";
 
 const JewelryHeroSection = ({
   title = "Jewelry which fit everyone budget and taste !",

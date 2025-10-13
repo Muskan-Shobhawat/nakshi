@@ -1,12 +1,12 @@
 // src/components/CategoriesGrid.jsx
 import React from "react";
-import "../CSS/Trending.css";
+import "../../CSS/Home/Trending.css";
 
 // replace these with your real images in /src/assets
-import imgNecklace from "../assets/t2.JPG";
-import imgSets from "../assets/t4.JPG";
-import imgRing from "../assets/t1.JPG";
-import imgWatch from "../assets/t3.JPG";
+import imgNecklace from "../../assets/t2.JPG";
+import imgSets from "../../assets/t4.JPG";
+import imgRing from "../../assets/t1.JPG";
+import imgWatch from "../../assets/t3.JPG";
 
 const CATEGORIES = [
   {

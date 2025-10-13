@@ -1,13 +1,13 @@
 // src/components/CategorySection.jsx
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import '../CSS/Category.css';
-import necklace from '../assets/necklace.JPG'
-import earring from '../assets/earring.JPG'
-import bangle from '../assets/bangle.JPG'
-import bracelet from '../assets/bracelet.JPG'
-import ring from '../assets/ring.JPG'
-import kada from '../assets/kada.JPG'
+import '../../CSS/Home/Category.css';
+import necklace from '../../assets/necklace.JPG'
+import earring from '../../assets/earring.JPG'
+import bangle from '../../assets/bangle.JPG'
+import bracelet from '../../assets/bracelet.JPG'
+import ring from '../../assets/ring.JPG'
+import kada from '../../assets/kada.JPG'
 
 const categories = [
   // initial: 'text' -> shows text block first, 'image' -> shows image first
