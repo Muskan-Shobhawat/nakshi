@@ -105,7 +105,7 @@
   text-align: center;
   height: 50vh;
   padding: 2%;
-  background-image: url("../assets/shopimg.jpg");
+  background-image: url("../../assets/shopimg.jpg");
   background-repeat: none !important;
   background-position: 0vw -15vh;
   background-size: 100vw 100vh;
@@ -150,7 +150,7 @@
   /* border: 2px solid red; */
   border-radius: 2vw;
   /* background: linear-gradient(180deg, #fff8f5 0%, #fbf3ef 100%); */
-  background-image: url("../assets/shopimg2.jpg");
+  background-image: url("../../assets/shopimg2.jpg");
   background-size: 100vw 100vh;
   background-position: 10vw -10vh;
   box-shadow: 0 0.6vh 2vh rgba(0, 0, 0, 0.06);
