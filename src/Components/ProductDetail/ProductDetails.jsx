@@ -15,16 +15,8 @@ import {
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-
-// Sample product images (in real app, fetch from backend)
-import heroImage from "../../assets/heroimg.jpg";
-
-// const sampleImages = [
-//   heroImage,
-//   "https://via.placeholder.com/400x400?text=Image+2",
-//   "https://via.placeholder.com/400x400?text=Image+3",
-//   "https://via.placeholder.com/400x400?text=Image+4",
-// ];
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -36,6 +28,7 @@ export default function ProductDetails() {
     { user: "Rohit", text: "Perfect for gifting. Elegant design." },
   ]);
   const [newReview, setNewReview] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleAddReview = () => {
     if (newReview.trim()) {
@@ -52,8 +45,7 @@ export default function ProductDetails() {
           `https://nakshi.onrender.com/api/products/${id}`
         );
         console.log("Fetched Product:", res.data);
-        console.log("Fetched Product:", res.data.product);
-        setProduct(res.data.product || res.data); // ✅ fixed line
+        setProduct(res.data.product || res.data);
       } catch (err) {
         console.error("Error fetching product details:", err);
       }
@@ -68,40 +60,107 @@ export default function ProductDetails() {
       </Typography>
     );
 
+  // ✅ Combine all available images
+  const images = [product.mainPhoto, product.photo1, product.photo2, product.photo3].filter(Boolean);
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) =>
+      prev === images.length - 1 ? 0 : prev + 1
+    );
+  };
+
   return (
     <Box sx={{ p: 4 }}>
       <Grid container spacing={4}>
         {/* Left Side: Product Images */}
         <Grid item xs={12} md={6}>
+          {/* Main Image Slider */}
           <Box
-            component="img"
-            src={product.mainPhoto}
-            alt={product.name}
             sx={{
+              position: "relative",
               width: "100%",
+              height: "60vh",
+              overflow: "hidden",
               borderRadius: 3,
               boxShadow: 3,
               mb: 2,
             }}
-          />
-          <Stack direction="row" spacing={2}>
-            {[product.photo1, product.photo2, product.photo3]
-              .filter(Boolean)
-              .map((img, index) => (
-                <Box
-                  key={index}
-                  component="img"
-                  src={img}
-                  alt={`thumbnail-${index}`}
+          >
+            <Box
+              component="img"
+              src={images[currentImageIndex]}
+              alt={`product-${currentImageIndex}`}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: 3,
+                transition: "all 0.4s ease",
+              }}
+            />
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <IconButton
+                  onClick={handlePrev}
                   sx={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: 2,
-                    cursor: "pointer",
-                    border: "2px solid #ffd6e8",
+                    position: "absolute",
+                    top: "50%",
+                    left: 10,
+                    transform: "translateY(-50%)",
+                    backgroundColor: "rgba(255,255,255,0.7)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
                   }}
-                />
-              ))}
+                >
+                  <ArrowBackIosNewIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleNext}
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    right: 10,
+                    transform: "translateY(-50%)",
+                    backgroundColor: "rgba(255,255,255,0.7)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
+                  }}
+                >
+                  <ArrowForwardIosIcon />
+                </IconButton>
+              </>
+            )}
+          </Box>
+
+          {/* Thumbnails */}
+          <Stack direction="row" spacing={2} justifyContent="center">
+            {images.map((img, index) => (
+              <Box
+                key={index}
+                component="img"
+                src={img}
+                alt={`thumb-${index}`}
+                onClick={() => setCurrentImageIndex(index)}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 2,
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  border:
+                    index === currentImageIndex
+                      ? "3px solid #d4af37"
+                      : "2px solid #f5f5f5",
+                  transition: "border 0.3s ease",
+                }}
+              />
+            ))}
           </Stack>
         </Grid>
 
