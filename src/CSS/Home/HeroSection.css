@@ -1,12 +1,60 @@
+/* .hero-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 150;
+  right: 0;
+  bottom: 0;
+  background: rgba(83, 40, 40, 0.4);
+  z-index: 0;
+    display: flex !important;
+  align-items: flex-start !important;
+  Put overlay behind text
+  background-image: url(../src/assets/bb.png);  
+
+} */
+
+.hero-section {
+  position: relative;
+}
+
+.hero-section.hrfix {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 100vh !important;
+  color: #3f0012 !important;
+}
+
+.exp {
+    background-color: #3f0012;
+    color: #d4af37;
+}
+
+.exp:hover {
+    background-color: #d4af37;
+    color: white;
+}
+
+.ff {
+    /* border: 2px solid red; */
+    width: 28vw;
+    margin-left: 3vw;
+    margin-top: 25vh;
+
+}
+
 @media (max-width: 1170px) {
     .hero-section {
-        background-position: 0vw -8vh;
+        /* background-position: 0vw 0vh; */
     }
-    .ff{
+
+    .ff {
         /* border: 2px solid red; */
         width: 60vw !important;
     }
-    h1{
+
+    h1 {
         /* width: 45vw; */
         /* border: 2px solid red; */
     }
