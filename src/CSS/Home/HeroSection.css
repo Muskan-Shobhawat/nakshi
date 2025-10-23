@@ -27,35 +27,41 @@
 }
 
 .exp {
-    background-color: #3f0012;
-    color: #d4af37;
+  background-color: #3f0012;
+  color: #d4af37;
 }
 
 .exp:hover {
-    background-color: #d4af37;
-    color: white;
+  background-color: #d4af37;
+  color: white;
 }
 
 .ff {
-    /* border: 2px solid red; */
-    width: 28vw;
-    margin-left: 3vw;
-    margin-top: 25vh;
+  /* border: 2px solid red; */
+  width: 28vw;
+  margin-left: 3vw;
+  margin-top: 25vh;
 
 }
 
 @media (max-width: 1170px) {
-    .hero-section {
-        /* background-position: 0vw 0vh; */
-    }
+  .hero-section {
+    /* background-position: 0vw 0vh; */
+  }
 
-    .ff {
-        /* border: 2px solid red; */
-        width: 60vw !important;
-    }
+  .ff {
+    /* border: 2px solid red; */
+    width: 60vw !important;
+  }
 
-    h1 {
-        /* width: 45vw; */
-        /* border: 2px solid red; */
-    }
+  h1 {
+    /* width: 45vw; */
+    /* border: 2px solid red; */
+  }
+}
+
+@media (max-width: 776px) {
+  .hrfix {
+    background-position: -65vw 0vh !important;
+  }
 }

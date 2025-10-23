@@ -96,11 +96,12 @@
 
 /* ---- Responsive adjustments using vw/vh breakpoints (only vw/vh used) ---- */
 /* When viewport becomes narrow, make tiles full width (single column) */
-@media (max-width: 60vw) {
+@media (max-width: 767px) {
   .cg-root {
     /* height will become taller (4 tiles stacked: tile height 40vh each = 160vh used),
        we keep width/height in vw/vh only — no 'auto' used. */
     height: 160vh;
+    /* border: 2px solid red; */
   }
   .cg-tile {
     width: 100vw;

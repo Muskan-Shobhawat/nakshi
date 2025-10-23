@@ -68,7 +68,7 @@ const JewelryHeroSection = ({
           </Col>
 
           {/* Image Section */}
-          <Col md={5} className="images-col mb-4 mb-md-0">
+          <Col md={5} className="images-col mb-0 mb-md-0 cc">
             <div className="image-stack" aria-hidden>
               <div className="img-wrap img-a">
                 <img src={imageA} alt="Model wearing jewelry A" />

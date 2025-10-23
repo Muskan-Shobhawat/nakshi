@@ -15,7 +15,7 @@ function HeroSection() {
       }}
     >
       <div className=" text-left ff">
-        <h1 className="display-4 fw-bold">Golden Touch to Your Everyday</h1>
+        <h1 className="display-4 fw-bold heads">Golden Touch to Your Everyday</h1>
         <p className="lead">
           Premium 1gm Gold-Plated Designs for Timeless Beauty
         </p>

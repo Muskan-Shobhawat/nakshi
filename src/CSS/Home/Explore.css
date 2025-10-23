@@ -58,17 +58,27 @@
     color: white !important;
 }
 
+
 @media (max-width: 767px) {
-    .image-stack {
-        height: 280px;
+
+    .cc{
+        /* border: 2px solid green !important; */
     }
 
+    .image-stack {
+        height: 50vh;
+        padding: none;
+        /* border: 2px solid red; */
+    }
+    
     .img-a,
     .img-b {
         transform: none;
+        /* border: 2px solid red; */
         position: relative;
-        width: 48%;
-        height: auto;
+        width: 100%;
+        height: 50%;
+        /* padding: none !important; */
     }
 
     .img-a {
