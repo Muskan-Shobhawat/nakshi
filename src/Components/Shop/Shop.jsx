@@ -251,9 +251,9 @@ export default function Shop() {
           startIcon={<ManIcon />}
           onClick={() => setFilter("Men")}
           sx={{
-      ...getButtonStyle("Men"),
-      "@media (max-width: 766px)": { display: "none" },
-    }}
+            ...getButtonStyle("Men"),
+            "@media (max-width: 766px)": { display: "none" },
+          }}
         >
           Men
         </Button>
@@ -262,9 +262,9 @@ export default function Shop() {
           startIcon={<RingVolumeIcon />}
           onClick={() => setFilter("Ring")}
           sx={{
-      ...getButtonStyle("Ring"),
-      "@media (max-width: 766px)": { display: "none" },
-    }}
+            ...getButtonStyle("Ring"),
+            "@media (max-width: 766px)": { display: "none" },
+          }}
         >
           Rings
         </Button>
@@ -273,9 +273,9 @@ export default function Shop() {
           startIcon={<EarbudsIcon />}
           onClick={() => setFilter("Earring")}
           sx={{
-      ...getButtonStyle("Earring"),
-      "@media (max-width: 768px)": { display: "none" },
-    }}
+            ...getButtonStyle("Earring"),
+            "@media (max-width: 768px)": { display: "none" },
+          }}
         >
           Earrings
         </Button>
@@ -284,9 +284,9 @@ export default function Shop() {
           startIcon={<DiamondIcon />}
           onClick={() => setFilter("Necklace")}
           sx={{
-      ...getButtonStyle("Necklace"),
-      "@media (max-width: 768px)": { display: "none" },
-    }}
+            ...getButtonStyle("Necklace"),
+            "@media (max-width: 768px)": { display: "none" },
+          }}
         >
           Necklace
         </Button>
@@ -301,6 +301,9 @@ export default function Shop() {
             setPriceRange([1000, 1000000]);
             setSortOrder("");
             setPage(1);
+          }}
+          sx={{
+            "@media (max-width: 766px)": { display: "none" },
           }}
         >
           Clear Filters
