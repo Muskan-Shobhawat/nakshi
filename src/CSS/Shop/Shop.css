@@ -256,8 +256,8 @@
 @media (max-width: 766PX) {
 
   .shop-section {
-    margin-top: 10vh;
-    border: 2px solid red;
+    margin-top: 8vh;
+    /* border: 2px solid red; */
   }
 
   .shop-hero {
@@ -266,8 +266,8 @@
     padding: 2%;
     background-image: url("../../assets/shopimg.jpg");
     background-repeat: none !important;
-    background-position: -25vw -15vh;
-    background-size: 150vw 100vh;
+    background-position: -20vw -15vh;
+    background-size: 230vw 100vh;
     /* color: #fff89c; */
     color: #3f0012;
     display: flex;
@@ -281,14 +281,14 @@
     height: auto;
     padding: 3vh 3vw;
     background-image: url("../../assets/shopimg2.jpg");
-    background-size: 150vw 100vh;
-    background-position: 10vw -25vh;
+    background-size: 230vw 100vh;
+    background-position: 8vw -25vh;
     align-items: flex-start;
   }
   
   .hb-left {
     width: 50%;
-    border: 2px solid red;
+    /* border: 2px solid red; */
     align-items: center;
     text-align: center;
     padding-bottom: 2vh;

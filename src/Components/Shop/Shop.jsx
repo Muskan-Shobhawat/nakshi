@@ -239,7 +239,10 @@ export default function Shop() {
           variant="outlined"
           startIcon={<WomanIcon />}
           onClick={() => setFilter("Women")}
-          sx={getButtonStyle("Women")}
+          sx={{
+            ...getButtonStyle("Women"),
+            "@media (max-width: 768px)": { display: "none" },
+          }}
         >
           Women
         </Button>
@@ -247,7 +250,10 @@ export default function Shop() {
           variant="outlined"
           startIcon={<ManIcon />}
           onClick={() => setFilter("Men")}
-          sx={getButtonStyle("Men")}
+          sx={{
+      ...getButtonStyle("Men"),
+      "@media (max-width: 766px)": { display: "none" },
+    }}
         >
           Men
         </Button>
@@ -255,7 +261,10 @@ export default function Shop() {
           variant="outlined"
           startIcon={<RingVolumeIcon />}
           onClick={() => setFilter("Ring")}
-          sx={getButtonStyle("Ring")}
+          sx={{
+      ...getButtonStyle("Ring"),
+      "@media (max-width: 766px)": { display: "none" },
+    }}
         >
           Rings
         </Button>
@@ -263,7 +272,10 @@ export default function Shop() {
           variant="outlined"
           startIcon={<EarbudsIcon />}
           onClick={() => setFilter("Earring")}
-          sx={getButtonStyle("Earring")}
+          sx={{
+      ...getButtonStyle("Earring"),
+      "@media (max-width: 768px)": { display: "none" },
+    }}
         >
           Earrings
         </Button>
@@ -271,7 +283,10 @@ export default function Shop() {
           variant="outlined"
           startIcon={<DiamondIcon />}
           onClick={() => setFilter("Necklace")}
-          sx={getButtonStyle("Necklace")}
+          sx={{
+      ...getButtonStyle("Necklace"),
+      "@media (max-width: 768px)": { display: "none" },
+    }}
         >
           Necklace
         </Button>
@@ -437,34 +452,38 @@ export default function Shop() {
 
       {/* Product grid */}
       <div className="gridflex">
-      <div className="shop-grid">
-        {paginatedProducts.length === 0 ? (
-          <Typography align="center" sx={{ mt: 5 }}>
-            No products found.
-          </Typography>
-        ) : (
-          paginatedProducts.map((item) => {
-            const qty = quantities[item._id] || 0;
-            return (
-              <div className="shop-card" key={item._id}  onClick={() => navigate(`/product/${item._id}`)}
-              style={{ cursor: "pointer" }}>
-                <Link
-                  to={`/product/${item._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
+        <div className="shop-grid">
+          {paginatedProducts.length === 0 ? (
+            <Typography align="center" sx={{ mt: 5 }}>
+              No products found.
+            </Typography>
+          ) : (
+            paginatedProducts.map((item) => {
+              const qty = quantities[item._id] || 0;
+              return (
+                <div
+                  className="shop-card"
+                  key={item._id}
+                  onClick={() => navigate(`/product/${item._id}`)}
+                  style={{ cursor: "pointer" }}
                 >
-                  <div className="img">
-                    <img
-                      src={item.mainPhoto}
-                      alt={item.name}
-                      className="shop-img"
-                    />
-                  </div>
-                  <h3 className="shop-name">{item.name}</h3>
-                  <p className="shop-price">₹{item.price.toLocaleString()}</p>
-                  {/* <p className="shop-description">{item.description}</p> */}
-                </Link>
+                  <Link
+                    to={`/product/${item._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="img">
+                      <img
+                        src={item.mainPhoto}
+                        alt={item.name}
+                        className="shop-img"
+                      />
+                    </div>
+                    <h3 className="shop-name">{item.name}</h3>
+                    <p className="shop-price">₹{item.price.toLocaleString()}</p>
+                    {/* <p className="shop-description">{item.description}</p> */}
+                  </Link>
 
-                {/* {qty === 0 ? (
+                  {/* {qty === 0 ? (
                   <Button
                     variant="contained"
                     color="primary"
@@ -510,11 +529,11 @@ export default function Shop() {
                     </Stack>
                   </div>
                 )} */}
-              </div>
-            );
-          })
-        )}
-      </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
