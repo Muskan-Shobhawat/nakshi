@@ -16,7 +16,6 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import "../../CSS/ProductDetail/ProductDetails.css";
 
-
 export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -66,10 +65,10 @@ export default function ProductDetails() {
   const handlePrev = () => {
     if (product) {
       const allImages = [product.mainPhoto, ...(product.photos || [])];
-      setSlideIndex(
-        (prev) => (prev - 1 + allImages.length) % allImages.length
+      setSlideIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+      setCurrentImage(
+        allImages[(slideIndex - 1 + allImages.length) % allImages.length]
       );
-      setCurrentImage(allImages[(slideIndex - 1 + allImages.length) % allImages.length]);
     }
   };
 
@@ -129,7 +128,12 @@ export default function ProductDetails() {
           </Box>
 
           {/* Thumbnails */}
-          <Stack direction="row" justifyContent="center" spacing={3} sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            justifyContent="center"
+            spacing={3}
+            sx={{ mt: "2vh" }}
+          >
             {allImages.map((img, index) => (
               <Box
                 key={index}
@@ -146,7 +150,10 @@ export default function ProductDetails() {
                   objectFit: "cover",
                   borderRadius: "1vh",
                   cursor: "pointer",
-                  border: currentImage === img ? "2px solid #d4af37" : "2px solid transparent",
+                  border:
+                    currentImage === img
+                      ? "2px solid #d4af37"
+                      : "2px solid transparent",
                   transition: "0.3s",
                 }}
               />
@@ -171,7 +178,12 @@ export default function ProductDetails() {
           </Typography>
 
           {/* Wishlist & Rating */}
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ mt: "2vh" }}
+          >
             <IconButton onClick={() => setWishlist(!wishlist)} color="error">
               {wishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </IconButton>
@@ -182,9 +194,52 @@ export default function ProductDetails() {
             />
           </Stack>
 
-          <Button variant="contained" color="primary" sx={{ mt: "3vh", px: "4vw", py: "1vh" }}>
+          {/* <Button variant="contained" color="primary" sx={{ mt: "3vh", px: "4vw", py: "1vh" }}>
             Add to Cart
-          </Button>
+          </Button> */}
+          {qty === 0 ? (
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 1 }}
+              onClick={() => handleAddToCart(item._id)}
+            >
+              Add to Cart
+            </Button>
+          ) : (
+            <div className="added-section" style={{ marginTop: "0.5rem" }}>
+              <Button
+                variant="contained"
+                color="success"
+                fullWidth
+                disabled
+                sx={{ mb: 1 }}
+              >
+                Added <CheckIcon sx={{ ml: 1 }} />
+              </Button>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Button
+                  variant="outlined"
+                  onClick={() => decreaseQty(item._id)}
+                >
+                  -
+                </Button>
+                <Typography variant="body1">{qty}</Typography>
+                <Button
+                  variant="outlined"
+                  onClick={() => increaseQty(item._id)}
+                >
+                  +
+                </Button>
+              </Stack>
+            </div>
+          )}
         </Grid>
       </Grid>
 
@@ -194,7 +249,10 @@ export default function ProductDetails() {
           Customer Reviews
         </Typography>
         {reviews.map((review, index) => (
-          <Paper key={index} sx={{ p: "2vh", mb: "2vh", backgroundColor: "#fff7e6" }}>
+          <Paper
+            key={index}
+            sx={{ p: "2vh", mb: "2vh", backgroundColor: "#fff7e6" }}
+          >
             <Typography variant="subtitle2" fontWeight="bold">
               {review.user}
             </Typography>
@@ -213,6 +271,35 @@ export default function ProductDetails() {
           </Button>
         </Stack>
       </Box>
+
+      <Slide direction="up" in={showCartPopup} mountOnEnter unmountOnExit>
+        <Paper
+          elevation={6}
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "#a60019",
+            color: "white",
+            borderRadius: "12px 12px 0 0",
+            zIndex: 1300,
+          }}
+        >
+          <Typography variant="body1">{cartCount} item(s) added</Typography>
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "white", color: "#a60019" }}
+            onClick={() => navigate("/cart")}
+          >
+            View Cart
+          </Button>
+        </Paper>
+      </Slide>
     </Box>
   );
 }
