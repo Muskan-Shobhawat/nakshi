@@ -286,40 +286,40 @@ export default function AuthForm() {
       </Container>
 
       {/* ✅ OTP popup */}
-      <OtpPopup
-        phone={signupPhone}
-        show={showOtp}
-        onClose={() => setShowOtp(false)}
-        onVerify={async () => {
-          // ✅ After OTP verification, now register the user
-          try {
-            const API = import.meta.env.VITE_APP_BACKEND_URI;
-            const res = await fetch(`${API}user/register`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                name: formData.fullName,
-                phone: signupPhone,
-                email: formData.email || undefined,
-                password: formData.password,
-              }),
-              credentials: "include",
-            });
+<OtpPopup
+  phone={signupPhone}
+  show={showOtp}
+  onClose={() => setShowOtp(false)}
+  onVerify={async (verifiedPhone) => {
+    try {
+      const API = import.meta.env.VITE_APP_BACKEND_URI;
+      const res = await fetch(`${API}user/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.fullName,
+          phone: verifiedPhone,
+          email: formData.email || undefined,
+          password: formData.password,
+        }),
+        credentials: "include",
+      });
 
-            const data = await res.json();
-            if (res.ok && data.success) {
-              alert("Registration successful!");
-              resetForm();
-              setIsLogin(true); // ✅ switch to login after success
-            } else {
-              alert(data.message || "Registration failed");
-            }
-          } catch (err) {
-            console.error("Register Error after OTP:", err);
-            alert("Something went wrong while registering");
-          }
-        }}
-      />
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert("Registration successful!");
+        resetForm();
+        setIsLogin(true);
+      } else {
+        alert(data.message || "Registration failed");
+      }
+    } catch (err) {
+      console.error("Register Error after OTP:", err);
+      alert("Something went wrong while registering");
+    }
+  }}
+/>
+
     </div>
   );
 }
