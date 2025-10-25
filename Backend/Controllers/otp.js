@@ -1,5 +1,4 @@
 import Otp from "../Models/otp.js";
-import fetch from "node-fetch"; // ensure this is installed or available in Node 18+
 
 // ===================== SEND OTP =====================
 export const sendOtp = async (req, res) => {
