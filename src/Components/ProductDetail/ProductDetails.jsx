@@ -15,8 +15,12 @@ import {
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import "../../CSS/ProductDetail/ProductDetails.css";
+import CheckIcon from "@mui/icons-material/Check"; // ✅ add this import
+import Slide from "@mui/material/Slide"; // ✅ also missing in your code
+import { useNavigate } from "react-router-dom";
 
 export default function ProductDetails() {
+    const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [wishlist, setWishlist] = useState(false);
@@ -31,6 +35,8 @@ export default function ProductDetails() {
   const [quantities, setQuantities] = useState({});
   const [cartCount, setCartCount] = useState(0);
   const [showCartPopup, setShowCartPopup] = useState(false);
+
+    const qty = quantities[product?._id] || 0;
 
   // Fetch product by ID
   useEffect(() => {
@@ -242,7 +248,7 @@ export default function ProductDetails() {
               color="primary"
               fullWidth
               sx={{ mt: 1 }}
-              onClick={() => handleAddToCart(item._id)}
+             onClick={() => handleAddToCart(product._id)}
             >
               Add to Cart
             </Button>
@@ -265,14 +271,14 @@ export default function ProductDetails() {
               >
                 <Button
                   variant="outlined"
-                  onClick={() => decreaseQty(item._id)}
+                  onClick={() => decreaseQty(product._id)}
                 >
                   -
                 </Button>
                 <Typography variant="body1">{qty}</Typography>
                 <Button
                   variant="outlined"
-                  onClick={() => increaseQty(item._id)}
+                  onClick={() => increaseQty(product._id)}
                 >
                   +
                 </Button>
