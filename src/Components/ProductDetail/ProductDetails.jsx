@@ -28,6 +28,9 @@ export default function ProductDetails() {
   const [newReview, setNewReview] = useState("");
   const [currentImage, setCurrentImage] = useState(""); // for main image display
   const [slideIndex, setSlideIndex] = useState(0); // for slider
+  const [quantities, setQuantities] = useState({});
+  const [cartCount, setCartCount] = useState(0);
+  const [showCartPopup, setShowCartPopup] = useState(false);
 
   // Fetch product by ID
   useEffect(() => {
@@ -80,6 +83,42 @@ export default function ProductDetails() {
     );
 
   const allImages = [product.mainPhoto, ...(product.photos || [])];
+
+  // 🛒 Add to cart handlers
+  const handleAddToCart = (id) => {
+    setQuantities((prev) => {
+      const newQuantities = { ...prev, [id]: 1 };
+      updateCartCount(newQuantities);
+      return newQuantities;
+    });
+  };
+
+  const increaseQty = (id) => {
+    setQuantities((prev) => {
+      const newQuantities = { ...prev, [id]: (prev[id] || 0) + 1 };
+      updateCartCount(newQuantities);
+      return newQuantities;
+    });
+  };
+
+  const decreaseQty = (id) => {
+    setQuantities((prev) => {
+      let newQty = (prev[id] || 0) - 1;
+      if (newQty < 0) newQty = 0;
+      const newQuantities = { ...prev, [id]: newQty };
+      updateCartCount(newQuantities);
+      return newQuantities;
+    });
+  };
+
+  const updateCartCount = (newQuantities) => {
+    const totalItems = Object.values(newQuantities).reduce(
+      (sum, q) => sum + q,
+      0
+    );
+    setCartCount(totalItems);
+    setShowCartPopup(totalItems > 0);
+  };
 
   return (
     <Box sx={{ p: "4vh" }} className="bb">
