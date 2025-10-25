@@ -308,6 +308,7 @@ export default function AuthForm() {
       const data = await res.json();
       if (res.ok && data.success) {
         alert("Registration successful!");
+        console.log(data);
         resetForm();
         setIsLogin(true);
       } else {

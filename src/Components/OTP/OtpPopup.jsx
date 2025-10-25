@@ -73,6 +73,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
       });
 
       const data = await res.json();
+      console.log(data);
 
       if (res.ok && data.success) {
         setMessage({ text: "OTP verified successfully!", type: "success" });
