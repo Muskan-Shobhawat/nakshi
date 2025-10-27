@@ -251,7 +251,7 @@ export default function ProductDetails() {
             {product.name}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
-            ₹{product?.price?.toLocaleString() || "0"}
+            ₹{parseFloat(product?.price || 0).toLocaleString("en-IN")}
           </Typography>
           <Typography variant="body1" gutterBottom>
             {product.description}
