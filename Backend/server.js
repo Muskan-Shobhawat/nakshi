@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import userRoutes from "./Routes/user.js"; // adjust the path if different
 import productRoutes from "./Routes/products.js"; // adjust the path if different
 import otpRoutes from "./Routes/otp.js";
-import cartRoutes from "./Routes/cartRoutes.js";
+import cartRoutes from "./Routes/cart.js";
 
 
 dotenv.config();
