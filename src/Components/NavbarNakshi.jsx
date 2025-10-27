@@ -25,7 +25,7 @@ function NavbarNakshi() {
 
   const API = import.meta.env.VITE_APP_BACKEND_URI;
 
-  // ✅ Check token validity on mount
+  // ✅ Check token validity on mount (also gets name safely from backend)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -56,30 +56,16 @@ function NavbarNakshi() {
     };
 
     verifyToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLoginSignupClick = () => setShowAuth(true);
   const handleAuthClose = () => setShowAuth(false);
 
-  // ✅ Triggered when login succeeds in AuthForm
-  const handleLoginSuccess = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${API}user/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setIsLoggedIn(true);
-        setUserName(data.user?.name || "");
-      }
-    } catch (err) {
-      console.error("Error fetching profile after login:", err);
-    }
-
+  // ✅ Instantly flip UI after login: receive user from AuthForm
+  const handleLoginSuccess = (user) => {
+    setIsLoggedIn(true);
+    setUserName(user?.name || "");
     setShowAuth(false);
   };
 
@@ -273,6 +259,7 @@ function NavbarNakshi() {
       {/* ✅ Login/Signup Modal */}
       <Modal show={showAuth} onHide={handleAuthClose} centered>
         <Modal.Body>
+          {/* IMPORTANT: AuthForm must call onLoginSuccess(user) after successful login */}
           <AuthForm onLoginSuccess={handleLoginSuccess} />
         </Modal.Body>
       </Modal>

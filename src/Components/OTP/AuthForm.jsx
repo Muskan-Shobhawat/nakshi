@@ -7,7 +7,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import "../../CSS/OTP/AuthForm.css";
 import OtpPopup from "./OtpPopup";
 
-export default function AuthForm() {
+export default function AuthForm({ onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -20,9 +20,11 @@ export default function AuthForm() {
   const [showOtp, setShowOtp] = useState(false);
   const [signupPhone, setSignupPhone] = useState("");
 
+  const API = import.meta.env.VITE_APP_BACKEND_URI;
+
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    resetForm(); // prevent values leaking between modes
+    resetForm();
   };
 
   const resetForm = () => {
@@ -38,7 +40,7 @@ export default function AuthForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validate = () => {
@@ -54,7 +56,6 @@ export default function AuthForm() {
         "Phone Number must start with 6, 7, 8, or 9 and be 10 digits long.";
     }
 
-    // Email optional during signup; if provided, validate
     if (formData.email) {
       if (
         !formData.email.match(
@@ -84,7 +85,6 @@ export default function AuthForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Safely parse JSON (or capture HTML/text error pages)
   const safeJSON = async (res) => {
     const ct = res.headers.get("content-type") || "";
     if (ct.includes("application/json")) return res.json();
@@ -92,13 +92,11 @@ export default function AuthForm() {
     return { success: false, message: text };
   };
 
+  // ---------------- SIGN UP (SEND OTP) ----------------
   const handleRegisterSubmit = async () => {
     if (!validate()) return;
 
     try {
-      const API = import.meta.env.VITE_APP_BACKEND_URI;
-
-      // Step 1: send OTP
       const res = await fetch(`${API}user/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,14 +119,13 @@ export default function AuthForm() {
     }
   };
 
+  // ---------------- LOGIN ----------------
   const handleLoginSubmit = async () => {
     if (!formData.phone || !formData.password) {
       alert("Please enter both phone number and password.");
       return;
     }
     try {
-      const API = import.meta.env.VITE_APP_BACKEND_URI;
-
       const res = await fetch(`${API}user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -147,6 +144,12 @@ export default function AuthForm() {
 
       localStorage.setItem("token", data.token);
       alert(data.message || "Login successful.");
+
+      // ✅ Instantly update Navbar with logged-in user
+      if (typeof onLoginSuccess === "function") {
+        onLoginSuccess(data.user);
+      }
+
       resetForm();
     } catch (error) {
       console.error("Login Error:", error);
@@ -208,7 +211,6 @@ export default function AuthForm() {
                   {errors.phone && <p className="error">{errors.phone}</p>}
                 </Form.Group>
 
-                {/* Email optional on signup */}
                 {!isLogin && (
                   <Form.Group className="mb-3">
                     <Form.Label>
@@ -236,7 +238,7 @@ export default function AuthForm() {
                     value={formData.password}
                     onChange={handleChange}
                     maxLength="8"
-                    pattern="^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8}$"
+                    pattern="^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8}$"
                     required
                   />
                   {errors.password && (
@@ -257,7 +259,6 @@ export default function AuthForm() {
                       onChange={handleChange}
                       required
                       maxLength="8"
-                      title="Confirm password must match the original password"
                     />
                     {errors.confirmPassword && (
                       <p className="error">{errors.confirmPassword}</p>
@@ -285,42 +286,40 @@ export default function AuthForm() {
         </Row>
       </Container>
 
-<OtpPopup
-  phone={signupPhone}
-  show={showOtp}
-  onClose={() => setShowOtp(false)}
-  onVerify={async (verifiedPhone) => {
-    try {
-      const API = import.meta.env.VITE_APP_BACKEND_URI;
-      const res = await fetch(`${API}user/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.fullName,
-          phone: verifiedPhone,
-          email: formData.email || undefined,
-          password: formData.password,
-        }),
-      });
+      {/* ✅ OTP Verification Popup */}
+      <OtpPopup
+        phone={signupPhone}
+        show={showOtp}
+        onClose={() => setShowOtp(false)}
+        onVerify={async (verifiedPhone) => {
+          try {
+            const res = await fetch(`${API}user/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: formData.fullName,
+                phone: verifiedPhone,
+                email: formData.email || undefined,
+                password: formData.password,
+              }),
+            });
 
-      const data = await res.json();
-      console.log("REGISTER:", data);
+            const data = await res.json();
+            console.log("REGISTER:", data);
 
-      if (res.ok && data.success) {
-        alert("Registration successful!");
-        resetForm();
-        setIsLogin(true);
-      } else {
-        alert(data.message || "Registration failed");
-      }
-    } catch (err) {
-      console.error("Register Error after OTP:", err);
-      alert("Something went wrong while registering");
-    }
-  }}
-/>
-
-
+            if (res.ok && data.success) {
+              alert("Registration successful!");
+              resetForm();
+              setIsLogin(true);
+            } else {
+              alert(data.message || "Registration failed");
+            }
+          } catch (err) {
+            console.error("Register Error after OTP:", err);
+            alert("Something went wrong while registering");
+          }
+        }}
+      />
     </div>
   );
 }
