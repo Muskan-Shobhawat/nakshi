@@ -37,14 +37,13 @@ export default function ProductDetails() {
   const [showCartPopup, setShowCartPopup] = useState(false);
 
   const qty = quantities[product?._id] || 0;
+  const API = import.meta.env.VITE_APP_BACKEND_URI;
 
-  // ✅ Fetch product
+  // ✅ Fetch product by ID
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(
-          `https://nakshi.onrender.com/api/products/${id}`
-        );
+        const res = await axios.get(`${API}products/${id}`);
         const data = res.data.product || res.data;
         setProduct(data);
         setCurrentImage(data.mainPhoto);
@@ -55,7 +54,7 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  // ✅ Add review locally
+  // ✅ Add review (demo only)
   const handleAddReview = () => {
     if (newReview.trim()) {
       setReviews([...reviews, { user: "Guest", text: newReview }]);
@@ -63,23 +62,74 @@ export default function ProductDetails() {
     }
   };
 
-  // ✅ Image slider
+  // ✅ Image slider handlers
   const handleNext = () => {
     if (product) {
       const allImages = [product.mainPhoto, ...(product.photos || [])];
-      setSlideIndex((prev) => (prev + 1) % allImages.length);
-      setCurrentImage(allImages[(slideIndex + 1) % allImages.length]);
+      const newIndex = (slideIndex + 1) % allImages.length;
+      setSlideIndex(newIndex);
+      setCurrentImage(allImages[newIndex]);
     }
   };
 
   const handlePrev = () => {
     if (product) {
       const allImages = [product.mainPhoto, ...(product.photos || [])];
-      setSlideIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
-      setCurrentImage(
-        allImages[(slideIndex - 1 + allImages.length) % allImages.length]
-      );
+      const newIndex = (slideIndex - 1 + allImages.length) % allImages.length;
+      setSlideIndex(newIndex);
+      setCurrentImage(allImages[newIndex]);
     }
+  };
+
+  // ✅ Cart handlers
+  const handleAddToCart = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login/signup to add products to cart.");
+      navigate("/"); // or open login modal
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${API}cart/add`,
+        { productId: id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        setQuantities((prev) => ({ ...prev, [id]: 1 }));
+        updateCartCount({ ...quantities, [id]: 1 });
+        alert("Added to cart successfully!");
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert("Something went wrong while adding to cart.");
+    }
+  };
+
+  const increaseQty = (id) => {
+    setQuantities((prev) => {
+      const newQuantities = { ...prev, [id]: (prev[id] || 0) + 1 };
+      updateCartCount(newQuantities);
+      return newQuantities;
+    });
+  };
+
+  const decreaseQty = (id) => {
+    setQuantities((prev) => {
+      let newQty = (prev[id] || 0) - 1;
+      if (newQty < 0) newQty = 0;
+      const newQuantities = { ...prev, [id]: newQty };
+      updateCartCount(newQuantities);
+      return newQuantities;
+    });
+  };
+
+  const updateCartCount = (newQuantities) => {
+    const totalItems = Object.values(newQuantities).reduce((sum, q) => sum + q, 0);
+    setCartCount(totalItems);
+    setShowCartPopup(totalItems > 0);
   };
 
   if (!product)
@@ -91,81 +141,6 @@ export default function ProductDetails() {
 
   const allImages = [product.mainPhoto, ...(product.photos || [])];
 
-  // 🛒 Add to cart handlers
-  const handleAddToCart = async (id) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login or signup to add items to your cart.");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_APP_BACKEND_URI}cart/add`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productId: id, quantity: 1 }),
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        alert(data.message || "Failed to add item to cart");
-        return;
-      }
-
-      alert("Product added to your cart!");
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      alert("Something went wrong.");
-    }
-  };
-
-  const increaseQty = (id) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login or signup to modify your cart.");
-      return;
-    }
-
-    setQuantities((prev) => {
-      const newQuantities = { ...prev, [id]: (prev[id] || 0) + 1 };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const decreaseQty = (id) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login or signup to modify your cart.");
-      return;
-    }
-
-    setQuantities((prev) => {
-      let newQty = (prev[id] || 0) - 1;
-      if (newQty < 0) newQty = 0;
-      const newQuantities = { ...prev, [id]: newQty };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const updateCartCount = (newQuantities) => {
-    const totalItems = Object.values(newQuantities).reduce(
-      (sum, q) => sum + q,
-      0
-    );
-    setCartCount(totalItems);
-    setShowCartPopup(totalItems > 0);
-  };
-
   return (
     <Box sx={{ p: "4vh" }} className="bb">
       <Grid container spacing={4}>
@@ -174,8 +149,8 @@ export default function ProductDetails() {
           <Box sx={{ position: "relative", textAlign: "center" }}>
             <Box
               component="img"
-              src={currentImage}
-              alt={product.name}
+              src={currentImage || allImages[0]}
+              alt={product?.name || "Product"}
               sx={{
                 width: "100%",
                 height: "60vh",
@@ -184,6 +159,7 @@ export default function ProductDetails() {
                 boxShadow: 3,
               }}
             />
+
             {/* Slider Buttons */}
             <Button
               onClick={handlePrev}
@@ -212,12 +188,7 @@ export default function ProductDetails() {
           </Box>
 
           {/* Thumbnails */}
-          <Stack
-            direction="row"
-            justifyContent="center"
-            spacing={3}
-            sx={{ mt: "2vh" }}
-          >
+          <Stack direction="row" justifyContent="center" spacing={3} sx={{ mt: "2vh" }}>
             {allImages.map((img, index) => (
               <Box
                 key={index}
@@ -248,26 +219,21 @@ export default function ProductDetails() {
         {/* RIGHT: Product Info */}
         <Grid item xs={12} md={6}>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
-            {product.name}
+            {product?.name || "Unnamed Product"}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
             ₹{parseFloat(product?.price || 0).toLocaleString("en-IN")}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            {product.description}
+            {product?.description || "No description available."}
           </Typography>
           <Typography variant="body2" sx={{ mt: "1vh", color: "gray" }}>
-            Gender: {product.gender} | Category: {product.category} | Occasion:{" "}
-            {product.occasion}
+            Gender: {product?.gender || "-"} | Category: {product?.category || "-"} | Occasion:{" "}
+            {product?.occasion || "-"}
           </Typography>
 
           {/* Wishlist & Rating */}
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            sx={{ mt: "2vh" }}
-          >
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: "2vh" }}>
             <IconButton onClick={() => setWishlist(!wishlist)} color="error">
               {wishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </IconButton>
@@ -278,13 +244,13 @@ export default function ProductDetails() {
             />
           </Stack>
 
-          {/* Add to Cart Section */}
+          {/* Add to Cart */}
           {qty === 0 ? (
             <Button
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ mt: 1 }}
+              sx={{ mt: 2 }}
               onClick={() => handleAddToCart(product._id)}
             >
               Add to Cart
@@ -306,17 +272,11 @@ export default function ProductDetails() {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Button
-                  variant="outlined"
-                  onClick={() => decreaseQty(product._id)}
-                >
+                <Button variant="outlined" onClick={() => decreaseQty(product._id)}>
                   -
                 </Button>
                 <Typography variant="body1">{qty}</Typography>
-                <Button
-                  variant="outlined"
-                  onClick={() => increaseQty(product._id)}
-                >
+                <Button variant="outlined" onClick={() => increaseQty(product._id)}>
                   +
                 </Button>
               </Stack>
@@ -325,7 +285,7 @@ export default function ProductDetails() {
         </Grid>
       </Grid>
 
-      {/* Reviews Section */}
+      {/* Reviews */}
       <Box sx={{ mt: "6vh" }}>
         <Typography variant="h5" gutterBottom>
           Customer Reviews
@@ -354,7 +314,7 @@ export default function ProductDetails() {
         </Stack>
       </Box>
 
-      {/* Floating Cart Popup */}
+      {/* Cart Popup */}
       <Slide direction="up" in={showCartPopup} mountOnEnter unmountOnExit>
         <Paper
           elevation={6}
