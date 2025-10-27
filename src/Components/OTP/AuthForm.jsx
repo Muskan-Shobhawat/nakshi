@@ -66,10 +66,10 @@ export default function AuthForm({ onLoginSuccess }) {
       }
     }
 
-    if (!formData.password.match(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8}$/)) {
-      newErrors.password =
-        "Password must include a capital letter, a number, and be exactly 8 characters.";
-    }
+    // if (!formData.password.match(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8}$/)) {
+    //   newErrors.password =
+    //     "Password must include a capital letter, a number, and be exactly 8 characters.";
+    // }
 
     if (!formData.password) {
       newErrors.password = "Password is required.";
