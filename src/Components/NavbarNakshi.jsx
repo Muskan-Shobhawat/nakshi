@@ -21,14 +21,19 @@ import { Link } from "react-router-dom";
 function NavbarNakshi() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("token") // ✅ auto-login if token exists
+  );
 
   const handleLoginSignupClick = () => setShowAuth(true);
   const handleAuthClose = () => setShowAuth(false);
+
+  // ✅ Triggered when login succeeds in AuthForm
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setShowAuth(false);
   };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("token");
@@ -79,7 +84,7 @@ function NavbarNakshi() {
             </Nav>
           </div>
 
-          {/* Right - Social Icons + Auth (visible on desktop only) */}
+          {/* Right - Social Icons + Auth/Profile (desktop only) */}
           <div className="d-none d-lg-flex align-items-center twin2">
             <div className="flexrow">
               <img src={fb} alt="Facebook" className="fficonrow" />
@@ -88,6 +93,7 @@ function NavbarNakshi() {
 
             <div className="d-flex align-items-left ms-3">
               {isLoggedIn ? (
+                // ✅ Profile Dropdown
                 <Dropdown align="end">
                   <Dropdown.Toggle
                     variant="light"
@@ -126,7 +132,7 @@ function NavbarNakshi() {
             </div>
           </div>
 
-          {/* Hamburger Icon (visible only on mobile) */}
+          {/* Hamburger Icon (mobile only) */}
           <div
             className="d-lg-none ms-2"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -168,25 +174,39 @@ function NavbarNakshi() {
                 Contact
               </Nav.Link>
             </Nav>
+
             {/* Auth Section */}
             {isLoggedIn ? (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => {
-                  handleLogout();
-                  setMenuOpen(false);
-                }}
-              >
-                Logout
-              </Button>
+              <>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="mb-2"
+                >
+                  Logout
+                </Button>
+                <Button
+                  variant="outline-dark"
+                  size="sm"
+                  as={Link}
+                  to="/account"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  My Account
+                </Button>
+              </>
             ) : (
               <Button id="navbtn" size="sm" onClick={handleLoginSignupClick}>
                 Login / Signup
               </Button>
             )}
+
             {/* Contact Info + Social Icons */}
-            <div className="mobile-contact mb-3">
+            <div className="mobile-contact mb-3 mt-3">
               <div className="flexrow2 mb-2">
                 <img src={call} alt="Call" className="fficonrow" />
                 <div className="fftext">+91 9461008590</div>
@@ -197,7 +217,6 @@ function NavbarNakshi() {
                   Bhadwasiya, Jodhpur, Rajasthan, India
                 </div>
               </div>
-
               <div className="flexrow mb-3">
                 <img src={fb} alt="Facebook" className="fficonrow" />
                 <img src={insta} alt="Instagram" className="fficonrow" />
@@ -207,7 +226,7 @@ function NavbarNakshi() {
         )}
       </Navbar>
 
-      {/* Login/Signup Modal */}
+      {/* ✅ Login/Signup Modal */}
       <Modal show={showAuth} onHide={handleAuthClose} centered>
         <Modal.Body>
           <AuthForm onLoginSuccess={handleLoginSuccess} />
