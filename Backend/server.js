@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import userRoutes from "./Routes/user.js"; // adjust the path if different
 import productRoutes from "./Routes/products.js"; // adjust the path if different
 import otpRoutes from "./Routes/otp.js";
+import cartRoutes from "./Routes/cartRoutes.js";
+
 
 dotenv.config();
 
@@ -43,6 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/user", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/user", otpRoutes);
+app.use("/api/cart", cartRoutes);
 
 
 // 404 handler (returns JSON, not HTML)

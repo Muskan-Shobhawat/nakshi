@@ -42,7 +42,9 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://nakshi.onrender.com/api/products/${id}`);
+        const res = await axios.get(
+          `https://nakshi.onrender.com/api/products/${id}`
+        );
         const data = res.data.product || res.data;
         setProduct(data);
         setCurrentImage(data.mainPhoto);
@@ -90,19 +92,37 @@ export default function ProductDetails() {
   const allImages = [product.mainPhoto, ...(product.photos || [])];
 
   // 🛒 Add to cart handlers
-  const handleAddToCart = (id) => {
+  const handleAddToCart = async (id) => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       alert("Please login or signup to add items to your cart.");
       return;
     }
 
-    setQuantities((prev) => {
-      const newQuantities = { ...prev, [id]: 1 };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_APP_BACKEND_URI}cart/add`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ productId: id, quantity: 1 }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.message || "Failed to add item to cart");
+        return;
+      }
+
+      alert("Product added to your cart!");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert("Something went wrong.");
+    }
   };
 
   const increaseQty = (id) => {
@@ -192,7 +212,12 @@ export default function ProductDetails() {
           </Box>
 
           {/* Thumbnails */}
-          <Stack direction="row" justifyContent="center" spacing={3} sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            justifyContent="center"
+            spacing={3}
+            sx={{ mt: "2vh" }}
+          >
             {allImages.map((img, index) => (
               <Box
                 key={index}
@@ -232,11 +257,17 @@ export default function ProductDetails() {
             {product.description}
           </Typography>
           <Typography variant="body2" sx={{ mt: "1vh", color: "gray" }}>
-            Gender: {product.gender} | Category: {product.category} | Occasion: {product.occasion}
+            Gender: {product.gender} | Category: {product.category} | Occasion:{" "}
+            {product.occasion}
           </Typography>
 
           {/* Wishlist & Rating */}
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ mt: "2vh" }}
+          >
             <IconButton onClick={() => setWishlist(!wishlist)} color="error">
               {wishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </IconButton>
@@ -260,15 +291,32 @@ export default function ProductDetails() {
             </Button>
           ) : (
             <div className="added-section" style={{ marginTop: "0.5rem" }}>
-              <Button variant="contained" color="success" fullWidth disabled sx={{ mb: 1 }}>
+              <Button
+                variant="contained"
+                color="success"
+                fullWidth
+                disabled
+                sx={{ mb: 1 }}
+              >
                 Added <CheckIcon sx={{ ml: 1 }} />
               </Button>
-              <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
-                <Button variant="outlined" onClick={() => decreaseQty(product._id)}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Button
+                  variant="outlined"
+                  onClick={() => decreaseQty(product._id)}
+                >
                   -
                 </Button>
                 <Typography variant="body1">{qty}</Typography>
-                <Button variant="outlined" onClick={() => increaseQty(product._id)}>
+                <Button
+                  variant="outlined"
+                  onClick={() => increaseQty(product._id)}
+                >
                   +
                 </Button>
               </Stack>
@@ -283,7 +331,10 @@ export default function ProductDetails() {
           Customer Reviews
         </Typography>
         {reviews.map((review, index) => (
-          <Paper key={index} sx={{ p: "2vh", mb: "2vh", backgroundColor: "#fff7e6" }}>
+          <Paper
+            key={index}
+            sx={{ p: "2vh", mb: "2vh", backgroundColor: "#fff7e6" }}
+          >
             <Typography variant="subtitle2" fontWeight="bold">
               {review.user}
             </Typography>
