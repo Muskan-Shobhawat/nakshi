@@ -45,9 +45,10 @@ export const sendOtp = async (req, res) => {
     }).then((r) => r.json());
 
     // Optional: log NinzaSMS API response for debugging
-    if (!smsRes || smsRes.status !== "OK") {
-      console.error("NinzaSMS send error:", smsRes);
-    }
+if (!smsRes || (smsRes.status !== 1 && smsRes.status !== "OK")) {
+  console.error("NinzaSMS send warning:", smsRes);
+}
+
 
     return res.status(200).json({
       success: true,
