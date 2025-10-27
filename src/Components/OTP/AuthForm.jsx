@@ -285,7 +285,6 @@ export default function AuthForm() {
         </Row>
       </Container>
 
-      {/* ✅ OTP popup */}
 <OtpPopup
   phone={signupPhone}
   show={showOtp}
@@ -302,13 +301,13 @@ export default function AuthForm() {
           email: formData.email || undefined,
           password: formData.password,
         }),
-        credentials: "include",
       });
 
       const data = await res.json();
+      console.log("REGISTER:", data);
+
       if (res.ok && data.success) {
         alert("Registration successful!");
-        console.log(data);
         resetForm();
         setIsLogin(true);
       } else {
@@ -320,6 +319,7 @@ export default function AuthForm() {
     }
   }}
 />
+
 
     </div>
   );

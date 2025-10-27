@@ -5,35 +5,37 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-  const [timer, setTimer] = useState(0); // resend cooldown timer
+  const [timer, setTimer] = useState(0);
 
   const API = import.meta.env.VITE_APP_BACKEND_URI;
 
-  // 🕒 Countdown for resend
+  // 🕒 countdown for resend
   useEffect(() => {
-    let interval;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((t) => t - 1), 1000);
-    }
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timer]);
 
-  // ✉️ Resend OTP
+  // 🧮 input
+  const handleChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "");
+    if (val.length <= 6) setOtp(val);
+  };
+
+  // ✉️ resend OTP
   const handleResend = async () => {
     try {
       setLoading(true);
-      setMessage({ text: "", type: "" });
-
+      setMessage({});
       const res = await fetch(`${API}user/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
       });
-
       const data = await res.json();
       if (res.ok && data.success) {
-        setMessage({ text: "OTP sent again successfully!", type: "success" });
-        setTimer(60); // 60 seconds cooldown (matches backend cooldown logic)
+        setMessage({ text: "OTP resent successfully!", type: "success" });
+        setTimer(60);
       } else {
         setMessage({
           text: data.message || "Failed to resend OTP.",
@@ -48,54 +50,43 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
     }
   };
 
-  // 🧮 Handle OTP input
-  const handleChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ""); // digits only
-    if (value.length <= 6) setOtp(value);
-  };
-
-  // ✅ Verify OTP
+  // ✅ verify OTP
   const handleVerify = async () => {
     if (!otp || otp.length !== 6) {
-      setMessage({ text: "Please enter a valid 6-digit OTP.", type: "danger" });
+      setMessage({ text: "Enter valid 6-digit OTP", type: "danger" });
       return;
     }
 
     try {
       setLoading(true);
-      setMessage({ text: "", type: "" });
-
+      setMessage({});
       const res = await fetch(`${API}user/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, otp }),
-        credentials: "include",
       });
-
       const data = await res.json();
-      console.log(data);
-
+      console.log("VERIFY:", data);
       if (res.ok && data.success) {
-        setMessage({ text: "OTP verified successfully!", type: "success" });
+        setMessage({ text: "OTP verified!", type: "success" });
 
-        // ✅ Trigger parent callback with verified phone
-        if (onVerify) onVerify(phone);
+        // ✅ trigger parent registration
+        await onVerify?.(phone);
 
-        // Close popup after short delay
         setTimeout(() => {
-          onClose?.();
           setOtp("");
-          setMessage({ text: "", type: "" });
+          setMessage({});
+          onClose?.();
         }, 1000);
       } else {
         setMessage({
-          text: data.message || "Invalid or expired OTP. Please try again.",
+          text: data.message || "Invalid or expired OTP",
           type: "danger",
         });
       }
     } catch (err) {
       console.error("VERIFY OTP ERROR:", err);
-      setMessage({ text: "Server error while verifying OTP.", type: "danger" });
+      setMessage({ text: "Server error while verifying OTP", type: "danger" });
     } finally {
       setLoading(false);
     }
@@ -109,9 +100,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
 
       <Modal.Body>
         <Form.Group>
-          <Form.Label>
-            Enter OTP sent to <strong>{phone}</strong>
-          </Form.Label>
+          <Form.Label>Enter OTP sent to <strong>{phone}</strong></Form.Label>
           <Form.Control
             type="text"
             value={otp}
@@ -161,7 +150,7 @@ export default function OtpPopup({ phone, show, onClose, onVerify }) {
               Verifying...
             </>
           ) : (
-            "Verify OTP"
+            "Verify"
           )}
         </Button>
       </Modal.Footer>
