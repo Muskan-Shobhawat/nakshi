@@ -14,12 +14,12 @@
 // res.json({ success: true, otpToken });
 
 
-const requireOtpVerified = (req, res, next) => {
-  if (!req.session?.verified) {
-    return res.status(403).json({ success: false, message: "OTP verification required" });
-  }
-  next();
-};
+// const requireOtpVerified = (req, res, next) => {
+//   if (!req.session?.verified) {
+//     return res.status(403).json({ success: false, message: "OTP verification required" });
+//   }
+//   next();
+// };
 
-export default requireOtpVerified;
+// export default requireOtpVerified;
 

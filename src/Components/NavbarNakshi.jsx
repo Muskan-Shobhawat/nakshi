@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../CSS/nav.css";
 import {
   Navbar,
@@ -10,7 +10,6 @@ import {
 } from "react-bootstrap";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import logo from "../assets/logo.png";
 import call from "../assets/call.png";
 import location from "../assets/location.png";
 import fb from "../assets/fb.png";
@@ -21,21 +20,72 @@ import { Link } from "react-router-dom";
 function NavbarNakshi() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token") // ✅ auto-login if token exists
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  const API = import.meta.env.VITE_APP_BACKEND_URI;
+
+  // ✅ Check token validity on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const verifyToken = async () => {
+      try {
+        const res = await fetch(`${API}user/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          alert("Session expired. Please login again.");
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success && data.user) {
+          setIsLoggedIn(true);
+          setUserName(data.user.name || "");
+        }
+      } catch (err) {
+        console.error("Token verification failed:", err);
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+      }
+    };
+
+    verifyToken();
+  }, []);
 
   const handleLoginSignupClick = () => setShowAuth(true);
   const handleAuthClose = () => setShowAuth(false);
 
   // ✅ Triggered when login succeeds in AuthForm
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
+  const handleLoginSuccess = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API}user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setIsLoggedIn(true);
+        setUserName(data.user?.name || "");
+      }
+    } catch (err) {
+      console.error("Error fetching profile after login:", err);
+    }
+
     setShowAuth(false);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setUserName("");
     localStorage.removeItem("token");
   };
 
@@ -46,7 +96,7 @@ function NavbarNakshi() {
           fluid
           className="d-flex justify-content-between align-items-center"
         >
-          {/* Left - Contact Info (visible on desktop only) */}
+          {/* Left - Contact Info (desktop only) */}
           <div className="d-none d-lg-flex align-items-center twin">
             <div className="flexrow2">
               <img src={call} alt="Call" className="fficonrow" />
@@ -66,21 +116,11 @@ function NavbarNakshi() {
 
             {/* Nav Links (desktop only) */}
             <Nav className="d-none d-lg-flex align-items-center">
-              <Nav.Link as={Link} to="/">
-                Home
-              </Nav.Link>
-              <Nav.Link as={Link} to="/collections">
-                Collections
-              </Nav.Link>
-              <Nav.Link as={Link} to="/shop">
-                Shop
-              </Nav.Link>
-              <Nav.Link as={Link} to="/about">
-                About
-              </Nav.Link>
-              <Nav.Link as={Link} to="/contact">
-                Contact
-              </Nav.Link>
+              <Nav.Link as={Link} to="/">Home</Nav.Link>
+              <Nav.Link as={Link} to="/collections">Collections</Nav.Link>
+              <Nav.Link as={Link} to="/shop">Shop</Nav.Link>
+              <Nav.Link as={Link} to="/about">About</Nav.Link>
+              <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
             </Nav>
           </div>
 
@@ -93,13 +133,17 @@ function NavbarNakshi() {
 
             <div className="d-flex align-items-left ms-3">
               {isLoggedIn ? (
-                // ✅ Profile Dropdown
                 <Dropdown align="end">
                   <Dropdown.Toggle
                     variant="light"
                     id="profile-dropdown"
                     className="d-flex align-items-center border-0 bg-transparent"
                   >
+                    {userName && (
+                      <span className="me-2">
+                        Hello, {userName.split(" ")[0]}
+                      </span>
+                    )}
                     <AccountCircleIcon
                       style={{ fontSize: "2rem", color: "#333" }}
                     />
