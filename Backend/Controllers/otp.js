@@ -9,7 +9,7 @@ export const sendOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: "Phone number is required" });
     }
 
-    // Check if an OTP already exists and hasn't expired
+    // Check for cooldown
     const existing = await Otp.findOne({ phone });
     if (existing && existing.expiresAt > new Date()) {
       const secondsLeft = Math.floor((existing.expiresAt - Date.now()) / 1000);
@@ -21,16 +21,19 @@ export const sendOtp = async (req, res) => {
 
     // Generate a new 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
 
-    // Save or update OTP record
+    // Save or update
     await Otp.findOneAndUpdate(
       { phone },
       { otp, expiresAt },
       { upsert: true, new: true }
     );
 
-    // ✅ Send OTP via NinzaSMS
+    // ✅ Log for debugging (optional)
+    console.log(`✅ Generated OTP ${otp} for ${phone}`);
+
+    // ✅ Send via NinzaSMS
     const smsRes = await fetch("https://ninzasms.in.net/auth/send_sms", {
       method: "POST",
       headers: {
@@ -44,11 +47,9 @@ export const sendOtp = async (req, res) => {
       }),
     }).then((r) => r.json());
 
-    // Optional: log NinzaSMS API response for debugging
-if (!smsRes || (smsRes.status !== 1 && smsRes.status !== "OK")) {
-  console.error("NinzaSMS send warning:", smsRes);
-}
-
+    if (!smsRes || (smsRes.status !== 1 && smsRes.status !== "OK")) {
+      console.error("⚠️ NinzaSMS warning:", smsRes);
+    }
 
     return res.status(200).json({
       success: true,
@@ -74,12 +75,11 @@ export const verifyOtp = async (req, res) => {
     }
 
     const record = await Otp.findOne({ phone });
-
     if (!record) {
       return res.status(400).json({ success: false, message: "OTP not found or expired" });
     }
 
-    // Check if OTP expired
+    // Check expiration
     if (record.expiresAt < new Date()) {
       await Otp.deleteOne({ phone });
       return res.status(400).json({ success: false, message: "OTP expired" });
@@ -90,10 +90,9 @@ export const verifyOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    // ✅ OTP verified successfully
-    if (req.session) req.session.verified = true;
+    // ✅ Verified
+    console.log(`✅ OTP verified for ${phone}`);
 
-    // Remove OTP record after successful verification
     await Otp.deleteOne({ phone });
 
     return res.status(200).json({
