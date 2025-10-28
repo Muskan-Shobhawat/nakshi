@@ -12,7 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
-import "../../CSS/Order/Cart.css"; // ✅ import CSS file
+import "../../CSS/Order/Cart.css";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -22,32 +22,13 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Live update when address changes in DeliveryDetails
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === "userAddress") {
-        setIsAddressFilled(checkDeliveryFilled());
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(() => {
-      setIsAddressFilled(checkDeliveryFilled());
-    }, 800); // small sync check for same-tab updates
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
-
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
 
-  // ✅ Fetch Cart
+  // ✅ Fetch Cart Items
   useEffect(() => {
     const fetchCart = async () => {
       const token = localStorage.getItem("token");
@@ -152,8 +133,11 @@ export default function Cart() {
   );
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
-  sessionStorage.setItem("cartTotal", total);
 
+  // ✅ Save total for DeliveryDetails
+  useEffect(() => {
+    sessionStorage.setItem("cartTotal", total);
+  }, [total]);
 
   if (loading)
     return (
@@ -252,15 +236,6 @@ export default function Cart() {
                 </Typography>
               </div>
             </Stack>
-
-            {/* <Button
-              variant="contained"
-              fullWidth
-              className="checkout-btn"
-              onClick={() => alert("Proceeding to checkout...")}
-            >
-              Proceed to Checkout
-            </Button> */}
           </Paper>
         </Grid>
       </Grid>

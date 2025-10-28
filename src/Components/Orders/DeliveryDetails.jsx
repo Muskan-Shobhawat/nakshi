@@ -19,13 +19,13 @@ export default function DeliveryDetails() {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Fetch total amount from Cart (sessionStorage)
+  // ✅ Get total from sessionStorage
   useEffect(() => {
     const storedTotal = Number(sessionStorage.getItem("cartTotal") || 0);
     setTotal(storedTotal);
   }, []);
 
-  // ✅ Fetch user info from /cart (token based)
+  // ✅ Fetch user info securely from backend (/cart)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,7 +34,7 @@ export default function DeliveryDetails() {
       return;
     }
 
-    const fetchUserFromCart = async () => {
+    const fetchUser = async () => {
       try {
         const res = await fetch(`${API}cart`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -43,24 +43,23 @@ export default function DeliveryDetails() {
 
         if (res.ok && data.success) {
           setUser({
-            name: data.name || "",
+            name: data.name || "User",
             phone: data.phone || "",
           });
         } else {
           alert("Failed to fetch user details. Please login again.");
-          localStorage.removeItem("token");
           navigate("/");
         }
       } catch (err) {
-        console.error("Error fetching cart details:", err);
+        console.error("Error fetching user details:", err);
         navigate("/");
       }
     };
 
-    fetchUserFromCart();
+    fetchUser();
   }, [API, navigate]);
 
-  // ✅ Set estimated delivery date (7 days from now)
+  // ✅ Calculate 7-day estimated delivery date
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -73,28 +72,23 @@ export default function DeliveryDetails() {
     setDeliveryDate(formatted);
   }, []);
 
-  // ✅ Address validation (city, state, India, pincode)
+  // ✅ Validate Indian address
   const validateAddress = (text) => {
     if (!text.trim()) return false;
-
     const stateRegex =
       /\b(Maharashtra|Rajasthan|Gujarat|Punjab|Delhi|Karnataka|Tamil\s?Nadu|Kerala|Madhya\s?Pradesh|Uttar\s?Pradesh|Haryana|Bihar|West\s?Bengal|Odisha|Chhattisgarh|Assam|Jharkhand|Goa|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
     const pincodeRegex = /\b\d{6}\b/;
     const indiaRegex = /\bIndia\b/i;
-
     return stateRegex.test(text) && pincodeRegex.test(text) && indiaRegex.test(text);
   };
 
-  // ✅ Address handler (save + validate)
   const handleAddressChange = (e) => {
     const newAddress = e.target.value;
     setAddress(newAddress);
     const valid = validateAddress(newAddress);
     setIsAddressFilled(valid);
-    sessionStorage.setItem("userAddress", newAddress);
   };
 
-  // ✅ Proceed button click
   const handleCheckout = () => {
     alert(
       `Proceeding to checkout...\n\nTotal: ₹${total.toLocaleString(
@@ -112,29 +106,16 @@ export default function DeliveryDetails() {
         <Divider className="divider" />
 
         <Form className="delivery-form">
-          {/* Deliver To */}
           <Form.Group className="mb-4">
             <Form.Label className="form-label">Deliver To:</Form.Label>
-            <Form.Control
-              type="text"
-              value={user.name}
-              readOnly
-              className="form-input"
-            />
+            <Form.Control type="text" value={user.name} readOnly className="form-input" />
           </Form.Group>
 
-          {/* Phone */}
           <Form.Group className="mb-4">
             <Form.Label className="form-label">Phone Number:</Form.Label>
-            <Form.Control
-              type="text"
-              value={user.phone}
-              readOnly
-              className="form-input"
-            />
+            <Form.Control type="text" value={user.phone} readOnly className="form-input" />
           </Form.Group>
 
-          {/* Address */}
           <Form.Group className="mb-4">
             <Form.Label className="form-label">Address:</Form.Label>
             <Form.Control
@@ -147,25 +128,18 @@ export default function DeliveryDetails() {
               className="form-input"
             />
             {address && !validateAddress(address) && (
-              <Typography
-                variant="caption"
-                color="error"
-                sx={{ fontSize: "1.6vh" }}
-              >
-                ⚠️ Please enter a valid Indian address with city, state, and
-                6-digit pincode.
+              <Typography variant="caption" color="error" sx={{ fontSize: "1.6vh" }}>
+                ⚠️ Please enter a valid Indian address with city, state, and 6-digit pincode.
               </Typography>
             )}
           </Form.Group>
 
-          {/* Delivery Timing */}
           <div className="delivery-timing">
             <Typography variant="body1">
               <strong>Estimated Delivery:</strong> {deliveryDate}
             </Typography>
           </div>
 
-          {/* Policy Notes */}
           <div className="delivery-notes">
             <Typography variant="body2" className="note-text">
               ❌ No Return Policy
@@ -180,7 +154,7 @@ export default function DeliveryDetails() {
         </Form>
       </Paper>
 
-      {/* ✅ Checkout Summary Bar */}
+      {/* ✅ Bottom Checkout Bar */}
       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
         <Paper
           elevation={6}
@@ -203,10 +177,7 @@ export default function DeliveryDetails() {
             <Typography variant="h6" sx={{ fontSize: "2vh" }}>
               Total Payable
             </Typography>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "bold", fontSize: "2.4vh", color: "#FFD700" }}
-            >
+            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "2.4vh", color: "#FFD700" }}>
               ₹{total.toLocaleString("en-IN")}
             </Typography>
           </div>
