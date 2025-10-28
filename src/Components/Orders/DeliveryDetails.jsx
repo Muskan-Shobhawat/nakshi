@@ -70,8 +70,6 @@ export default function DeliveryDetails() {
 
   return (
     <Container fluid className="delivery-section">
-      <Row className="justify-content-center">
-        <Col xs={12} md={8} lg={6}>
           <Paper className="delivery-card" elevation={4}>
             <Typography className="delivery-title" variant="h5" gutterBottom>
               Delivery Details 🚚
@@ -136,8 +134,6 @@ export default function DeliveryDetails() {
               </div>
             </Form>
           </Paper>
-        </Col>
-      </Row>
     </Container>
   );
 }

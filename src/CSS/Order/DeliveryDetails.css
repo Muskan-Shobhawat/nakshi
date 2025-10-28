@@ -10,6 +10,7 @@
 
 .delivery-card {
   padding: 5vh 4vw;
+  width: 80vw;
   border-radius: 1vw;
   background: #ffffff;
   box-shadow: 0 0 2vh rgba(0, 0, 0, 0.1);
