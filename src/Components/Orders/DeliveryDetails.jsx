@@ -11,6 +11,7 @@ export default function DeliveryDetails({ onDetailsComplete }) {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
+  // ✅ Redirect if user not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -21,41 +22,23 @@ export default function DeliveryDetails({ onDetailsComplete }) {
 
     const fetchUserFromCart = async () => {
       try {
-        // Step 1️⃣ — get userId from /cart
-        const cartRes = await fetch(`${API}cart`, {
+        const res = await fetch(`${API}cart`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const cartData = await cartRes.json();
+        const data = await res.json();
 
-        if (!cartRes.ok || !cartData.success) {
-          alert("Failed to fetch cart. Please login again.");
-          localStorage.removeItem("token");
-          navigate("/");
-          return;
-        }
-
-        const userId = cartData.userId || cartData.cart?.userId;
-        if (!userId) {
-          alert("Unable to find user details.");
-          return;
-        }
-
-        // Step 2️⃣ — fetch user details using userId (from DB directly)
-        const userRes = await fetch(`${API}user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const userData = await userRes.json();
-
-        if (userRes.ok && userData.success) {
+        if (res.ok && data.success) {
           setUser({
-            name: userData.user?.name || "",
-            phone: userData.user?.phone || "",
+            name: data.name || "",
+            phone: data.phone || "",
           });
         } else {
-          alert("Unable to fetch user information.");
+          alert("Failed to fetch user details. Please login again.");
+          localStorage.removeItem("token");
+          navigate("/");
         }
       } catch (err) {
-        console.error("Error fetching user info:", err);
+        console.error("Error fetching cart details:", err);
         navigate("/");
       }
     };
@@ -63,7 +46,7 @@ export default function DeliveryDetails({ onDetailsComplete }) {
     fetchUserFromCart();
   }, [API, navigate]);
 
-  // ✅ Calculate estimated delivery
+  // ✅ Calculate 7-day delivery date
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -76,10 +59,12 @@ export default function DeliveryDetails({ onDetailsComplete }) {
     setDeliveryDate(formatted);
   }, []);
 
-  // ✅ Notify parent when details complete
+  // ✅ Notify Cart.jsx when delivery info is complete
   useEffect(() => {
     if (user.name && user.phone && address.trim()) {
       onDetailsComplete?.({ name: user.name, phone: user.phone, address });
+    } else {
+      onDetailsComplete?.(null); // Reset if not filled completely
     }
   }, [user, address, onDetailsComplete]);
 
@@ -92,7 +77,7 @@ export default function DeliveryDetails({ onDetailsComplete }) {
         <Divider className="divider" />
 
         <Form className="delivery-form">
-          {/* Name */}
+          {/* Deliver To */}
           <Form.Group className="mb-4">
             <Form.Label className="form-label">Deliver To:</Form.Label>
             <Form.Control
