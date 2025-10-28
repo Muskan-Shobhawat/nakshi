@@ -5,7 +5,7 @@ import axios from "axios";
 import "../../CSS/UserBased/AccountPage.css";
 
 export default function Profile() {
-  const [user, setUser] = useState({ name: "", phone: "", address: "" });
+  const [user, setUser] = useState({ id: "", name: "", address: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const API = import.meta.env.VITE_APP_BACKEND_URI;
@@ -40,7 +40,8 @@ export default function Profile() {
     const token = localStorage.getItem("token");
     if (!token) return alert("Session expired, please login again.");
 
-    if (!user.address.trim()) return alert("Address is required.");
+    if (!user.address.trim())
+      return alert("Address cannot be empty.");
 
     try {
       setSaving(true);
@@ -70,7 +71,7 @@ export default function Profile() {
     );
 
   return (
-    <Container fluid className="d-flex justify-content-center mt-5">
+    <Container fluid className="d-flex justify-content-center mt-5 acctd">
       <Paper
         elevation={3}
         sx={{
@@ -83,6 +84,7 @@ export default function Profile() {
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           My Profile
         </Typography>
+
         <Row>
           <Col xs={12} md={6}>
             <Form.Group className="mb-3">
@@ -100,10 +102,10 @@ export default function Profile() {
 
           <Col xs={12} md={6}>
             <Form.Group className="mb-3">
-              <Form.Label>Phone Number</Form.Label>
+              <Form.Label>User ID</Form.Label>
               <Form.Control
                 type="text"
-                value={user.phone ? `+91******${user.phone.slice(-4)}` : ""}
+                value={user.id}
                 disabled
                 style={{
                   height: "5vh",
@@ -121,11 +123,15 @@ export default function Profile() {
                 as="textarea"
                 rows={3}
                 name="address"
-                value={user.address}
+                value={
+                  user.address
+                    ? user.address
+                    : "Address will appear after your first order."
+                }
                 onChange={handleChange}
+                disabled={!user.address}
                 placeholder="Enter your delivery address"
                 style={{ fontSize: "1.8vh" }}
-                required
               />
             </Form.Group>
           </Col>
@@ -135,11 +141,12 @@ export default function Profile() {
           <Button
             variant="dark"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !user.address}
             style={{
               padding: "1vh 4vw",
               fontSize: "1.8vh",
               borderRadius: "1vh",
+              opacity: !user.address ? 0.6 : 1,
             }}
           >
             {saving ? "Saving..." : "Save Changes"}
