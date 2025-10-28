@@ -1,8 +1,8 @@
 .cart-container {
-  min-height: 100vh;
+  min-height: 80vh;
   background-color: #fdf8f8;
   padding: 4vh 5vw;
-  margin-top: 14vh;
+  margin-top: 18vh;
   display: flex;
   flex-direction: column;
   align-items: center;
