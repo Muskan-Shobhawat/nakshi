@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
   Typography,
   Grid,
   Button,
@@ -13,6 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
+import "../CSS/Cart.css"; // ✅ import CSS file
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ export default function Cart() {
       maximumFractionDigits: 2,
     });
 
-  // ✅ Fetch cart items on mount
+  // ✅ Fetch Cart
   useEffect(() => {
     const fetchCart = async () => {
       const token = localStorage.getItem("token");
@@ -46,7 +46,6 @@ export default function Cart() {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          // Using snapshot fields from backend: { name, price, image, quantity, productId }
           setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
         } else {
           setError(data.message || "Failed to fetch cart");
@@ -58,11 +57,10 @@ export default function Cart() {
         setLoading(false);
       }
     };
-
     fetchCart();
   }, [API, navigate]);
 
-  // ✅ Update quantity (uses add endpoint with +1 / -1)
+  // ✅ Quantity Controls
   const updateQuantity = async (productId, action) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login first");
@@ -100,7 +98,7 @@ export default function Cart() {
     }
   };
 
-  // ✅ Remove item
+  // ✅ Remove Item
   const removeItem = async (productId) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login first");
@@ -126,84 +124,62 @@ export default function Cart() {
     }
   };
 
-  // ✅ Price Calculations using snapshot price
+  // ✅ Totals
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
     0
   );
-  const tax = subtotal * 0.05; // 5% example
+  const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
   if (loading)
     return (
-      <Typography align="center" sx={{ mt: 5 }}>
+      <Typography align="center" sx={{ mt: "10vh" }}>
         Loading your cart...
       </Typography>
     );
 
   if (error)
     return (
-      <Typography align="center" color="error" sx={{ mt: 5 }}>
+      <Typography align="center" color="error" sx={{ mt: "10vh" }}>
         {error}
       </Typography>
     );
 
   if (!items.length)
     return (
-      <Box textAlign="center" sx={{ mt: 10 }}>
+      <div className="empty-cart">
         <Typography variant="h5" gutterBottom>
           Your cart is empty 🛒
         </Typography>
         <Button variant="contained" onClick={() => navigate("/shop")}>
           Shop Now
         </Button>
-      </Box>
+      </div>
     );
 
   return (
-    <Box sx={{ p: "4vh" }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
+    <div className="cart-container">
+      <Typography className="cart-title" variant="h4">
         My Cart 🛍️
       </Typography>
 
-      <Grid container spacing={4}>
-        {/* Left: Cart Items */}
+      <Grid container spacing={4} className="cart-main">
+        {/* LEFT SIDE */}
         <Grid item xs={12} md={8}>
           {items.map((item) => (
-            <Paper
-              key={item.productId}
-              sx={{
-                p: 2,
-                mb: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                boxShadow: 2,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "8px",
-                    objectFit: "cover",
-                  }}
-                />
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
+            <Paper key={item.productId} className="cart-item">
+              <div className="item-info">
+                <img src={item.image} alt={item.name} className="item-img" />
+                <div>
+                  <Typography className="item-name">{item.name}</Typography>
+                  <Typography className="item-price">
                     ₹{fmtINR(item.price)}
                   </Typography>
-                </Box>
-              </Box>
+                </div>
+              </div>
 
-              {/* Quantity Controls */}
-              <Stack direction="row" spacing={1} alignItems="center">
+              <div className="qty-box">
                 <IconButton onClick={() => updateQuantity(item.productId, "decrease")}>
                   <RemoveIcon />
                 </IconButton>
@@ -211,9 +187,8 @@ export default function Cart() {
                 <IconButton onClick={() => updateQuantity(item.productId, "increase")}>
                   <AddIcon />
                 </IconButton>
-              </Stack>
+              </div>
 
-              {/* Remove */}
               <IconButton color="error" onClick={() => removeItem(item.productId)}>
                 <DeleteIcon />
               </IconButton>
@@ -221,40 +196,37 @@ export default function Cart() {
           ))}
         </Grid>
 
-        {/* Right: Summary */}
+        {/* RIGHT SIDE */}
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Order Summary
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
+          <Paper className="order-summary">
+            <Typography className="summary-title">Order Summary</Typography>
+            <Divider className="divider" />
 
             <Stack spacing={1}>
-              <Stack direction="row" justifyContent="space-between">
+              <div className="summary-row">
                 <Typography>Subtotal:</Typography>
                 <Typography>₹{fmtINR(subtotal)}</Typography>
-              </Stack>
+              </div>
 
-              <Stack direction="row" justifyContent="space-between">
-                <Typography>Tax (5%):</Typography>
+              <div className="summary-row">
+                <Typography>Shipping (5%):</Typography>
                 <Typography>₹{fmtINR(tax)}</Typography>
-              </Stack>
+              </div>
 
-              <Divider sx={{ my: 2 }} />
+              <Divider className="divider" />
 
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="h6">Total:</Typography>
-                <Typography variant="h6" fontWeight="bold">
+              <div className="summary-total">
+                <Typography>Total:</Typography>
+                <Typography className="summary-amount">
                   ₹{fmtINR(total)}
                 </Typography>
-              </Stack>
+              </div>
             </Stack>
 
             <Button
               variant="contained"
-              color="primary"
               fullWidth
-              sx={{ mt: 3 }}
+              className="checkout-btn"
               onClick={() => alert("Proceeding to checkout...")}
             >
               Proceed to Checkout
@@ -262,6 +234,6 @@ export default function Cart() {
           </Paper>
         </Grid>
       </Grid>
-    </Box>
+    </div>
   );
 }
