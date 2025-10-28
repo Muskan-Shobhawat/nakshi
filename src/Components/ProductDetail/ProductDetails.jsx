@@ -127,7 +127,10 @@ export default function ProductDetails() {
   };
 
   const updateCartCount = (newQuantities) => {
-    const totalItems = Object.values(newQuantities).reduce((sum, q) => sum + q, 0);
+    const totalItems = Object.values(newQuantities).reduce(
+      (sum, q) => sum + q,
+      0
+    );
     setCartCount(totalItems);
     setShowCartPopup(totalItems > 0);
   };
@@ -188,7 +191,12 @@ export default function ProductDetails() {
           </Box>
 
           {/* Thumbnails */}
-          <Stack direction="row" justifyContent="center" spacing={3} sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            justifyContent="center"
+            spacing={3}
+            sx={{ mt: "2vh" }}
+          >
             {allImages.map((img, index) => (
               <Box
                 key={index}
@@ -222,18 +230,27 @@ export default function ProductDetails() {
             {product?.name || "Unnamed Product"}
           </Typography>
           <Typography variant="h6" color="error" gutterBottom>
-            ₹{parseFloat(product?.price || 0).toLocaleString("en-IN")}
+            ₹
+            {!isNaN(Number(product?.price))
+              ? Number(product.price).toLocaleString("en-IN")
+              : "0"}
           </Typography>
+
           <Typography variant="body1" gutterBottom>
             {product?.description || "No description available."}
           </Typography>
           <Typography variant="body2" sx={{ mt: "1vh", color: "gray" }}>
-            Gender: {product?.gender || "-"} | Category: {product?.category || "-"} | Occasion:{" "}
-            {product?.occasion || "-"}
+            Gender: {product?.gender || "-"} | Category:{" "}
+            {product?.category || "-"} | Occasion: {product?.occasion || "-"}
           </Typography>
 
           {/* Wishlist & Rating */}
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: "2vh" }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ mt: "2vh" }}
+          >
             <IconButton onClick={() => setWishlist(!wishlist)} color="error">
               {wishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
             </IconButton>
@@ -272,11 +289,17 @@ export default function ProductDetails() {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Button variant="outlined" onClick={() => decreaseQty(product._id)}>
+                <Button
+                  variant="outlined"
+                  onClick={() => decreaseQty(product._id)}
+                >
                   -
                 </Button>
                 <Typography variant="body1">{qty}</Typography>
-                <Button variant="outlined" onClick={() => increaseQty(product._id)}>
+                <Button
+                  variant="outlined"
+                  onClick={() => increaseQty(product._id)}
+                >
                   +
                 </Button>
               </Stack>
