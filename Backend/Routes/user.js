@@ -39,4 +39,19 @@ router.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
+// user.js route file
+router.get("/:id", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("name phone");
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    console.error("Fetch user by ID error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
 export default router;
