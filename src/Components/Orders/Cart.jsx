@@ -22,12 +22,19 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const fmtINR = (n) =>
+    Number(n ?? 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+
   // ✅ Fetch cart items on mount
   useEffect(() => {
     const fetchCart = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         alert("Please login to view your cart");
+        setLoading(false);
         navigate("/");
         return;
       }
@@ -39,7 +46,8 @@ export default function Cart() {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          setItems(data.cart.items || []);
+          // Using snapshot fields from backend: { name, price, image, quantity, productId }
+          setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
         } else {
           setError(data.message || "Failed to fetch cart");
         }
@@ -54,33 +62,28 @@ export default function Cart() {
     fetchCart();
   }, [API, navigate]);
 
-  // ✅ Update quantity
+  // ✅ Update quantity (uses add endpoint with +1 / -1)
   const updateQuantity = async (productId, action) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login first");
 
     try {
-      let updatedItems = [...items];
-
-      const itemIndex = updatedItems.findIndex(
-        (it) => it.productId._id === productId
-      );
-
-      if (itemIndex < 0) return;
+      const updated = items.map((it) => ({ ...it }));
+      const idx = updated.findIndex((it) => it.productId?.toString?.() === productId);
+      if (idx < 0) return;
 
       if (action === "increase") {
-        updatedItems[itemIndex].quantity += 1;
+        updated[idx].quantity += 1;
       } else if (action === "decrease") {
-        updatedItems[itemIndex].quantity -= 1;
-        if (updatedItems[itemIndex].quantity <= 0) {
+        updated[idx].quantity -= 1;
+        if (updated[idx].quantity <= 0) {
           await removeItem(productId);
           return;
         }
       }
 
-      setItems([...updatedItems]);
+      setItems(updated);
 
-      // Optional: update backend (future optimization: single API call)
       await fetch(`${API}cart/add`, {
         method: "POST",
         headers: {
@@ -114,7 +117,7 @@ export default function Cart() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setItems(data.cart.items || []);
+        setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
       } else {
         alert(data.message || "Failed to remove item");
       }
@@ -123,12 +126,12 @@ export default function Cart() {
     }
   };
 
-  // ✅ Price Calculations
+  // ✅ Price Calculations using snapshot price
   const subtotal = items.reduce(
-    (sum, item) => sum + item.productId.price * item.quantity,
+    (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
     0
   );
-  const tax = subtotal * 0.05; // 5% tax example
+  const tax = subtotal * 0.05; // 5% example
   const total = subtotal + tax;
 
   if (loading)
@@ -168,7 +171,7 @@ export default function Cart() {
         <Grid item xs={12} md={8}>
           {items.map((item) => (
             <Paper
-              key={item.productId._id}
+              key={item.productId}
               sx={{
                 p: 2,
                 mb: 2,
@@ -180,8 +183,8 @@ export default function Cart() {
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <img
-                  src={item.productId.mainPhoto}
-                  alt={item.productId.name}
+                  src={item.image}
+                  alt={item.name}
                   style={{
                     width: "80px",
                     height: "80px",
@@ -191,34 +194,27 @@ export default function Cart() {
                 />
                 <Box>
                   <Typography variant="subtitle1" fontWeight="bold">
-                    {item.productId.name}
+                    {item.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    ₹{item.productId.price.toLocaleString()}
+                    ₹{fmtINR(item.price)}
                   </Typography>
                 </Box>
               </Box>
 
               {/* Quantity Controls */}
               <Stack direction="row" spacing={1} alignItems="center">
-                <IconButton
-                  onClick={() => updateQuantity(item.productId._id, "decrease")}
-                >
+                <IconButton onClick={() => updateQuantity(item.productId, "decrease")}>
                   <RemoveIcon />
                 </IconButton>
                 <Typography>{item.quantity}</Typography>
-                <IconButton
-                  onClick={() => updateQuantity(item.productId._id, "increase")}
-                >
+                <IconButton onClick={() => updateQuantity(item.productId, "increase")}>
                   <AddIcon />
                 </IconButton>
               </Stack>
 
               {/* Remove */}
-              <IconButton
-                color="error"
-                onClick={() => removeItem(item.productId._id)}
-              >
+              <IconButton color="error" onClick={() => removeItem(item.productId)}>
                 <DeleteIcon />
               </IconButton>
             </Paper>
@@ -236,12 +232,12 @@ export default function Cart() {
             <Stack spacing={1}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography>Subtotal:</Typography>
-                <Typography>₹{subtotal.toLocaleString()}</Typography>
+                <Typography>₹{fmtINR(subtotal)}</Typography>
               </Stack>
 
               <Stack direction="row" justifyContent="space-between">
                 <Typography>Tax (5%):</Typography>
-                <Typography>₹{tax.toFixed(2)}</Typography>
+                <Typography>₹{fmtINR(tax)}</Typography>
               </Stack>
 
               <Divider sx={{ my: 2 }} />
@@ -249,10 +245,7 @@ export default function Cart() {
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="h6">Total:</Typography>
                 <Typography variant="h6" fontWeight="bold">
-                  ₹{total.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  ₹{fmtINR(total)}
                 </Typography>
               </Stack>
             </Stack>
