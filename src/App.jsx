@@ -74,8 +74,8 @@ function App() {
       path: "/cart",
       element: (
         <Layout>
-          <DeliveryDetails />
           <Cart />
+          <DeliveryDetails />
         </Layout>
       ),
     },

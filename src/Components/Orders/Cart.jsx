@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Typography,
   Grid,
-  Slide,
   Button,
   IconButton,
   Divider,
@@ -14,7 +13,6 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
 import "../../CSS/Order/Cart.css"; // ✅ import CSS file
-import { checkDeliveryFilled } from "./DeliveryDetails";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -23,7 +21,6 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isAddressFilled, setIsAddressFilled] = useState(checkDeliveryFilled());
 
   // ✅ Live update when address changes in DeliveryDetails
   useEffect(() => {
@@ -155,6 +152,8 @@ export default function Cart() {
   );
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
+  sessionStorage.setItem("cartTotal", total);
+
 
   if (loading)
     return (
@@ -265,43 +264,6 @@ export default function Cart() {
           </Paper>
         </Grid>
       </Grid>
-
-      <Slide direction="up" in={true} mountOnEnter unmountOnExit>
-        <Paper
-          elevation={6}
-          sx={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            p: 2,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            backgroundColor: "#a60019",
-            color: "white",
-            borderRadius: "12px 12px 0 0",
-            zIndex: 1300,
-          }}
-        >
-          <Typography variant="body1">
-            Total Amount: ₹{total?.toLocaleString("en-IN") || 0}
-          </Typography>
-
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
-              color: "#a60019",
-              cursor: isAddressFilled ? "pointer" : "not-allowed",
-            }}
-            disabled={!isAddressFilled}
-            onClick={() => alert("Proceeding to checkout...")}
-          >
-            Proceed to Checkout
-          </Button>
-        </Paper>
-      </Slide>
     </div>
   );
 }

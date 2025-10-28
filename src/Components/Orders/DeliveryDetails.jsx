@@ -6,12 +6,18 @@ import { useNavigate } from "react-router-dom";
 
 export default function DeliveryDetails() {
   const [user, setUser] = useState({ name: "", phone: "" });
-  const [address, setAddress] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
+    // const [isAddressFilled, setIsAddressFilled] = useState(false);
+  const [total, setTotal] = useState(0);
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Fetch user details via /cart (token-based)
+    useEffect(() => {
+    const storedTotal = Number(sessionStorage.getItem("cartTotal") || 0);
+    setTotal(storedTotal);
+  }, []);
+
+  // ✅ Check login & fetch user details
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -59,22 +65,39 @@ export default function DeliveryDetails() {
     setDeliveryDate(formatted);
   }, []);
 
-  // ✅ Basic Indian address validation (for user feedback only)
+  // ✅ Address validation: must include city, state, India & pincode
   const validateAddress = (text) => {
     if (!text.trim()) return false;
-    const stateRegex =
-      /\b(Maharashtra|Rajasthan|Gujarat|Punjab|Delhi|Karnataka|Tamil\s?Nadu|Kerala|Madhya\s?Pradesh|Uttar\s?Pradesh|Haryana|Bihar|West\s?Bengal|Odisha|Chhattisgarh|Assam|Jharkhand|Goa|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
+
+    // Common Indian city/state/pincode pattern (basic)
+    const cityRegex = /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\b/; // capitalized words
+    const stateRegex = /\b(Maharashtra|Rajasthan|Gujarat|Punjab|Delhi|Karnataka|Tamil\s?Nadu|Kerala|Madhya\s?Pradesh|Uttar\s?Pradesh|Haryana|Bihar|West\s?Bengal|Odisha|Chhattisgarh|Assam|Jharkhand|Goa|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
     const pincodeRegex = /\b\d{6}\b/;
     const indiaRegex = /\bIndia\b/i;
-    return stateRegex.test(text) && pincodeRegex.test(text) && indiaRegex.test(text);
+
+    return (
+      cityRegex.test(text) &&
+      stateRegex.test(text) &&
+      pincodeRegex.test(text) &&
+      indiaRegex.test(text)
+    );
   };
 
-  // ✅ Store address in session storage (Cart will check it)
-  const handleAddressChange = (e) => {
-    const newAddress = e.target.value;
-    setAddress(newAddress);
-    sessionStorage.setItem("userAddress", newAddress);
-  };
+
+  // // ✅ Notify Cart.jsx when delivery info is valid
+  // useEffect(() => {
+  //   const isValid = user.name && user.phone && validateAddress(address);
+  //   if (isValid) {
+  //     onDetailsComplete?.({
+  //       name: user.name,
+  //       phone: user.phone,
+  //       address,
+  //       isValid: true,
+  //     });
+  //   } else {
+  //     onDetailsComplete?.({ isValid: false });
+  //   }
+  // }, [user, address, onDetailsComplete]);
 
   return (
     <Container fluid className="delivery-section">
@@ -115,7 +138,7 @@ export default function DeliveryDetails() {
               rows={3}
               placeholder="Enter your full address with city, state, pincode, and India"
               value={address}
-              onChange={handleAddressChange}
+              onChange={(e) => setAddress(e.target.value)}
               required
               className="form-input"
             />
@@ -152,12 +175,43 @@ export default function DeliveryDetails() {
           </div>
         </Form>
       </Paper>
+            <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+        <Paper
+          elevation={6}
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "#a60019",
+            color: "white",
+            borderRadius: "12px 12px 0 0",
+            zIndex: 1300,
+          }}
+        >
+          <Typography variant="body1">
+            Total Amount: ₹{total?.toLocaleString("en-IN") || 0}
+          </Typography>
+
+          <Button
+            variant="contained"
+            sx={{
+              bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
+              color: "#a60019",
+              cursor: isAddressFilled ? "pointer" : "not-allowed",
+            }}
+            disabled={!isAddressFilled}
+            onClick={() => alert("Proceeding to checkout...")}
+          >
+            Proceed to Checkout
+          </Button>
+        </Paper>
+      </Slide>
     </Container>
   );
 }
 
-// ✅ Export a simple function: just checks if address exists
-export function checkDeliveryFilled() {
-  const address = sessionStorage.getItem("userAddress");
-  return !!(address && address.trim().length > 0);
-}
