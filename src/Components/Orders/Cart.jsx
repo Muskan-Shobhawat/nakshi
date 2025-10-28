@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Typography,
   Grid,
+  Slide,
   Button,
   IconButton,
   Divider,
@@ -22,26 +23,26 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-const [isAddressFilled, setIsAddressFilled] = useState(checkDeliveryFilled());
+  const [isAddressFilled, setIsAddressFilled] = useState(checkDeliveryFilled());
 
-// ✅ Live update when address changes in DeliveryDetails
-useEffect(() => {
-  const handleStorageChange = (e) => {
-    if (e.key === "userAddress") {
+  // ✅ Live update when address changes in DeliveryDetails
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "userAddress") {
+        setIsAddressFilled(checkDeliveryFilled());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    const interval = setInterval(() => {
       setIsAddressFilled(checkDeliveryFilled());
-    }
-  };
+    }, 800); // small sync check for same-tab updates
 
-  window.addEventListener("storage", handleStorageChange);
-  const interval = setInterval(() => {
-    setIsAddressFilled(checkDeliveryFilled());
-  }, 800); // small sync check for same-tab updates
-
-  return () => {
-    window.removeEventListener("storage", handleStorageChange);
-    clearInterval(interval);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
@@ -265,43 +266,42 @@ useEffect(() => {
         </Grid>
       </Grid>
 
-<Slide direction="up" in={true} mountOnEnter unmountOnExit>
-  <Paper
-    elevation={6}
-    sx={{
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      p: 2,
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: "#a60019",
-      color: "white",
-      borderRadius: "12px 12px 0 0",
-      zIndex: 1300,
-    }}
-  >
-    <Typography variant="body1">
-      Total Amount: ₹{totalAmount?.toLocaleString("en-IN") || 0}
-    </Typography>
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+        <Paper
+          elevation={6}
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "#a60019",
+            color: "white",
+            borderRadius: "12px 12px 0 0",
+            zIndex: 1300,
+          }}
+        >
+          <Typography variant="body1">
+            Total Amount: ₹{totalAmount?.toLocaleString("en-IN") || 0}
+          </Typography>
 
-    <Button
-      variant="contained"
-      sx={{
-        bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
-        color: "#a60019",
-        cursor: isAddressFilled ? "pointer" : "not-allowed",
-      }}
-      disabled={!isAddressFilled}
-      onClick={() => alert("Proceeding to checkout...")}
-    >
-      Proceed to Checkout
-    </Button>
-  </Paper>
-</Slide>
-
+          <Button
+            variant="contained"
+            sx={{
+              bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
+              color: "#a60019",
+              cursor: isAddressFilled ? "pointer" : "not-allowed",
+            }}
+            disabled={!isAddressFilled}
+            onClick={() => alert("Proceeding to checkout...")}
+          >
+            Proceed to Checkout
+          </Button>
+        </Paper>
+      </Slide>
     </div>
   );
 }
