@@ -19,13 +19,13 @@ export default function DeliveryDetails() {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Get total from sessionStorage
+  // ✅ Fetch total from Cart sessionStorage
   useEffect(() => {
     const storedTotal = Number(sessionStorage.getItem("cartTotal") || 0);
     setTotal(storedTotal);
   }, []);
 
-  // ✅ Fetch user info securely from backend (/cart)
+  // ✅ Securely fetch user info via cart → userId → user data
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,20 +34,30 @@ export default function DeliveryDetails() {
       return;
     }
 
-    const fetchUser = async () => {
+    const fetchUserFromCart = async () => {
       try {
         const res = await fetch(`${API}cart`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
 
-        if (res.ok && data.success) {
-          setUser({
-            name: data.name || "User",
-            phone: data.phone || "",
+        if (res.ok && data.success && data.userId) {
+          // Now fetch user info securely by ID
+          const userRes = await fetch(`${API}user/${data.userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
+          const userData = await userRes.json();
+
+          if (userRes.ok && userData.success) {
+            setUser({
+              name: userData.user?.name || "User",
+              phone: userData.user?.phone || "",
+            });
+          } else {
+            alert("Unable to fetch user details securely.");
+          }
         } else {
-          alert("Failed to fetch user details. Please login again.");
+          alert("Failed to fetch user ID from cart.");
           navigate("/");
         }
       } catch (err) {
@@ -56,10 +66,10 @@ export default function DeliveryDetails() {
       }
     };
 
-    fetchUser();
+    fetchUserFromCart();
   }, [API, navigate]);
 
-  // ✅ Calculate 7-day estimated delivery date
+  // ✅ Calculate estimated delivery (7 days later)
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -177,7 +187,14 @@ export default function DeliveryDetails() {
             <Typography variant="h6" sx={{ fontSize: "2vh" }}>
               Total Payable
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "2.4vh", color: "#FFD700" }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                fontSize: "2.4vh",
+                color: "#FFD700",
+              }}
+            >
               ₹{total.toLocaleString("en-IN")}
             </Typography>
           </div>
