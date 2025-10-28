@@ -12,8 +12,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
-import "../../CSS/Order/Cart.css";
-import DeliveryDetails from "./DeliveryDetails";
+import "../../CSS/Order/Cart.css"; // ✅ import CSS file
+import { checkDeliveryFilled } from "./DeliveryDetails";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -22,7 +22,26 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [deliveryInfo, setDeliveryInfo] = useState(null); // ✅ will come from DeliveryDetails
+const [isAddressFilled, setIsAddressFilled] = useState(checkDeliveryFilled());
+
+// ✅ Live update when address changes in DeliveryDetails
+useEffect(() => {
+  const handleStorageChange = (e) => {
+    if (e.key === "userAddress") {
+      setIsAddressFilled(checkDeliveryFilled());
+    }
+  };
+
+  window.addEventListener("storage", handleStorageChange);
+  const interval = setInterval(() => {
+    setIsAddressFilled(checkDeliveryFilled());
+  }, 800); // small sync check for same-tab updates
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+    clearInterval(interval);
+  };
+}, []);
 
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
@@ -61,6 +80,72 @@ export default function Cart() {
     };
     fetchCart();
   }, [API, navigate]);
+
+  // ✅ Quantity Controls
+  const updateQuantity = async (productId, action) => {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login first");
+
+    try {
+      const updated = items.map((it) => ({ ...it }));
+      const idx = updated.findIndex(
+        (it) => it.productId?.toString?.() === productId
+      );
+      if (idx < 0) return;
+
+      if (action === "increase") {
+        updated[idx].quantity += 1;
+      } else if (action === "decrease") {
+        updated[idx].quantity -= 1;
+        if (updated[idx].quantity <= 0) {
+          await removeItem(productId);
+          return;
+        }
+      }
+
+      setItems(updated);
+
+      await fetch(`${API}cart/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId,
+          quantity: action === "increase" ? 1 : -1,
+        }),
+      });
+    } catch (err) {
+      console.error("Quantity update error:", err);
+    }
+  };
+
+  // ✅ Remove Item
+  const removeItem = async (productId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login first");
+
+    try {
+      const res = await fetch(`${API}cart/remove`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
+      } else {
+        alert(data.message || "Failed to remove item");
+      }
+    } catch (err) {
+      console.error("Remove item error:", err);
+    }
+  };
 
   // ✅ Totals
   const subtotal = items.reduce(
@@ -103,7 +188,7 @@ export default function Cart() {
       </Typography>
 
       <Grid container spacing={4} className="cart-main">
-        {/* LEFT SIDE - Cart Items */}
+        {/* LEFT SIDE */}
         <Grid item xs={12} md={8}>
           {items.map((item) => (
             <Paper key={item.productId} className="cart-item">
@@ -118,26 +203,30 @@ export default function Cart() {
               </div>
 
               <div className="qty-box">
-                <IconButton onClick={() => updateQuantity(item.productId, "decrease")}>
+                <IconButton
+                  onClick={() => updateQuantity(item.productId, "decrease")}
+                >
                   <RemoveIcon />
                 </IconButton>
                 <Typography>{item.quantity}</Typography>
-                <IconButton onClick={() => updateQuantity(item.productId, "increase")}>
+                <IconButton
+                  onClick={() => updateQuantity(item.productId, "increase")}
+                >
                   <AddIcon />
                 </IconButton>
               </div>
 
-              <IconButton color="error" onClick={() => removeItem(item.productId)}>
+              <IconButton
+                color="error"
+                onClick={() => removeItem(item.productId)}
+              >
                 <DeleteIcon />
               </IconButton>
             </Paper>
           ))}
-
-          {/* Delivery Section */}
-          <DeliveryDetails onDetailsComplete={setDeliveryInfo} />
         </Grid>
 
-        {/* RIGHT SIDE - Order Summary */}
+        {/* RIGHT SIDE */}
         <Grid item xs={12} md={4}>
           <Paper className="order-summary">
             <Typography className="summary-title">Order Summary</Typography>
@@ -163,47 +252,56 @@ export default function Cart() {
                 </Typography>
               </div>
             </Stack>
+
+            {/* <Button
+              variant="contained"
+              fullWidth
+              className="checkout-btn"
+              onClick={() => alert("Proceeding to checkout...")}
+            >
+              Proceed to Checkout
+            </Button> */}
           </Paper>
         </Grid>
       </Grid>
 
-      {/* ✅ Fixed Checkout Footer */}
-      <Paper
-        elevation={6}
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#a60019",
-          color: "white",
-          borderRadius: "12px 12px 0 0",
-          zIndex: 1300,
-        }}
-      >
-        <Typography variant="body1" sx={{ fontSize: "2vh" }}>
-          Total: ₹{fmtINR(total)}
-        </Typography>
+<Slide direction="up" in={true} mountOnEnter unmountOnExit>
+  <Paper
+    elevation={6}
+    sx={{
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      p: 2,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "#a60019",
+      color: "white",
+      borderRadius: "12px 12px 0 0",
+      zIndex: 1300,
+    }}
+  >
+    <Typography variant="body1">
+      Total Amount: ₹{totalAmount?.toLocaleString("en-IN") || 0}
+    </Typography>
 
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: "white",
-            color: "#a60019",
-            px: "3vw",
-            py: "1vh",
-            fontWeight: "bold",
-          }}
-          disabled={!deliveryInfo?.address}
-          onClick={() => alert("Proceeding to checkout...")}
-        >
-          Proceed to Checkout
-        </Button>
-      </Paper>
+    <Button
+      variant="contained"
+      sx={{
+        bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
+        color: "#a60019",
+        cursor: isAddressFilled ? "pointer" : "not-allowed",
+      }}
+      disabled={!isAddressFilled}
+      onClick={() => alert("Proceeding to checkout...")}
+    >
+      Proceed to Checkout
+    </Button>
+  </Paper>
+</Slide>
+
     </div>
   );
 }

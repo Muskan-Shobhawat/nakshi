@@ -4,14 +4,14 @@ import { Paper, Typography, Divider } from "@mui/material";
 import "../../CSS/Order/DeliveryDetails.css";
 import { useNavigate } from "react-router-dom";
 
-export default function DeliveryDetails({ onDetailsComplete }) {
+export default function DeliveryDetails() {
   const [user, setUser] = useState({ name: "", phone: "" });
   const [address, setAddress] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Redirect if user not logged in
+  // ✅ Fetch user details via /cart (token-based)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -46,7 +46,7 @@ export default function DeliveryDetails({ onDetailsComplete }) {
     fetchUserFromCart();
   }, [API, navigate]);
 
-  // ✅ Calculate 7-day delivery date
+  // ✅ Calculate delivery date (7 days from today)
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -59,14 +59,22 @@ export default function DeliveryDetails({ onDetailsComplete }) {
     setDeliveryDate(formatted);
   }, []);
 
-  // ✅ Notify Cart.jsx when delivery info is complete
-  useEffect(() => {
-    if (user.name && user.phone && address.trim()) {
-      onDetailsComplete?.({ name: user.name, phone: user.phone, address });
-    } else {
-      onDetailsComplete?.(null); // Reset if not filled completely
-    }
-  }, [user, address, onDetailsComplete]);
+  // ✅ Basic Indian address validation (for user feedback only)
+  const validateAddress = (text) => {
+    if (!text.trim()) return false;
+    const stateRegex =
+      /\b(Maharashtra|Rajasthan|Gujarat|Punjab|Delhi|Karnataka|Tamil\s?Nadu|Kerala|Madhya\s?Pradesh|Uttar\s?Pradesh|Haryana|Bihar|West\s?Bengal|Odisha|Chhattisgarh|Assam|Jharkhand|Goa|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
+    const pincodeRegex = /\b\d{6}\b/;
+    const indiaRegex = /\bIndia\b/i;
+    return stateRegex.test(text) && pincodeRegex.test(text) && indiaRegex.test(text);
+  };
+
+  // ✅ Store address in session storage (Cart will check it)
+  const handleAddressChange = (e) => {
+    const newAddress = e.target.value;
+    setAddress(newAddress);
+    sessionStorage.setItem("userAddress", newAddress);
+  };
 
   return (
     <Container fluid className="delivery-section">
@@ -105,12 +113,22 @@ export default function DeliveryDetails({ onDetailsComplete }) {
             <Form.Control
               as="textarea"
               rows={3}
-              placeholder="Enter your full delivery address"
+              placeholder="Enter your full address with city, state, pincode, and India"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={handleAddressChange}
               required
               className="form-input"
             />
+            {address && !validateAddress(address) && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{ fontSize: "1.6vh" }}
+              >
+                ⚠️ Please enter a valid Indian address with city, state, and
+                6-digit pincode.
+              </Typography>
+            )}
           </Form.Group>
 
           {/* Delivery Timing */}
@@ -136,4 +154,10 @@ export default function DeliveryDetails({ onDetailsComplete }) {
       </Paper>
     </Container>
   );
+}
+
+// ✅ Export a simple function: just checks if address exists
+export function checkDeliveryFilled() {
+  const address = sessionStorage.getItem("userAddress");
+  return !!(address && address.trim().length > 0);
 }
