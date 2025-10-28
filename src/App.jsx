@@ -8,6 +8,7 @@ import PromoSection from "./Components/Home/PromoSection.jsx";
 import StorySection from "./Components/Home/StorySection.jsx";
 import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop/Shop.jsx";
+import DeliveryDetails from "./Components/Orders/DeliveryDetails.jsx";
 import Cart from "./Components/Orders/Cart.jsx";
 import ProductDetails from "./Components/ProductDetail/ProductDetails.jsx";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
@@ -68,6 +69,7 @@ function App() {
       path: "/cart",
       element: (
         <Layout>
+         <DeliveryDetails />
          <Cart />
         </Layout>
       ),

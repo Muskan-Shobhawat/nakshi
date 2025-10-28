@@ -1,0 +1,81 @@
+.delivery-section {
+  min-height: 100vh;
+  padding: 5vh 3vw;
+  background-color: #fdf8f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delivery-card {
+  padding: 5vh 4vw;
+  border-radius: 1vw;
+  background: #ffffff;
+  box-shadow: 0 0 2vh rgba(0, 0, 0, 0.1);
+}
+
+.delivery-title {
+  color: #a60019;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3vh;
+}
+
+.divider {
+  margin-bottom: 3vh;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 1.9vh;
+  color: #333;
+}
+
+.form-input {
+  font-size: 1.8vh;
+  padding: 1.5vh 1vw;
+  border-radius: 0.6vw;
+}
+
+.delivery-timing {
+  margin: 4vh 0 2vh 0;
+  text-align: center;
+  font-size: 1.9vh;
+  font-weight: 600;
+  color: #222;
+}
+
+.delivery-notes {
+  background: #fff2f2;
+  border: 0.2vh solid #ffbfbf;
+  border-radius: 1vw;
+  padding: 2vh 2vw;
+  margin-top: 3vh;
+  text-align: center;
+}
+
+.note-text {
+  font-size: 1.7vh;
+  color: #a60019;
+  font-weight: 600;
+}
+
+.btn-wrapper {
+  margin-top: 5vh;
+  text-align: center;
+}
+
+.continue-btn {
+  background-color: #a60019 !important;
+  color: white !important;
+  border: none;
+  font-size: 2vh;
+  padding: 1.8vh 5vw;
+  border-radius: 0.8vw;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.continue-btn:hover {
+  background-color: #7a0013 !important;
+}
