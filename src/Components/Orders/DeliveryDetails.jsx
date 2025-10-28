@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form } from "react-bootstrap";
 import { Paper, Typography, Divider } from "@mui/material";
-import "../../CSS/Order/DeliveryDetails.css";
+import "../CSS/DeliveryDetails.css";
+import { useNavigate } from "react-router-dom";
 
 export default function DeliveryDetails() {
   const [user, setUser] = useState({ name: "", phone: "" });
   const [address, setAddress] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
-
   const API = import.meta.env.VITE_APP_BACKEND_URI;
+  const navigate = useNavigate();
 
-  // ✅ Fetch user profile (if logged in)
+  // ✅ Redirect if user not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      alert("Please login to continue with delivery details.");
+      navigate("/");
+      return;
+    }
 
     const fetchUser = async () => {
       try {
@@ -23,19 +28,24 @@ export default function DeliveryDetails() {
         const data = await res.json();
         if (res.ok && data.success) {
           setUser({
-            name: data.user?.name || "Guest User",
-            phone: data.user?.phone || "N/A",
+            name: data.user?.name || "",
+            phone: data.user?.phone || "",
           });
+        } else {
+          alert("Failed to fetch user details. Please login again.");
+          localStorage.removeItem("token");
+          navigate("/");
         }
       } catch (err) {
-        console.error("Profile fetch error:", err);
+        console.error("Error fetching profile:", err);
+        navigate("/");
       }
     };
 
     fetchUser();
-  }, [API]);
+  }, [API, navigate]);
 
-  // ✅ Calculate delivery date (7 days from today)
+  // ✅ Calculate 7-day delivery
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -48,7 +58,7 @@ export default function DeliveryDetails() {
     setDeliveryDate(formatted);
   }, []);
 
-  // ✅ Handle submit
+  // ✅ Handle Address Change
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!address.trim()) {
@@ -97,7 +107,7 @@ export default function DeliveryDetails() {
                 <Form.Control
                   as="textarea"
                   rows={3}
-                  placeholder="Enter full delivery address"
+                  placeholder="Enter your full delivery address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   required
@@ -112,21 +122,17 @@ export default function DeliveryDetails() {
                 </Typography>
               </div>
 
-              {/* Notes */}
+              {/* Policy Notes */}
               <div className="delivery-notes">
                 <Typography variant="body2" className="note-text">
-                  ⚠️ No Return or Exchange Policy
+                  ❌ No Return Policy
                 </Typography>
                 <Typography variant="body2" className="note-text">
-                  💳 No Cash on Delivery Available
+                  🔁 15 Days Exchange Policy
                 </Typography>
-              </div>
-
-              {/* Continue Button */}
-              <div className="btn-wrapper">
-                <Button type="submit" className="continue-btn" variant="danger">
-                  Continue to Payment
-                </Button>
+                <Typography variant="body2" className="note-text">
+                  💳 No Cash on Delivery
+                </Typography>
               </div>
             </Form>
           </Paper>

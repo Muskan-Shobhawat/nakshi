@@ -1,5 +1,6 @@
 .delivery-section {
   min-height: 100vh;
+  margin-top: 16vh;
   padding: 5vh 3vw;
   background-color: #fdf8f8;
   display: flex;
@@ -49,8 +50,8 @@
   background: #fff2f2;
   border: 0.2vh solid #ffbfbf;
   border-radius: 1vw;
-  padding: 2vh 2vw;
-  margin-top: 3vh;
+  padding: 2.5vh 2vw;
+  margin-top: 4vh;
   text-align: center;
 }
 
@@ -58,24 +59,15 @@
   font-size: 1.7vh;
   color: #a60019;
   font-weight: 600;
+  margin: 0.8vh 0;
 }
 
-.btn-wrapper {
-  margin-top: 5vh;
-  text-align: center;
-}
+@media (max-width: 768px) {
+  .delivery-card {
+    padding: 5vh 6vw;
+  }
 
-.continue-btn {
-  background-color: #a60019 !important;
-  color: white !important;
-  border: none;
-  font-size: 2vh;
-  padding: 1.8vh 5vw;
-  border-radius: 0.8vw;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.continue-btn:hover {
-  background-color: #7a0013 !important;
+  .form-input {
+    font-size: 2vh;
+  }
 }
