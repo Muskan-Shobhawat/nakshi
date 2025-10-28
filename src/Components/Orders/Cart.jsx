@@ -285,7 +285,7 @@ export default function Cart() {
           }}
         >
           <Typography variant="body1">
-            Total Amount: ₹{totalAmount?.toLocaleString("en-IN") || 0}
+            Total Amount: ₹{total?.toLocaleString("en-IN") || 0}
           </Typography>
 
           <Button
