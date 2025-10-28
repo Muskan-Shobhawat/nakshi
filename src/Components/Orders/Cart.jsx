@@ -12,7 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
-import "../CSS/Cart.css"; // ✅ import CSS file
+import "../../CSS/Order/Cart.css"; // ✅ import CSS file
 
 export default function Cart() {
   const navigate = useNavigate();
