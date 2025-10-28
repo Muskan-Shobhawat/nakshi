@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import { Paper, Typography, Divider } from "@mui/material";
-import "../CSS/DeliveryDetails.css";
+import "../../CSS/Order/DeliveryDetails.css";
 import { useNavigate } from "react-router-dom";
 
 export default function DeliveryDetails() {
