@@ -25,6 +25,7 @@ import TrendingSection from "./Components/Home/TrendingSection.jsx";
 import GenderShowcase from "./Components/Home/GenderShowcase.jsx";
 import Highlight from "./Components/Home/Highlight.jsx";
 import AccountPage from "./Components/UserBased/AccountPage.jsx";
+import Contact from "./Components/Contact/Contact.jsx";
 
 function Layout({ children }) {
   return (
@@ -94,6 +95,14 @@ function App() {
       element: (
         <Layout>
           <AccountPage />
+        </Layout>
+      ),
+    },
+        {
+      path: "/contact",
+      element: (
+        <Layout>
+          <Contact />
         </Layout>
       ),
     },
