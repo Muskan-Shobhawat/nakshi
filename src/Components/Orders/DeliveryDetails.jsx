@@ -6,8 +6,6 @@ import {
   Divider,
   Slide,
   Button,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
@@ -15,6 +13,7 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import BlockIcon from "@mui/icons-material/Block";
 import "../../CSS/Order/DeliveryDetails.css";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function DeliveryDetails() {
   const [user, setUser] = useState({ name: "", phone: "" });
@@ -22,7 +21,6 @@ export default function DeliveryDetails() {
   const [deliveryDate, setDeliveryDate] = useState("");
   const [isAddressFilled, setIsAddressFilled] = useState(false);
   const [total, setTotal] = useState(0);
-  const [toast, setToast] = useState({ open: false, message: "", severity: "info" });
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
@@ -84,10 +82,10 @@ export default function DeliveryDetails() {
   };
 
   const handleCheckout = () => {
-    setToast({
-      open: true,
-      message: `Proceeding to checkout — ₹${total.toLocaleString("en-IN")}`,
-      severity: "success",
+    toast.success(`Proceeding to checkout — ₹${total.toLocaleString("en-IN")}`, {
+      position: "bottom-center",
+      theme: "colored",
+      style: { background: "#fff89c", color: "#3f0012" },
     });
   };
 
@@ -114,7 +112,7 @@ export default function DeliveryDetails() {
             <Form.Label className="form-label">Address:</Form.Label>
             <Form.Control
               as="textarea"
-              rows={3}
+              rows={5}
               style={{ resize: "none" }}
               placeholder="Enter your full address with city, state, pincode, and India"
               value={address}
@@ -148,13 +146,33 @@ export default function DeliveryDetails() {
       </Paper>
 
       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
-        <Paper className="delivery-footer" elevation={6}>
-          <Typography variant="h6">Total: ₹{total.toLocaleString("en-IN")}</Typography>
+        <Paper
+          className="delivery-footer"
+          elevation={6}
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "#3f0012",
+            color: "#fff89c",
+            borderRadius: "12px 12px 0 0",
+            zIndex: 1300,
+          }}
+        >
+          <Typography variant="h6">
+            Total: ₹{total.toLocaleString("en-IN")}
+          </Typography>
           <Button
             variant="contained"
             sx={{
-              bgcolor: isAddressFilled ? "#fff89c" : "rgba(255,255,255,0.4)",
+              bgcolor: isAddressFilled ? "#fff89c" : "rgba(255,255,255,0.3)",
               color: "#3f0012",
+              "&:hover": { bgcolor: "#fff7b8" },
             }}
             disabled={!isAddressFilled}
             onClick={handleCheckout}
@@ -164,20 +182,7 @@ export default function DeliveryDetails() {
         </Paper>
       </Slide>
 
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={2500}
-        onClose={() => setToast({ open: false, message: "" })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setToast({ open: false, message: "" })}
-          severity={toast.severity}
-          sx={{ width: "100%" }}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
+      <ToastContainer position="bottom-center" autoClose={2000} />
     </Container>
   );
 }

@@ -1,87 +1,138 @@
+/* ===============================
+   DELIVERY DETAILS STYLES
+   Theme: #3f0012 (deep maroon), #fff89c (soft gold)
+================================== */
+
 .delivery-section {
   padding: 5vh 5vw;
-  background-color: #fffef8;
-  min-height: 70vh;
+  background-color: #fffdf2;
+  color: #3f0012;
+  min-height: 80vh;
 }
 
 .delivery-card {
-  background-color: #fff89c !important;
+  background-color: #fff89c;
+  color: #3f0012;
   border-radius: 1.5vh;
-  padding: 4vh 3vw;
+  padding: 3vh 3vw;
   max-width: 700px;
   margin: auto;
-  box-shadow: 0 0.6vh 2vh rgba(63, 0, 18, 0.15);
+  box-shadow: 0 4px 15px rgba(63, 0, 18, 0.2);
 }
 
 .delivery-title {
+  font-weight: 600;
   color: #3f0012;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6vw;
+}
+
+.divider {
+  background-color: rgba(63, 0, 18, 0.3);
+  margin: 1.5vh 0;
+}
+
+/* ===============================
+   FORM ELEMENTS
+============================== */
+.delivery-form {
+  margin-top: 3vh;
 }
 
 .form-label {
-  color: #3f0012;
   font-weight: 500;
+  color: #3f0012;
+  margin-bottom: 0.8vh;
 }
 
 .form-input {
+  border: 1px solid rgba(63, 0, 18, 0.3);
   border-radius: 1vh;
-  border: 1px solid #3f0012;
-  background-color: #fffef4;
+  background-color: #fffdf2;
   color: #3f0012;
-  font-size: 1.8vh;
+  font-size: 2vh;
 }
 
 .form-input:focus {
   border-color: #3f0012;
-  box-shadow: 0 0 0.5vh rgba(63, 0, 18, 0.4);
+  box-shadow: 0 0 8px rgba(63, 0, 18, 0.2);
 }
 
-.divider {
-  background-color: #3f0012;
-  height: 0.25vh;
-  margin-bottom: 2vh;
+textarea.form-input {
+  height: 18vh !important;
+  resize: none !important;
 }
 
+/* ===============================
+   DELIVERY DETAILS SECTIONS
+============================== */
 .delivery-timing {
-  margin-top: 2vh;
+  text-align: center;
   font-weight: 500;
   color: #3f0012;
+  margin-top: 2vh;
 }
 
 .delivery-notes {
   margin-top: 3vh;
-  background-color: #fffef4;
+  background-color: #3f0012;
+  color: #fff89c;
   border-radius: 1vh;
-  padding: 2vh;
+  padding: 2vh 2vw;
 }
 
 .note-text {
+  font-size: 1.8vh;
   display: flex;
   align-items: center;
-  gap: 0.8vw;
-  color: #3f0012;
-  font-weight: 500;
+  gap: 0.6vw;
   margin-bottom: 1vh;
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* ===============================
+   FIXED CHECKOUT POPUP
+============================== */
+.delivery-footer {
+  background-color: #3f0012;
+  color: #fff89c;
+  border-radius: 12px 12px 0 0;
+  padding: 2vh 4vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1300;
+}
 
+.delivery-footer button {
+  background-color: #fff89c;
+  color: #3f0012;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.delivery-footer button:hover {
+  background-color: #fff7b8;
+}
+
+/* ===============================
+   RESPONSIVE DESIGN
+============================== */
 @media (max-width: 992px) {
   .delivery-card {
-    width: 90%;
-    padding: 4vh 4vw;
+    padding: 3vh 5vw;
+  }
+  .delivery-footer {
+    flex-direction: column;
+    gap: 1.5vh;
+    text-align: center;
   }
 }
 
 @media (max-width: 576px) {
   .delivery-card {
-    padding: 3vh 5vw;
-  }
-
-  .form-input {
-    font-size: 1.6vh;
+    padding: 2vh 4vw;
   }
 
   .delivery-title {
@@ -90,5 +141,9 @@
 
   .note-text {
     font-size: 1.6vh;
+  }
+
+  textarea.form-input {
+    height: 22vh !important;
   }
 }

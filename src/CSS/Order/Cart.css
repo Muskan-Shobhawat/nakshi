@@ -1,36 +1,45 @@
+/* ===============================
+   CART PAGE STYLES
+   Theme: #3f0012 (deep maroon), #fff89c (soft gold)
+================================== */
+
 .cart-container {
-  padding: 5vh 6vw;
-  background-color: #fffef8;
+  padding: 5vh 5vw;
+  background-color: #fffdf2;
   min-height: 80vh;
+  color: #3f0012;
 }
 
 .cart-title {
-  color: #3f0012;
-  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 4vh;
+  margin-bottom: 5vh;
+  color: #3f0012;
 }
 
 .cart-main {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 3vh;
 }
 
+/* ==============================
+   CART ITEM CARD
+============================== */
 .cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2vh 2vw;
-  border-radius: 1.5vh;
   background-color: #fff89c;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: #3f0012;
+  border-radius: 1.5vh;
+  padding: 2vh 2vw;
+  margin-bottom: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(63, 0, 18, 0.15);
 }
 
 .cart-item:hover {
-  transform: translateY(-0.3vh);
-  box-shadow: 0 0.8vh 1.5vh rgba(63, 0, 18, 0.15);
+  transform: scale(1.02);
 }
 
 .item-info {
@@ -44,39 +53,54 @@
   height: 10vw;
   object-fit: cover;
   border-radius: 1vh;
+  box-shadow: 0 0 8px rgba(63, 0, 18, 0.25);
 }
 
 .item-name {
-  color: #3f0012;
   font-weight: 600;
   font-size: 2.2vh;
 }
 
 .item-price {
-  color: #3f0012;
-  font-weight: 500;
   font-size: 2vh;
+  color: #3f0012;
 }
 
+/* ==============================
+   QUANTITY SECTION
+============================== */
 .qty-box {
   display: flex;
   align-items: center;
-  gap: 1vw;
+  justify-content: center;
+  gap: 0.8vw;
 }
 
-.order-summary {
+.qty-box button {
+  background-color: #fffdf2 !important;
+  border: 1px solid #3f0012 !important;
+}
+
+.qty-box button:hover {
   background-color: #3f0012 !important;
   color: #fff89c !important;
-  padding: 3vh 2vw;
+}
+
+/* ==============================
+   ORDER SUMMARY BOX
+============================== */
+.order-summary {
+  background-color: #fff89c;
+  color: #3f0012;
+  padding: 3vh 3vw;
   border-radius: 1.5vh;
-  text-align: left;
+  box-shadow: 0 4px 15px rgba(63, 0, 18, 0.2);
 }
 
 .summary-title {
-  font-weight: 700;
-  font-size: 2.2vh;
-  margin-bottom: 2vh;
+  font-weight: 600;
   text-align: center;
+  margin-bottom: 1vh;
 }
 
 .summary-row,
@@ -88,61 +112,65 @@
 
 .summary-amount {
   font-weight: 700;
-  color: #fff89c;
-  font-size: 2.2vh;
 }
 
 .divider {
-  margin: 1.5vh 0;
-  background-color: #fff89c;
-  height: 0.2vh;
+  background-color: rgba(63, 0, 18, 0.4);
+  margin: 1vh 0;
 }
 
+/* ==============================
+   EMPTY CART
+============================== */
 .empty-cart {
-  text-align: center;
-  margin-top: 20vh;
-  color: #3f0012;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 65vh;
   gap: 2vh;
+  background-color: #fffdf2;
+  color: #3f0012;
 }
 
-/* ---------- RESPONSIVE ---------- */
+.empty-cart button {
+  background-color: #3f0012;
+  color: #fff89c;
+}
 
+.empty-cart button:hover {
+  background-color: #fff89c;
+  color: #3f0012;
+}
+
+/* ==============================
+   RESPONSIVE STYLING
+============================== */
 @media (max-width: 992px) {
   .item-img {
-    width: 18vw;
-    height: 18vw;
+    width: 20vw;
+    height: 20vw;
   }
 
   .cart-item {
     flex-direction: column;
     align-items: flex-start;
+    text-align: left;
+    gap: 2vh;
   }
 
   .qty-box {
-    margin-top: 1vh;
+    align-self: center;
   }
 
   .order-summary {
-    width: 100%;
     margin-top: 4vh;
   }
 }
 
 @media (max-width: 576px) {
   .cart-container {
-    padding: 3vh 4vw;
-  }
-
-  .cart-title {
-    font-size: 3vh;
-  }
-
-  .item-img {
-    width: 25vw;
-    height: 25vw;
+    padding: 4vh 4vw;
   }
 
   .item-name {
@@ -151,5 +179,9 @@
 
   .item-price {
     font-size: 1.8vh;
+  }
+
+  .order-summary {
+    padding: 2vh;
   }
 }

@@ -7,14 +7,13 @@ import {
   Divider,
   Paper,
   Stack,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import "../../CSS/Order/Cart.css";
 
 export default function Cart() {
@@ -24,7 +23,6 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
@@ -95,10 +93,10 @@ export default function Cart() {
         }),
       });
 
-      setToast({
-        open: true,
-        message: "Cart updated successfully!",
-        severity: "info",
+      toast.info("Cart updated successfully!", {
+        position: "bottom-center",
+        theme: "colored",
+        style: { background: "#fff89c", color: "#3f0012" },
       });
     } catch (err) {
       console.error("Quantity update error:", err);
@@ -122,10 +120,10 @@ export default function Cart() {
       const data = await res.json();
       if (res.ok && data.success) {
         setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
-        setToast({
-          open: true,
-          message: "Item removed from cart!",
-          severity: "warning",
+        toast.warn("Item removed from cart!", {
+          position: "bottom-center",
+          theme: "colored",
+          style: { background: "#3f0012", color: "#fff89c" },
         });
       }
     } catch (err) {
@@ -180,6 +178,7 @@ export default function Cart() {
         >
           Shop Now
         </Button>
+        <ToastContainer />
       </div>
     );
 
@@ -245,20 +244,7 @@ export default function Cart() {
         </Grid>
       </Grid>
 
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={2000}
-        onClose={() => setToast({ open: false, message: "" })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setToast({ open: false, message: "" })}
-          severity={toast.severity}
-          sx={{ width: "100%" }}
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
+      <ToastContainer position="bottom-center" autoClose={2000} />
     </div>
   );
 }
