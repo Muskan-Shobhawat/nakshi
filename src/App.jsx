@@ -26,6 +26,7 @@ import GenderShowcase from "./Components/Home/GenderShowcase.jsx";
 import Highlight from "./Components/Home/Highlight.jsx";
 import AccountPage from "./Components/UserBased/AccountPage.jsx";
 import Contact from "./Components/Contact/Contact.jsx";
+import About from "./Components/About/About.jsx";
 
 function Layout({ children }) {
   return (
@@ -103,6 +104,14 @@ function App() {
       element: (
         <Layout>
           <Contact />
+        </Layout>
+      ),
+    },
+            {
+      path: "/about",
+      element: (
+        <Layout>
+          <About />
         </Layout>
       ),
     },
