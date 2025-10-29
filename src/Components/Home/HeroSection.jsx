@@ -1,5 +1,5 @@
 import React from "react";
-import heroVideo from "../../assets/hero.mp4"; // your video file
+// import heroVideo from "../../assets/hero.mp4"; // your video file
 import "../../CSS/Home/HeroSection.css";
 
 function HeroSection() {
