@@ -16,6 +16,8 @@ import {
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CheckIcon from "@mui/icons-material/Check";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../../CSS/ProductDetail/ProductDetails.css";
 
 export default function ProductDetails() {
@@ -32,11 +34,9 @@ export default function ProductDetails() {
   const [newReview, setNewReview] = useState("");
   const [currentImage, setCurrentImage] = useState("");
   const [slideIndex, setSlideIndex] = useState(0);
-  const [quantities, setQuantities] = useState({});
   const [cartCount, setCartCount] = useState(0);
   const [showCartPopup, setShowCartPopup] = useState(false);
 
-  const qty = quantities[product?._id] || 0;
   const API = import.meta.env.VITE_APP_BACKEND_URI;
 
   // ✅ Fetch product by ID
@@ -81,12 +81,14 @@ export default function ProductDetails() {
     }
   };
 
-  // ✅ Cart handlers
+  // ✅ Add to Cart (toast instead of alert)
   const handleAddToCart = async (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login/signup to add products to cart.");
-      navigate("/"); // or open login modal
+      toast.error("Please login/signup to add products to cart.", {
+        position: "top-center",
+      });
+      navigate("/login");
       return;
     }
 
@@ -98,41 +100,18 @@ export default function ProductDetails() {
       );
 
       if (res.data.success) {
-        setQuantities((prev) => ({ ...prev, [id]: 1 }));
-        updateCartCount({ ...quantities, [id]: 1 });
-        alert("Added to cart successfully!");
+        setCartCount((prev) => prev + 1);
+        setShowCartPopup(true);
+        toast.success("Added to cart successfully!", {
+          position: "top-center",
+        });
       }
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert("Something went wrong while adding to cart.");
+      toast.error("Something went wrong while adding to cart.", {
+        position: "top-center",
+      });
     }
-  };
-
-  const increaseQty = (id) => {
-    setQuantities((prev) => {
-      const newQuantities = { ...prev, [id]: (prev[id] || 0) + 1 };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const decreaseQty = (id) => {
-    setQuantities((prev) => {
-      let newQty = (prev[id] || 0) - 1;
-      if (newQty < 0) newQty = 0;
-      const newQuantities = { ...prev, [id]: newQty };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const updateCartCount = (newQuantities) => {
-    const totalItems = Object.values(newQuantities).reduce(
-      (sum, q) => sum + q,
-      0
-    );
-    setCartCount(totalItems);
-    setShowCartPopup(totalItems > 0);
   };
 
   if (!product)
@@ -146,6 +125,9 @@ export default function ProductDetails() {
 
   return (
     <Box sx={{ p: "4vh" }} className="bb">
+      {/* ✅ Toast Container */}
+      <ToastContainer autoClose={1500} hideProgressBar />
+
       <Grid container spacing={4}>
         {/* LEFT: Product Images */}
         <Grid item xs={12} md={6}>
@@ -262,49 +244,15 @@ export default function ProductDetails() {
           </Stack>
 
           {/* Add to Cart */}
-          {qty === 0 ? (
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={() => handleAddToCart(product._id)}
-            >
-              Add to Cart
-            </Button>
-          ) : (
-            <div className="added-section" style={{ marginTop: "0.5rem" }}>
-              <Button
-                variant="contained"
-                color="success"
-                fullWidth
-                disabled
-                sx={{ mb: 1 }}
-              >
-                Added <CheckIcon sx={{ ml: 1 }} />
-              </Button>
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Button
-                  variant="outlined"
-                  onClick={() => decreaseQty(product._id)}
-                >
-                  -
-                </Button>
-                <Typography variant="body1">{qty}</Typography>
-                <Button
-                  variant="outlined"
-                  onClick={() => increaseQty(product._id)}
-                >
-                  +
-                </Button>
-              </Stack>
-            </div>
-          )}
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
+            onClick={() => handleAddToCart(product._id)}
+          >
+            Add to Cart
+          </Button>
         </Grid>
       </Grid>
 
