@@ -1,74 +1,94 @@
 .delivery-section {
-  min-height: 100vh;
-  margin-top: 16vh;
-  padding: 5vh 3vw;
-  background-color: #fdf8f8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 5vh 5vw;
+  background-color: #fffef8;
+  min-height: 70vh;
 }
 
 .delivery-card {
-  padding: 5vh 4vw;
-  width: 80vw;
-  border-radius: 1vw;
-  background: #ffffff;
-  box-shadow: 0 0 2vh rgba(0, 0, 0, 0.1);
+  background-color: #fff89c !important;
+  border-radius: 1.5vh;
+  padding: 4vh 3vw;
+  max-width: 700px;
+  margin: auto;
+  box-shadow: 0 0.6vh 2vh rgba(63, 0, 18, 0.15);
 }
 
 .delivery-title {
-  color: #a60019;
+  color: #3f0012;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 3vh;
-}
-
-.divider {
-  margin-bottom: 3vh;
+  margin-bottom: 2vh;
 }
 
 .form-label {
-  font-weight: 600;
-  font-size: 1.9vh;
-  color: #333;
+  color: #3f0012;
+  font-weight: 500;
 }
 
 .form-input {
+  border-radius: 1vh;
+  border: 1px solid #3f0012;
+  background-color: #fffef4;
+  color: #3f0012;
   font-size: 1.8vh;
-  padding: 1.5vh 1vw;
-  border-radius: 0.6vw;
+}
+
+.form-input:focus {
+  border-color: #3f0012;
+  box-shadow: 0 0 0.5vh rgba(63, 0, 18, 0.4);
+}
+
+.divider {
+  background-color: #3f0012;
+  height: 0.25vh;
+  margin-bottom: 2vh;
 }
 
 .delivery-timing {
-  margin: 4vh 0 2vh 0;
-  text-align: center;
-  font-size: 1.9vh;
-  font-weight: 600;
-  color: #222;
+  margin-top: 2vh;
+  font-weight: 500;
+  color: #3f0012;
 }
 
 .delivery-notes {
-  background: #fff2f2;
-  border: 0.2vh solid #ffbfbf;
-  border-radius: 1vw;
-  padding: 2.5vh 2vw;
-  margin-top: 4vh;
-  text-align: center;
+  margin-top: 3vh;
+  background-color: #fffef4;
+  border-radius: 1vh;
+  padding: 2vh;
 }
 
 .note-text {
-  font-size: 1.7vh;
-  color: #a60019;
-  font-weight: 600;
-  margin: 0.8vh 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  color: #3f0012;
+  font-weight: 500;
+  margin-bottom: 1vh;
 }
 
-@media (max-width: 768px) {
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 992px) {
   .delivery-card {
-    padding: 5vh 6vw;
+    width: 90%;
+    padding: 4vh 4vw;
+  }
+}
+
+@media (max-width: 576px) {
+  .delivery-card {
+    padding: 3vh 5vw;
   }
 
   .form-input {
-    font-size: 2vh;
+    font-size: 1.6vh;
+  }
+
+  .delivery-title {
+    font-size: 2.5vh;
+  }
+
+  .note-text {
+    font-size: 1.6vh;
   }
 }

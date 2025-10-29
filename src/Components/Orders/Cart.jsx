@@ -13,6 +13,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { useNavigate } from "react-router-dom";
 import "../../CSS/Order/Cart.css";
 
@@ -23,7 +24,7 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState({ open: false, message: "" });
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
@@ -31,14 +32,12 @@ export default function Cart() {
       maximumFractionDigits: 2,
     });
 
-  // ✅ Fetch Cart Items
   useEffect(() => {
     const fetchCart = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("Please login to view your cart");
         setLoading(false);
-        navigate("/");
+        navigate("/login");
         return;
       }
 
@@ -50,15 +49,12 @@ export default function Cart() {
 
         if (res.ok && data.success) {
           setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
-          // ✅ Save userId for DeliveryDetails
           if (data.cart?.userId)
             sessionStorage.setItem("cartUserId", data.cart.userId);
-        } else {
-          setError(data.message || "Failed to fetch cart");
-        }
+        } else setError(data.message || "Failed to fetch cart");
       } catch (err) {
-        console.error("Fetch cart error:", err);
-        setError("Something went wrong while loading cart.");
+        console.error("Cart fetch error:", err);
+        setError("Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -66,10 +62,9 @@ export default function Cart() {
     fetchCart();
   }, [API, navigate]);
 
-  // ✅ Quantity Controls
   const updateQuantity = async (productId, action) => {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Please login first");
+    if (!token) return;
 
     try {
       const updated = items.map((it) => ({ ...it }));
@@ -88,7 +83,6 @@ export default function Cart() {
       }
 
       setItems(updated);
-
       await fetch(`${API}cart/add`, {
         method: "POST",
         headers: {
@@ -100,15 +94,20 @@ export default function Cart() {
           quantity: action === "increase" ? 1 : -1,
         }),
       });
+
+      setToast({
+        open: true,
+        message: "Cart updated successfully!",
+        severity: "info",
+      });
     } catch (err) {
       console.error("Quantity update error:", err);
     }
   };
 
-  // ✅ Remove Item
   const removeItem = async (productId) => {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Please login first");
+    if (!token) return;
 
     try {
       const res = await fetch(`${API}cart/remove`, {
@@ -123,15 +122,17 @@ export default function Cart() {
       const data = await res.json();
       if (res.ok && data.success) {
         setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
-      } else {
-        alert(data.message || "Failed to remove item");
+        setToast({
+          open: true,
+          message: "Item removed from cart!",
+          severity: "warning",
+        });
       }
     } catch (err) {
       console.error("Remove item error:", err);
     }
   };
 
-  // ✅ Totals
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
     0
@@ -139,11 +140,9 @@ export default function Cart() {
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  // ✅ Save total for DeliveryDetails safely and show toast
   useEffect(() => {
     if (!isNaN(total) && total > 0) {
       sessionStorage.setItem("cartTotal", total.toString());
-      setToast({ open: true, message: `Cart updated! Total ₹${fmtINR(total)}` });
     } else {
       sessionStorage.removeItem("cartTotal");
     }
@@ -166,10 +165,19 @@ export default function Cart() {
   if (!items.length)
     return (
       <div className="empty-cart">
-        <Typography variant="h5" gutterBottom>
-          Your cart is empty 🛒
+        <ShoppingCartOutlinedIcon sx={{ fontSize: "5vh", color: "#3f0012" }} />
+        <Typography variant="h5" gutterBottom sx={{ color: "#3f0012" }}>
+          Your cart is empty
         </Typography>
-        <Button variant="contained" onClick={() => navigate("/shop")}>
+        <Button
+          variant="contained"
+          sx={{
+            bgcolor: "#3f0012",
+            color: "#fff89c",
+            "&:hover": { bgcolor: "#fff89c", color: "#3f0012" },
+          }}
+          onClick={() => navigate("/shop")}
+        >
           Shop Now
         </Button>
       </div>
@@ -178,11 +186,10 @@ export default function Cart() {
   return (
     <div className="cart-container">
       <Typography className="cart-title" variant="h4">
-        My Cart 🛍️
+        My Cart
       </Typography>
 
       <Grid container spacing={4} className="cart-main">
-        {/* LEFT SIDE */}
         <Grid item xs={12} md={8}>
           {items.map((item) => (
             <Paper key={item.productId} className="cart-item">
@@ -197,15 +204,11 @@ export default function Cart() {
               </div>
 
               <div className="qty-box">
-                <IconButton
-                  onClick={() => updateQuantity(item.productId, "decrease")}
-                >
+                <IconButton onClick={() => updateQuantity(item.productId, "decrease")}>
                   <RemoveIcon />
                 </IconButton>
                 <Typography>{item.quantity}</Typography>
-                <IconButton
-                  onClick={() => updateQuantity(item.productId, "increase")}
-                >
+                <IconButton onClick={() => updateQuantity(item.productId, "increase")}>
                   <AddIcon />
                 </IconButton>
               </div>
@@ -217,12 +220,10 @@ export default function Cart() {
           ))}
         </Grid>
 
-        {/* RIGHT SIDE */}
         <Grid item xs={12} md={4}>
           <Paper className="order-summary">
             <Typography className="summary-title">Order Summary</Typography>
             <Divider className="divider" />
-
             <Stack spacing={1}>
               <div className="summary-row">
                 <Typography>Subtotal:</Typography>
@@ -244,7 +245,6 @@ export default function Cart() {
         </Grid>
       </Grid>
 
-      {/* ✅ Toast Notification */}
       <Snackbar
         open={toast.open}
         autoHideDuration={2000}
@@ -253,7 +253,7 @@ export default function Cart() {
       >
         <Alert
           onClose={() => setToast({ open: false, message: "" })}
-          severity="success"
+          severity={toast.severity}
           sx={{ width: "100%" }}
         >
           {toast.message}
