@@ -1,34 +1,85 @@
-/* .hero-section::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 150;
-  right: 0;
-  bottom: 0;
-  background: rgba(83, 40, 40, 0.4);
-  z-index: 0;
-    display: flex !important;
-  align-items: flex-start !important;
-  Put overlay behind text
-  background-image: url(../src/assets/bb.png);  
-
-} */
-
+/* ✅ Main Hero Section */
 .hero-section {
   position: relative;
+  width: 100vw;
+  height: 100vh;
+  margin-top: 16vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.hero-section.hrfix {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  height: 100vh !important;
-  color: #3f0012 !important;
+/* 🎥 Background Video Styling */
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  filter: brightness(65%);
+  /* Keeps text readable */
 }
 
+/* ✨ Overlay Text Section */
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  color: white;
+  /* margin-left: 5vw; */
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* border: 2px solid red; */
+  max-width: 60vw;
+}
+
+.hero-overlay h1 {
+  font-family: "Chiron Sung HK", serif;
+  font-size: 5.5vh;
+  font-weight: bold;
+  color: #fff89c;
+  /* Gold accent */
+  /* color: #5d0019; Gold accent */
+  margin-bottom: 2vh;
+  line-height: 6vh;
+}
+
+.lead {
+  font-size: 4vh;
+  font-weight: bold;
+  font-family: "Special Gothic", sans-serif;
+  color: #fff;
+  color: #fff89c;
+  /* Gold accent */
+  margin-bottom: 3vh;
+}
+
+
+.lead2 {
+  font-size: 3vh;
+  font-style: italic;
+  font-family: "Arimo", sans-serif;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 3vh;
+}
+
+/* 💎 Explore Button */
 .exp {
-  background-color: #3f0012;
-  color: #d4af37;
+  background-color: #5d0019;
+  color: #fff89c;
+  border: none;
+  font-size: 2.6vh;
+  padding: 1.8vh 2.5vw;
+  border-radius: 0.8vh;
+  transition: all 0.3s ease;
+  font-family: "Arimo", sans-serif;
 }
 
 .exp:hover {
@@ -36,32 +87,80 @@
   color: white;
 }
 
-.ff {
-  /* border: 2px solid red; */
-  width: 28vw;
-  margin-left: 3vw;
-  margin-top: 25vh;
+/* 🧭 Responsive Adjustments */
+@media (max-width: 1170px) {
+  .hero-overlay {
+    /* width: 85vw; */
+    max-width: 85vw;
+    /* border: 2px solid blue; */
+    margin-left: 5vw;
+  }
 
+  .hero-overlay h1 {
+    font-size: 4.8vh;
+    line-height: 5.5vh;
+  }
+
+  .lead {
+    font-size: 4vh;
+  }
 }
 
-@media (max-width: 1170px) {
+@media (max-width: 992px) {
   .hero-section {
-    /* background-position: 0vw 0vh; */
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    margin-top: 8vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 
-  .ff {
-    /* border: 2px solid red; */
-    width: 60vw !important;
+  .hero-overlay {
+    /* width: 85vw; */
+    max-width: 85vw;
+    /* border: 2px solid rgb(255, 0, 0); */
+    margin-left: 5vw;
   }
 
-  h1 {
-    /* width: 45vw; */
-    /* border: 2px solid red; */
+  .hero-overlay h1 {
+    font-size: 4.8vh;
+    line-height: 5.5vh;
+  }
+
+  .lead {
+    font-size: 4vh;
   }
 }
 
 @media (max-width: 776px) {
-  .hrfix {
-    background-position: -65vw 0vh !important;
+  .hero-section {
+    justify-content: center;
+    /* border: 2px solid green; */
+  }
+
+  .hero-overlay {
+    max-width: 90vw;
+    margin: 0;
+    text-align: center;
+  }
+
+  .hero-overlay h1 {
+    font-size: 3vh;
+  }
+
+  .lead {
+    font-size: 2.8vh;
+  }
+
+    .lead2 {
+    font-size: 2vh;
+  }
+
+  .exp {
+    font-size: 2.4vh;
+    padding: 1vh 4vw;
   }
 }
