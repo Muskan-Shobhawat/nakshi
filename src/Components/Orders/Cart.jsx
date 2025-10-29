@@ -96,7 +96,7 @@ export default function Cart() {
       toast.info("Cart updated successfully!", {
         position: "bottom-center",
         theme: "colored",
-        style: { background: "#fff89c", color: "#3f0012" },
+        // style: { background: "#fff89c", color: "#3f0012" },
       });
     } catch (err) {
       console.error("Quantity update error:", err);
@@ -123,7 +123,7 @@ export default function Cart() {
         toast.warn("Item removed from cart!", {
           position: "bottom-center",
           theme: "colored",
-          style: { background: "#3f0012", color: "#fff89c" },
+          // style: { background: "#3f0012", color: "#fff89c" },
         });
       }
     } catch (err) {

@@ -85,7 +85,7 @@ export default function DeliveryDetails() {
     toast.success(`Proceeding to checkout — ₹${total.toLocaleString("en-IN")}`, {
       position: "bottom-center",
       theme: "colored",
-      style: { background: "#fff89c", color: "#3f0012" },
+      // style: { background: "#fff89c", color: "#3f0012" },
     });
   };
 
@@ -158,7 +158,7 @@ export default function DeliveryDetails() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            backgroundColor: "#3f0012",
+            backgroundColor: "#aa0a37ff",
             color: "#fff89c",
             borderRadius: "12px 12px 0 0",
             zIndex: 1300,
