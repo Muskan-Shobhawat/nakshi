@@ -1,10 +1,8 @@
-// import { useState } from 'react'
 import "./App.css";
 import NavbarNakshi from "./Components/NavbarNakshi.jsx";
 import HeroSection from "./Components/Home/HeroSection.jsx";
 import ExploreSection from "./Components/Home/ExploreSection.jsx";
 import CategoryGrid from "./Components/Home/CategoryGrid.jsx";
-import PromoSection from "./Components/Home/PromoSection.jsx";
 import StorySection from "./Components/Home/StorySection.jsx";
 import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop/Shop.jsx";
@@ -29,7 +27,9 @@ import Contact from "./Components/Contact/Contact.jsx";
 import About from "./Components/About/About.jsx";
 import Login from "./Components/OTP/Login.jsx";
 import Register from "./Components/OTP/Register.jsx";
+import React from "react";
 
+// ✅ Layout Wrapper
 function Layout({ children }) {
   return (
     <>
@@ -40,8 +40,27 @@ function Layout({ children }) {
   );
 }
 
+// ✅ Protected Route Component
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+// ✅ Redirect if already logged in
+function GuestOnly({ children }) {
+  const token = localStorage.getItem("token");
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
 function App() {
   const queryClient = new QueryClient();
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -53,7 +72,6 @@ function App() {
           <CategoryGrid />
           <GenderShowcase />
           <Highlight />
-          {/* <PromoSection /> */}
           <StorySection />
         </Layout>
       ),
@@ -77,17 +95,23 @@ function App() {
     {
       path: "/cart",
       element: (
-        <Layout>
-          <Cart />
-          <DeliveryDetails />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <Cart />
+            <DeliveryDetails />
+          </Layout>
+        </ProtectedRoute>
       ),
     },
     {
       path: "/admin",
-      element: <AdminPanel />,
+      element: (
+        <ProtectedRoute>
+          <AdminPanel />
+        </ProtectedRoute>
+      ),
       children: [
-        { index: true, element: <Navigate to="members" /> }, // default redirect
+        { index: true, element: <Navigate to="members" /> },
         { path: "members", element: <MembersTable /> },
         { path: "users", element: <UsersPage /> },
         { path: "products", element: <ProductsTable /> },
@@ -96,12 +120,14 @@ function App() {
     {
       path: "/account",
       element: (
-        <Layout>
-          <AccountPage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <AccountPage />
+          </Layout>
+        </ProtectedRoute>
       ),
     },
-        {
+    {
       path: "/contact",
       element: (
         <Layout>
@@ -109,7 +135,7 @@ function App() {
         </Layout>
       ),
     },
-            {
+    {
       path: "/about",
       element: (
         <Layout>
@@ -117,29 +143,49 @@ function App() {
         </Layout>
       ),
     },
-                {
+    {
       path: "/login",
       element: (
-        <Layout>
-          <Login />
-        </Layout>
+        <GuestOnly>
+          <Layout>
+            <Login />
+          </Layout>
+        </GuestOnly>
       ),
     },
-                    {
+    {
       path: "/register",
       element: (
+        <GuestOnly>
+          <Layout>
+            <Register />
+          </Layout>
+        </GuestOnly>
+      ),
+    },
+    // Optional: 404 fallback
+    {
+      path: "*",
+      element: (
         <Layout>
-          <Register />
+          <h2
+            style={{
+              textAlign: "center",
+              padding: "10vh 0",
+              color: "#a60019",
+            }}
+          >
+            404 — Page Not Found
+          </h2>
         </Layout>
       ),
     },
   ]);
+
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   );
 }
 
