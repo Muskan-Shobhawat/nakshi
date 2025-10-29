@@ -59,11 +59,11 @@ function NavbarNakshi() {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUserName("");
-    navigate("/login");
+    navigate("/");
   };
 
   const handleLoginClick = () => {
-    navigate("/login");
+    navigate("/user/login");
   };
 
   return (
@@ -231,7 +231,7 @@ function NavbarNakshi() {
                 id="navbtn"
                 size="sm"
                 onClick={() => {
-                  navigate("/login");
+                  navigate("/user/login");
                   setMenuOpen(false);
                 }}
               >
