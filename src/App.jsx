@@ -27,6 +27,8 @@ import Highlight from "./Components/Home/Highlight.jsx";
 import AccountPage from "./Components/UserBased/AccountPage.jsx";
 import Contact from "./Components/Contact/Contact.jsx";
 import About from "./Components/About/About.jsx";
+import Login from "./Components/OTP/Login.jsx";
+import Register from "./Components/OTP/Register.jsx";
 
 function Layout({ children }) {
   return (
@@ -112,6 +114,22 @@ function App() {
       element: (
         <Layout>
           <About />
+        </Layout>
+      ),
+    },
+                {
+      path: "/login",
+      element: (
+        <Layout>
+          <Login />
+        </Layout>
+      ),
+    },
+                    {
+      path: "/register",
+      element: (
+        <Layout>
+          <Register />
         </Layout>
       ),
     },
