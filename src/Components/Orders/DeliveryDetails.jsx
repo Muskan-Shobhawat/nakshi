@@ -13,13 +13,17 @@ export default function DeliveryDetails() {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Load total from sessionStorage
+  // ✅ Load total from sessionStorage safely
   useEffect(() => {
-    const storedTotal = Number(sessionStorage.getItem("cartTotal") || 0);
-    setTotal(storedTotal);
+    const stored = sessionStorage.getItem("cartTotal");
+    if (stored && !isNaN(stored)) {
+      setTotal(Number(stored));
+    } else {
+      setTotal(0);
+    }
   }, []);
 
-  // ✅ Fetch user details by userId stored in session
+  // ✅ Fetch user details using cart userId
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = sessionStorage.getItem("cartUserId");
@@ -53,7 +57,7 @@ export default function DeliveryDetails() {
     fetchUser();
   }, [API, navigate]);
 
-  // ✅ Delivery date 7 days later
+  // ✅ Delivery date (7 days ahead)
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
@@ -79,13 +83,15 @@ export default function DeliveryDetails() {
   };
 
   const handleCheckout = () => {
-    alert(`Proceeding to checkout...\n\nTotal: ₹${total.toLocaleString("en-IN")}\nDeliver To: ${user.name}\nPhone: ${user.phone}\nDelivery Date: ${deliveryDate}`);
+    alert(`✅ Proceeding to checkout!\n\nTotal: ₹${total.toLocaleString("en-IN")}\nDeliver To: ${user.name}\nPhone: ${user.phone}\nDelivery Date: ${deliveryDate}`);
   };
 
   return (
     <Container fluid className="delivery-section">
       <Paper className="delivery-card" elevation={4}>
-        <Typography className="delivery-title" variant="h5" gutterBottom>Delivery Details 🚚</Typography>
+        <Typography className="delivery-title" variant="h5" gutterBottom>
+          Delivery Details 🚚
+        </Typography>
         <Divider className="divider" />
 
         <Form className="delivery-form">
@@ -104,7 +110,7 @@ export default function DeliveryDetails() {
             <Form.Control
               as="textarea"
               rows={3}
-              placeholder="Enter your full address with city, state, pincode, and India"
+              placeholder="Enter full address (city, state, pincode, India)"
               value={address}
               onChange={handleAddressChange}
               required
@@ -117,7 +123,9 @@ export default function DeliveryDetails() {
             )}
           </Form.Group>
 
-          <Typography variant="body1"><strong>Estimated Delivery:</strong> {deliveryDate}</Typography>
+          <Typography variant="body1">
+            <strong>Estimated Delivery:</strong> {deliveryDate}
+          </Typography>
           <Typography variant="body2" className="note-text">❌ No Return Policy</Typography>
           <Typography variant="body2" className="note-text">🔁 15 Days Exchange Policy</Typography>
           <Typography variant="body2" className="note-text">💳 No Cash on Delivery</Typography>
@@ -143,7 +151,9 @@ export default function DeliveryDetails() {
             zIndex: 1300,
           }}
         >
-          <Typography variant="h6">Total Amount: ₹{total.toLocaleString("en-IN")}</Typography>
+          <Typography variant="h6">
+            Total Amount: ₹{total.toLocaleString("en-IN")}
+          </Typography>
           <Button
             variant="contained"
             sx={{

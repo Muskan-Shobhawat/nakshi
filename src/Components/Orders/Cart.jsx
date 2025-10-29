@@ -7,6 +7,8 @@ import {
   Divider,
   Paper,
   Stack,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,6 +23,7 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState({ open: false, message: "" });
 
   const fmtINR = (n) =>
     Number(n ?? 0).toLocaleString("en-IN", {
@@ -48,7 +51,8 @@ export default function Cart() {
         if (res.ok && data.success) {
           setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
           // ✅ Save userId for DeliveryDetails
-          if (data.cart?.userId) sessionStorage.setItem("cartUserId", data.cart.userId);
+          if (data.cart?.userId)
+            sessionStorage.setItem("cartUserId", data.cart.userId);
         } else {
           setError(data.message || "Failed to fetch cart");
         }
@@ -69,7 +73,9 @@ export default function Cart() {
 
     try {
       const updated = items.map((it) => ({ ...it }));
-      const idx = updated.findIndex((it) => it.productId?.toString?.() === productId);
+      const idx = updated.findIndex(
+        (it) => it.productId?.toString?.() === productId
+      );
       if (idx < 0) return;
 
       if (action === "increase") updated[idx].quantity += 1;
@@ -133,28 +139,47 @@ export default function Cart() {
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  // ✅ Save total for DeliveryDetails
+  // ✅ Save total for DeliveryDetails safely and show toast
   useEffect(() => {
-    sessionStorage.setItem("cartTotal", total);
+    if (!isNaN(total) && total > 0) {
+      sessionStorage.setItem("cartTotal", total.toString());
+      setToast({ open: true, message: `Cart updated! Total ₹${fmtINR(total)}` });
+    } else {
+      sessionStorage.removeItem("cartTotal");
+    }
   }, [total]);
 
   if (loading)
-    return <Typography align="center" sx={{ mt: "10vh" }}>Loading your cart...</Typography>;
+    return (
+      <Typography align="center" sx={{ mt: "10vh" }}>
+        Loading your cart...
+      </Typography>
+    );
 
   if (error)
-    return <Typography align="center" color="error" sx={{ mt: "10vh" }}>{error}</Typography>;
+    return (
+      <Typography align="center" color="error" sx={{ mt: "10vh" }}>
+        {error}
+      </Typography>
+    );
 
   if (!items.length)
     return (
       <div className="empty-cart">
-        <Typography variant="h5" gutterBottom>Your cart is empty 🛒</Typography>
-        <Button variant="contained" onClick={() => navigate("/shop")}>Shop Now</Button>
+        <Typography variant="h5" gutterBottom>
+          Your cart is empty 🛒
+        </Typography>
+        <Button variant="contained" onClick={() => navigate("/shop")}>
+          Shop Now
+        </Button>
       </div>
     );
 
   return (
     <div className="cart-container">
-      <Typography className="cart-title" variant="h4">My Cart 🛍️</Typography>
+      <Typography className="cart-title" variant="h4">
+        My Cart 🛍️
+      </Typography>
 
       <Grid container spacing={4} className="cart-main">
         {/* LEFT SIDE */}
@@ -165,14 +190,24 @@ export default function Cart() {
                 <img src={item.image} alt={item.name} className="item-img" />
                 <div>
                   <Typography className="item-name">{item.name}</Typography>
-                  <Typography className="item-price">₹{fmtINR(item.price)}</Typography>
+                  <Typography className="item-price">
+                    ₹{fmtINR(item.price)}
+                  </Typography>
                 </div>
               </div>
 
               <div className="qty-box">
-                <IconButton onClick={() => updateQuantity(item.productId, "decrease")}><RemoveIcon /></IconButton>
+                <IconButton
+                  onClick={() => updateQuantity(item.productId, "decrease")}
+                >
+                  <RemoveIcon />
+                </IconButton>
                 <Typography>{item.quantity}</Typography>
-                <IconButton onClick={() => updateQuantity(item.productId, "increase")}><AddIcon /></IconButton>
+                <IconButton
+                  onClick={() => updateQuantity(item.productId, "increase")}
+                >
+                  <AddIcon />
+                </IconButton>
               </div>
 
               <IconButton color="error" onClick={() => removeItem(item.productId)}>
@@ -189,14 +224,41 @@ export default function Cart() {
             <Divider className="divider" />
 
             <Stack spacing={1}>
-              <div className="summary-row"><Typography>Subtotal:</Typography><Typography>₹{fmtINR(subtotal)}</Typography></div>
-              <div className="summary-row"><Typography>Shipping (5%):</Typography><Typography>₹{fmtINR(tax)}</Typography></div>
+              <div className="summary-row">
+                <Typography>Subtotal:</Typography>
+                <Typography>₹{fmtINR(subtotal)}</Typography>
+              </div>
+              <div className="summary-row">
+                <Typography>Shipping (5%):</Typography>
+                <Typography>₹{fmtINR(tax)}</Typography>
+              </div>
               <Divider className="divider" />
-              <div className="summary-total"><Typography>Total:</Typography><Typography className="summary-amount">₹{fmtINR(total)}</Typography></div>
+              <div className="summary-total">
+                <Typography>Total:</Typography>
+                <Typography className="summary-amount">
+                  ₹{fmtINR(total)}
+                </Typography>
+              </div>
             </Stack>
           </Paper>
         </Grid>
       </Grid>
+
+      {/* ✅ Toast Notification */}
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={2000}
+        onClose={() => setToast({ open: false, message: "" })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setToast({ open: false, message: "" })}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
