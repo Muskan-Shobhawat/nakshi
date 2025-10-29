@@ -69,8 +69,8 @@ export default function Register() {
 
   return (
     <div className="auth-section">
-      <ToastContainer />
       <Container fluid className="ccfix">
+      <ToastContainer />
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">Sign Up - Nakshi</h3>
               <Form onSubmit={handleRegisterSubmit}>

@@ -56,8 +56,8 @@ export default function Login({ onLoginSuccess }) {
 
   return (
     <div className="auth-section">
-      <ToastContainer />
       <Container fluid className="ccfix">
+      <ToastContainer />
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">Login - Nakshi</h3>
               <Form onSubmit={handleSubmit}>
