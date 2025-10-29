@@ -71,8 +71,6 @@ export default function Register() {
     <div className="auth-section">
       <ToastContainer />
       <Container fluid className="ccfix">
-        <Row className="justify-content-center rrfix">
-          <Col xs={12} sm={10} md={8} lg={6} xl={5} className="fix">
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">Sign Up - Nakshi</h3>
               <Form onSubmit={handleRegisterSubmit}>
@@ -155,8 +153,6 @@ export default function Register() {
                 </small>
               </div>
             </div>
-          </Col>
-        </Row>
       </Container>
 
       <OtpPopup

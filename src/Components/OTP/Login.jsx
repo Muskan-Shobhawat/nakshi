@@ -58,8 +58,6 @@ export default function Login({ onLoginSuccess }) {
     <div className="auth-section">
       <ToastContainer />
       <Container fluid className="ccfix">
-        <Row className="justify-content-center rrfix">
-          <Col xs={12} sm={10} md={8} lg={6} xl={5} className="fix">
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">Login - Nakshi</h3>
               <Form onSubmit={handleSubmit}>
@@ -108,8 +106,6 @@ export default function Login({ onLoginSuccess }) {
                 </small>
               </div>
             </div>
-          </Col>
-        </Row>
       </Container>
     </div>
   );
