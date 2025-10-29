@@ -27,6 +27,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [wishlist, setWishlist] = useState(false);
   const [rating, setRating] = useState(4);
+  const [added, setAdded] = useState(false);
   const [reviews, setReviews] = useState([
     { user: "Aditi", text: "Loved the quality! Very shiny." },
     { user: "Rohit", text: "Perfect for gifting. Elegant design." },
@@ -81,7 +82,7 @@ export default function ProductDetails() {
     }
   };
 
-  // ✅ Add to Cart (toast instead of alert)
+  // ✅ Add to Cart (toast + added button)
   const handleAddToCart = async (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -100,6 +101,7 @@ export default function ProductDetails() {
       );
 
       if (res.data.success) {
+        setAdded(true);
         setCartCount((prev) => prev + 1);
         setShowCartPopup(true);
         toast.success("Added to cart successfully!", {
@@ -243,16 +245,32 @@ export default function ProductDetails() {
             />
           </Stack>
 
-          {/* Add to Cart */}
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 3 }}
-            onClick={() => handleAddToCart(product._id)}
-          >
-            Add to Cart
-          </Button>
+          {/* Add to Cart / Added */}
+          {!added ? (
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                mt: 3,
+                bgcolor: "#a60019",
+                "&:hover": { bgcolor: "#d4af37", color: "#fff" },
+              }}
+              onClick={() => handleAddToCart(product._id)}
+            >
+              Add to Cart
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="success"
+              fullWidth
+              disabled
+              sx={{ mt: 3, bgcolor: "#d4af37", color: "#fff" }}
+            >
+              Added <CheckIcon sx={{ ml: 1 }} />
+            </Button>
+          )}
         </Grid>
       </Grid>
 
