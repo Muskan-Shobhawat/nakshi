@@ -47,6 +47,8 @@ export default function Cart() {
 
         if (res.ok && data.success) {
           setItems(Array.isArray(data.cart?.items) ? data.cart.items : []);
+          // ✅ Save userId for DeliveryDetails
+          if (data.cart?.userId) sessionStorage.setItem("cartUserId", data.cart.userId);
         } else {
           setError(data.message || "Failed to fetch cart");
         }
@@ -67,14 +69,11 @@ export default function Cart() {
 
     try {
       const updated = items.map((it) => ({ ...it }));
-      const idx = updated.findIndex(
-        (it) => it.productId?.toString?.() === productId
-      );
+      const idx = updated.findIndex((it) => it.productId?.toString?.() === productId);
       if (idx < 0) return;
 
-      if (action === "increase") {
-        updated[idx].quantity += 1;
-      } else if (action === "decrease") {
+      if (action === "increase") updated[idx].quantity += 1;
+      else if (action === "decrease") {
         updated[idx].quantity -= 1;
         if (updated[idx].quantity <= 0) {
           await removeItem(productId);
@@ -140,36 +139,22 @@ export default function Cart() {
   }, [total]);
 
   if (loading)
-    return (
-      <Typography align="center" sx={{ mt: "10vh" }}>
-        Loading your cart...
-      </Typography>
-    );
+    return <Typography align="center" sx={{ mt: "10vh" }}>Loading your cart...</Typography>;
 
   if (error)
-    return (
-      <Typography align="center" color="error" sx={{ mt: "10vh" }}>
-        {error}
-      </Typography>
-    );
+    return <Typography align="center" color="error" sx={{ mt: "10vh" }}>{error}</Typography>;
 
   if (!items.length)
     return (
       <div className="empty-cart">
-        <Typography variant="h5" gutterBottom>
-          Your cart is empty 🛒
-        </Typography>
-        <Button variant="contained" onClick={() => navigate("/shop")}>
-          Shop Now
-        </Button>
+        <Typography variant="h5" gutterBottom>Your cart is empty 🛒</Typography>
+        <Button variant="contained" onClick={() => navigate("/shop")}>Shop Now</Button>
       </div>
     );
 
   return (
     <div className="cart-container">
-      <Typography className="cart-title" variant="h4">
-        My Cart 🛍️
-      </Typography>
+      <Typography className="cart-title" variant="h4">My Cart 🛍️</Typography>
 
       <Grid container spacing={4} className="cart-main">
         {/* LEFT SIDE */}
@@ -180,30 +165,17 @@ export default function Cart() {
                 <img src={item.image} alt={item.name} className="item-img" />
                 <div>
                   <Typography className="item-name">{item.name}</Typography>
-                  <Typography className="item-price">
-                    ₹{fmtINR(item.price)}
-                  </Typography>
+                  <Typography className="item-price">₹{fmtINR(item.price)}</Typography>
                 </div>
               </div>
 
               <div className="qty-box">
-                <IconButton
-                  onClick={() => updateQuantity(item.productId, "decrease")}
-                >
-                  <RemoveIcon />
-                </IconButton>
+                <IconButton onClick={() => updateQuantity(item.productId, "decrease")}><RemoveIcon /></IconButton>
                 <Typography>{item.quantity}</Typography>
-                <IconButton
-                  onClick={() => updateQuantity(item.productId, "increase")}
-                >
-                  <AddIcon />
-                </IconButton>
+                <IconButton onClick={() => updateQuantity(item.productId, "increase")}><AddIcon /></IconButton>
               </div>
 
-              <IconButton
-                color="error"
-                onClick={() => removeItem(item.productId)}
-              >
+              <IconButton color="error" onClick={() => removeItem(item.productId)}>
                 <DeleteIcon />
               </IconButton>
             </Paper>
@@ -217,24 +189,10 @@ export default function Cart() {
             <Divider className="divider" />
 
             <Stack spacing={1}>
-              <div className="summary-row">
-                <Typography>Subtotal:</Typography>
-                <Typography>₹{fmtINR(subtotal)}</Typography>
-              </div>
-
-              <div className="summary-row">
-                <Typography>Shipping (5%):</Typography>
-                <Typography>₹{fmtINR(tax)}</Typography>
-              </div>
-
+              <div className="summary-row"><Typography>Subtotal:</Typography><Typography>₹{fmtINR(subtotal)}</Typography></div>
+              <div className="summary-row"><Typography>Shipping (5%):</Typography><Typography>₹{fmtINR(tax)}</Typography></div>
               <Divider className="divider" />
-
-              <div className="summary-total">
-                <Typography>Total:</Typography>
-                <Typography className="summary-amount">
-                  ₹{fmtINR(total)}
-                </Typography>
-              </div>
+              <div className="summary-total"><Typography>Total:</Typography><Typography className="summary-amount">₹{fmtINR(total)}</Typography></div>
             </Stack>
           </Paper>
         </Grid>

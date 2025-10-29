@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Form } from "react-bootstrap";
-import {
-  Paper,
-  Typography,
-  Divider,
-  Slide,
-  Button,
-} from "@mui/material";
+import { Paper, Typography, Divider, Slide, Button } from "@mui/material";
 import "../../CSS/Order/DeliveryDetails.css";
 import { useNavigate } from "react-router-dom";
 
@@ -19,74 +13,60 @@ export default function DeliveryDetails() {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Fetch total from Cart sessionStorage
+  // ✅ Load total from sessionStorage
   useEffect(() => {
     const storedTotal = Number(sessionStorage.getItem("cartTotal") || 0);
     setTotal(storedTotal);
   }, []);
 
-  // ✅ Securely fetch user info via cart → userId → user data
+  // ✅ Fetch user details by userId stored in session
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    const userId = sessionStorage.getItem("cartUserId");
+
+    if (!token || !userId) {
       alert("Please login to continue with delivery details.");
       navigate("/");
       return;
     }
 
-    const fetchUserFromCart = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await fetch(`${API}cart`, {
+        const res = await fetch(`${API}user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
 
-        if (res.ok && data.success && data.userId) {
-          // Now fetch user info securely by ID
-          const userRes = await fetch(`${API}user/${data.userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
+        if (res.ok && data.success) {
+          setUser({
+            name: data.user?.name || "",
+            phone: data.user?.phone || "",
           });
-          const userData = await userRes.json();
-
-          if (userRes.ok && userData.success) {
-            setUser({
-              name: userData.user?.name || "User",
-              phone: userData.user?.phone || "",
-            });
-          } else {
-            alert("Unable to fetch user details securely.");
-          }
         } else {
-          alert("Failed to fetch user ID from cart.");
-          navigate("/");
+          console.error("User fetch failed:", data);
         }
       } catch (err) {
-        console.error("Error fetching user details:", err);
-        navigate("/");
+        console.error("Error fetching user:", err);
       }
     };
 
-    fetchUserFromCart();
+    fetchUser();
   }, [API, navigate]);
 
-  // ✅ Calculate estimated delivery (7 days later)
+  // ✅ Delivery date 7 days later
   useEffect(() => {
     const today = new Date();
     const delivery = new Date(today);
     delivery.setDate(today.getDate() + 7);
-    const formatted = delivery.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-    setDeliveryDate(formatted);
+    setDeliveryDate(
+      delivery.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+    );
   }, []);
 
-  // ✅ Validate Indian address
+  // ✅ Validate Indian Address
   const validateAddress = (text) => {
     if (!text.trim()) return false;
-    const stateRegex =
-      /\b(Maharashtra|Rajasthan|Gujarat|Punjab|Delhi|Karnataka|Tamil\s?Nadu|Kerala|Madhya\s?Pradesh|Uttar\s?Pradesh|Haryana|Bihar|West\s?Bengal|Odisha|Chhattisgarh|Assam|Jharkhand|Goa|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
+    const stateRegex = /\b(Rajasthan|Maharashtra|Delhi|Punjab|Gujarat|Karnataka|Tamil\s?Nadu|Kerala|Uttar\s?Pradesh|Bihar|West\s?Bengal|Madhya\s?Pradesh|Haryana|Odisha|Telangana|Andhra\s?Pradesh|Uttarakhand)\b/i;
     const pincodeRegex = /\b\d{6}\b/;
     const indiaRegex = /\bIndia\b/i;
     return stateRegex.test(text) && pincodeRegex.test(text) && indiaRegex.test(text);
@@ -95,24 +75,17 @@ export default function DeliveryDetails() {
   const handleAddressChange = (e) => {
     const newAddress = e.target.value;
     setAddress(newAddress);
-    const valid = validateAddress(newAddress);
-    setIsAddressFilled(valid);
+    setIsAddressFilled(validateAddress(newAddress));
   };
 
   const handleCheckout = () => {
-    alert(
-      `Proceeding to checkout...\n\nTotal: ₹${total.toLocaleString(
-        "en-IN"
-      )}\nDeliver To: ${user.name}\nPhone: ${user.phone}\nDelivery Date: ${deliveryDate}`
-    );
+    alert(`Proceeding to checkout...\n\nTotal: ₹${total.toLocaleString("en-IN")}\nDeliver To: ${user.name}\nPhone: ${user.phone}\nDelivery Date: ${deliveryDate}`);
   };
 
   return (
     <Container fluid className="delivery-section">
       <Paper className="delivery-card" elevation={4}>
-        <Typography className="delivery-title" variant="h5" gutterBottom>
-          Delivery Details 🚚
-        </Typography>
+        <Typography className="delivery-title" variant="h5" gutterBottom>Delivery Details 🚚</Typography>
         <Divider className="divider" />
 
         <Form className="delivery-form">
@@ -144,23 +117,10 @@ export default function DeliveryDetails() {
             )}
           </Form.Group>
 
-          <div className="delivery-timing">
-            <Typography variant="body1">
-              <strong>Estimated Delivery:</strong> {deliveryDate}
-            </Typography>
-          </div>
-
-          <div className="delivery-notes">
-            <Typography variant="body2" className="note-text">
-              ❌ No Return Policy
-            </Typography>
-            <Typography variant="body2" className="note-text">
-              🔁 15 Days Exchange Policy
-            </Typography>
-            <Typography variant="body2" className="note-text">
-              💳 No Cash on Delivery
-            </Typography>
-          </div>
+          <Typography variant="body1"><strong>Estimated Delivery:</strong> {deliveryDate}</Typography>
+          <Typography variant="body2" className="note-text">❌ No Return Policy</Typography>
+          <Typography variant="body2" className="note-text">🔁 15 Days Exchange Policy</Typography>
+          <Typography variant="body2" className="note-text">💳 No Cash on Delivery</Typography>
         </Form>
       </Paper>
 
@@ -183,36 +143,13 @@ export default function DeliveryDetails() {
             zIndex: 1300,
           }}
         >
-          <div>
-            <Typography variant="h6" sx={{ fontSize: "2vh" }}>
-              Total Payable
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: "bold",
-                fontSize: "2.4vh",
-                color: "#FFD700",
-              }}
-            >
-              ₹{total.toLocaleString("en-IN")}
-            </Typography>
-          </div>
-
+          <Typography variant="h6">Total Amount: ₹{total.toLocaleString("en-IN")}</Typography>
           <Button
             variant="contained"
             sx={{
               bgcolor: isAddressFilled ? "white" : "rgba(255,255,255,0.5)",
               color: "#a60019",
-              px: "4vw",
-              py: "1.2vh",
-              borderRadius: "1.5vh",
-              fontSize: "1.8vh",
-              fontWeight: "600",
-              transition: "0.3s",
-              "&:hover": {
-                bgcolor: isAddressFilled ? "#fff5f5" : "rgba(255,255,255,0.5)",
-              },
+              cursor: isAddressFilled ? "pointer" : "not-allowed",
             }}
             disabled={!isAddressFilled}
             onClick={handleCheckout}
