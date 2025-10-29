@@ -1,8 +1,9 @@
 import React from "react";
-import heroVideo from "../../assets/hero.mp4"; // your video file
+// import heroVideo from "../../assets/hero.mp4"; // your video file
 import "../../CSS/Home/HeroSection.css";
 
 function HeroSection() {
+  const heroVideo = "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fhero.mp4?alt=media&token=3d7711a1-5b49-421b-9621-711b9fdbaad5";
   return (
     <section className="hero-section hrfix">
       {/* 🔹 Background Video */}
