@@ -97,9 +97,70 @@
   text-decoration: underline;
 }
 
-/* Mobile adjustments */
+.auth-section {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #fff 0%, #f9f5f0 100%);
+}
+
+.auth-card {
+  background: #fff;
+  padding: 5vh 3vw;
+  border-radius: 2vh;
+  box-shadow: 0 0 2vh rgba(0, 0, 0, 0.1);
+}
+
+.text-brown {
+  color: #a60019;
+  font-size: 3vh;
+  font-weight: bold;
+}
+
+.form-label {
+  font-size: 2vh;
+  color: #333;
+}
+
+.form-control {
+  height: 5vh;
+  font-size: 1.8vh;
+  border-radius: 1vh;
+}
+
+.gold-btn {
+  background-color: #a60019 !important;
+  color: white !important;
+  border: none !important;
+  font-size: 2vh;
+  height: 5.5vh;
+  border-radius: 1vh;
+  transition: 0.3s;
+}
+
+.gold-btn:hover {
+  background-color: #7b0013 !important;
+}
+
+.error {
+  color: red;
+  font-size: 1.6vh;
+}
+
+.switch-link {
+  color: #a60019;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.switch-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .auth-card {
-    padding: 1.5rem;
+    width: 90vw;
+    padding: 4vh 4vw;
   }
 }

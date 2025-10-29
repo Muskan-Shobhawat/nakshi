@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 // ---------------- REGISTER ----------------
 export const register = async (req, res) => {
   try {
-    const { name, phone, email, password } = req.body;
+    const { name, phone, password } = req.body;
 
     if (!name || !phone || !password) {
       return res.status(400).json({
@@ -15,11 +15,11 @@ export const register = async (req, res) => {
     }
 
     // Check duplicates
-    const existing = await User.findOne({ $or: [{ phone }, { email }] });
+    const existing = await User.findOne({phone });
     if (existing) {
       return res.status(409).json({
         success: false,
-        message: "User already exists with this phone or email",
+        message: "User already exists with this phone number",
       });
     }
 
@@ -30,7 +30,6 @@ export const register = async (req, res) => {
     const user = new User({
       name,
       phone,
-      email,
       password: hashedPassword,
       verified: true,
     });
@@ -100,7 +99,6 @@ export const login = async (req, res) => {
         id: user._id,
         name: user.name,
         phone: user.phone,
-        email: user.email,
       },
     });
   } catch (err) {

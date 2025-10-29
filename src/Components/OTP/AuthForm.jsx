@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
-import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import "../../CSS/OTP/AuthForm.css";
 import OtpPopup from "./OtpPopup";
@@ -12,7 +11,6 @@ export default function AuthForm({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
-    email: "",
     password: "",
     confirmPassword: "",
   });
@@ -31,7 +29,6 @@ export default function AuthForm({ onLoginSuccess }) {
     setFormData({
       fullName: "",
       phone: "",
-      email: "",
       password: "",
       confirmPassword: "",
     });
@@ -55,21 +52,6 @@ export default function AuthForm({ onLoginSuccess }) {
       newErrors.phone =
         "Phone Number must start with 6, 7, 8, or 9 and be 10 digits long.";
     }
-
-    if (formData.email) {
-      if (
-        !formData.email.match(
-          /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-        )
-      ) {
-        newErrors.email = "Please enter a valid email address.";
-      }
-    }
-
-    // if (!formData.password.match(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8}$/)) {
-    //   newErrors.password =
-    //     "Password must include a capital letter, a number, and be exactly 8 characters.";
-    // }
 
     if (!formData.password) {
       newErrors.password = "Password is required.";
@@ -150,7 +132,6 @@ export default function AuthForm({ onLoginSuccess }) {
       localStorage.setItem("token", data.token);
       alert(data.message || "Login successful.");
 
-      // ✅ Instantly update Navbar with logged-in user
       if (typeof onLoginSuccess === "function") {
         onLoginSuccess(data.user);
       }
@@ -215,22 +196,6 @@ export default function AuthForm({ onLoginSuccess }) {
                   />
                   {errors.phone && <p className="error">{errors.phone}</p>}
                 </Form.Group>
-
-                {!isLogin && (
-                  <Form.Group className="mb-3">
-                    <Form.Label>
-                      <EmailIcon /> Email (Optional)
-                    </Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      placeholder="Enter email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                    {errors.email && <p className="error">{errors.email}</p>}
-                  </Form.Group>
-                )}
 
                 <Form.Group className="mb-3">
                   <Form.Label>
@@ -303,7 +268,6 @@ export default function AuthForm({ onLoginSuccess }) {
               body: JSON.stringify({
                 name: formData.fullName,
                 phone: verifiedPhone,
-                email: formData.email || undefined,
                 password: formData.password,
               }),
             });

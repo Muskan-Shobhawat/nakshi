@@ -5,7 +5,6 @@ import {
   Nav,
   Container,
   Button,
-  Modal,
   Dropdown,
 } from "react-bootstrap";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -14,18 +13,17 @@ import call from "../assets/call.png";
 import location from "../assets/location.png";
 import fb from "../assets/fb.png";
 import insta from "../assets/insta.png";
-import AuthForm from "./OTP/AuthForm.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function NavbarNakshi() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
 
   const API = import.meta.env.VITE_APP_BACKEND_URI;
+  const navigate = useNavigate();
 
-  // ✅ Check token validity on mount (also gets name safely from backend)
+  // ✅ Check login on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -39,7 +37,6 @@ function NavbarNakshi() {
         if (!res.ok) {
           localStorage.removeItem("token");
           setIsLoggedIn(false);
-          alert("Session expired. Please login again.");
           return;
         }
 
@@ -56,23 +53,17 @@ function NavbarNakshi() {
     };
 
     verifyToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleLoginSignupClick = () => setShowAuth(true);
-  const handleAuthClose = () => setShowAuth(false);
-
-  // ✅ Instantly flip UI after login: receive user from AuthForm
-  const handleLoginSuccess = (user) => {
-    setIsLoggedIn(true);
-    setUserName(user?.name || "");
-    setShowAuth(false);
-  };
+  }, [API]);
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUserName("");
-    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const handleLoginClick = () => {
+    navigate("/login");
   };
 
   return (
@@ -98,7 +89,13 @@ function NavbarNakshi() {
 
           {/* Center - Brand Name */}
           <div className="centerflex">
-            <div className="mx-auto fs-3 brand-text navbar-brand">NAKSHI</div>
+            <div
+              className="mx-auto fs-3 brand-text navbar-brand"
+              onClick={() => navigate("/")}
+              style={{ cursor: "pointer" }}
+            >
+              NAKSHI
+            </div>
 
             {/* Nav Links (desktop only) */}
             <Nav className="d-none d-lg-flex align-items-center">
@@ -155,7 +152,7 @@ function NavbarNakshi() {
                   </Dropdown.Menu>
                 </Dropdown>
               ) : (
-                <Button id="navbtn" size="sm" onClick={handleLoginSignupClick}>
+                <Button id="navbtn" size="sm" onClick={handleLoginClick}>
                   Login / Signup
                 </Button>
               )}
@@ -230,7 +227,14 @@ function NavbarNakshi() {
                 </Button>
               </>
             ) : (
-              <Button id="navbtn" size="sm" onClick={handleLoginSignupClick}>
+              <Button
+                id="navbtn"
+                size="sm"
+                onClick={() => {
+                  navigate("/login");
+                  setMenuOpen(false);
+                }}
+              >
                 Login / Signup
               </Button>
             )}
@@ -255,14 +259,6 @@ function NavbarNakshi() {
           </div>
         )}
       </Navbar>
-
-      {/* ✅ Login/Signup Modal */}
-      <Modal show={showAuth} onHide={handleAuthClose} centered>
-        <Modal.Body>
-          {/* IMPORTANT: AuthForm must call onLoginSuccess(user) after successful login */}
-          <AuthForm onLoginSuccess={handleLoginSuccess} />
-        </Modal.Body>
-      </Modal>
     </>
   );
 }
