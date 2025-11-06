@@ -1,6 +1,6 @@
 /* Tweak this once and the whole hero resizes everywhere */
 :root {
-  --hero-h: clamp(480px, 80vh, 720px); /* <— adjust this to make it smaller/bigger */
+  --hero-h: clamp(350px, 720px, 720px); /* <— adjust this to make it smaller/bigger */
 }
 
 /* container */
