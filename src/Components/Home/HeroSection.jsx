@@ -16,7 +16,7 @@ function HeroSection() {
       // description:
       //   "From the blue city of Jodhpur, we bring you jewellery that tells stories in gold. Each design is a fusion of tradition and modern elegance, handcrafted to perfection.",
       // btn: "Explore Now",
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshi6.jpg?alt=media&token=86901a00-74af-48f3-af84-9da575dbd11c",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
     },
     {
       id: 2,
@@ -25,7 +25,7 @@ function HeroSection() {
       // description:
       //   "Discover timeless jewellery that bridges heritage with style. Each piece speaks of artistry and grace.",
       // btn: "Shop Collection",
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshi6.jpg?alt=media&token=86901a00-74af-48f3-af84-9da575dbd11c",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
     },
     {
       id: 3,
@@ -34,7 +34,7 @@ function HeroSection() {
       // description:
       //   "Our 1 gram gold jewellery brings sophistication within reach. Wear the shine of confidence every day.",
       // btn: "View Designs",
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshi6.jpg?alt=media&token=86901a00-74af-48f3-af84-9da575dbd11c",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
     },
   ];
   return (
