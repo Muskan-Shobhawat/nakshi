@@ -9,7 +9,7 @@ function HeroSection() {
   const slides = [
     {
       id: 1,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FNAKSHI6.jpg?alt=media&token=7b66219f-fca8-4143-9c29-81dd3f7b0c28",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F2.jpg?alt=media&token=880de144-ed03-491b-92ac-d5058a037420",
       position: "center center",
       button: true, // 👈 only this slide has a button
     },
