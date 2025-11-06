@@ -10,6 +10,62 @@
   justify-content: flex-start;
 }
 
+
+.hero-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-slide {
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.45);
+  padding: 60px;
+  border-radius: 20px;
+  max-width: 700px;
+  margin-left: 5%;
+}
+
+.hero-overlay h1 {
+  font-size: 2.8rem;
+  margin-bottom: 10px;
+}
+
+.hero-overlay p.lead {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.hero-overlay .btn {
+  border: 2px solid #fff;
+  padding: 12px 30px;
+  transition: all 0.3s ease;
+}
+
+.hero-overlay .btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Swiper arrows */
+.swiper-button-next,
+.swiper-button-prev {
+  color: white !important;
+  transition: opacity 0.3s;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  opacity: 0.8;
+}
+
 /* 🎥 Background Video Styling */
 .hero-video {
   position: absolute;
