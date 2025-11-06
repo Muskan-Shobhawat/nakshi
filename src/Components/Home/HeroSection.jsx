@@ -11,29 +11,29 @@ function HeroSection() {
    const slides = [
     {
       id: 1,
-      title: "Premium 1 Gram Gold-Plated Designs",
-      subtitle: "Golden Touch to Your Everyday",
-      description:
-        "From the blue city of Jodhpur, we bring you jewellery that tells stories in gold. Each design is a fusion of tradition and modern elegance, handcrafted to perfection.",
-      btn: "Explore Now",
+      // title: "Premium 1 Gram Gold-Plated Designs",
+      // subtitle: "Golden Touch to Your Everyday",
+      // description:
+      //   "From the blue city of Jodhpur, we bring you jewellery that tells stories in gold. Each design is a fusion of tradition and modern elegance, handcrafted to perfection.",
+      // btn: "Explore Now",
       img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fheronakshi.jpg?alt=media&token=76651cc1-eafc-4355-a479-3950ad12356b",
     },
     {
       id: 2,
-      title: "Traditional Craftsmanship, Modern Glamour",
-      subtitle: "Elegance That Shines Through Generations",
-      description:
-        "Discover timeless jewellery that bridges heritage with style. Each piece speaks of artistry and grace.",
-      btn: "Shop Collection",
+      // title: "Traditional Craftsmanship, Modern Glamour",
+      // subtitle: "Elegance That Shines Through Generations",
+      // description:
+      //   "Discover timeless jewellery that bridges heritage with style. Each piece speaks of artistry and grace.",
+      // btn: "Shop Collection",
       img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fheronakshi.jpg?alt=media&token=76651cc1-eafc-4355-a479-3950ad12356b",
     },
     {
       id: 3,
-      title: "Shine Brighter Every Day",
-      subtitle: "Affordable Luxury, Crafted for You",
-      description:
-        "Our 1 gram gold jewellery brings sophistication within reach. Wear the shine of confidence every day.",
-      btn: "View Designs",
+      // title: "Shine Brighter Every Day",
+      // subtitle: "Affordable Luxury, Crafted for You",
+      // description:
+      //   "Our 1 gram gold jewellery brings sophistication within reach. Wear the shine of confidence every day.",
+      // btn: "View Designs",
       img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fheronakshi.jpg?alt=media&token=76651cc1-eafc-4355-a479-3950ad12356b",
     },
   ];
@@ -81,14 +81,14 @@ function HeroSection() {
                 backgroundImage: `url(${slide.img})`,
               }}
             >
-              <div className="hero-overlay text-light ff">
+              {/* <div className="hero-overlay text-light ff">
                 <h1 className="display-5 fw-bold heads">{slide.title}</h1>
                 <p className="lead">{slide.subtitle}</p>
                 <p className="lead2">{slide.description}</p>
                 <a href="#" className="btn btn-outline-light btn-lg mt-3 exp">
                   {slide.btn}
                 </a>
-              </div>
+              </div> */}
             </div>
           </SwiperSlide>
         ))}
