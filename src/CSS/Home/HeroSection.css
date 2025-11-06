@@ -40,6 +40,46 @@
   display: block;
 }
 
+.hero-content {
+  position: absolute;
+  bottom: 12%;
+  left: 10%;
+  z-index: 5;
+    animation: fadeUp 0.8s ease-in-out forwards;
+  opacity: 0;
+}
+
+.hero-btn {
+  display: inline-block;
+  padding: 14px 36px;
+  background-color: rgba(255, 215, 0, 0.9); /* gold tone */
+  color: #000;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hero-btn:hover {
+  background-color: #fff;
+  color: #000;
+  transform: scale(1.05);
+}
+
+@keyframes fadeUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
 /* optional: reduce height on smaller laptops */
 @media (max-width: 1366px) {
   :root { --hero-h: clamp(380px, 62vh, 640px); }

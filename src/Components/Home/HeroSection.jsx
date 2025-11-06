@@ -9,19 +9,21 @@ function HeroSection() {
   const slides = [
     {
       id: 1,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
-      // optional per-slide crop focus:
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FNAKSHI6.jpg?alt=media&token=7b66219f-fca8-4143-9c29-81dd3f7b0c28",
       position: "center center",
+      button: true, // 👈 only this slide has a button
     },
     {
       id: 2,
       img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
       position: "center top",
+      button: false,
     },
     {
       id: 3,
       img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
       position: "center center",
+      button: false,
     },
   ];
 
@@ -44,7 +46,15 @@ function HeroSection() {
                 style={{ objectPosition: s.position || "center center" }}
                 loading="eager"
               />
-              {/* put overlay text/buttons here if needed */}
+
+              {/* 👇 Add button only on the first slide */}
+              {s.button && (
+                <div className="hero-content">
+                  <a href="#collection" className="hero-btn">
+                    Explore Collection
+                  </a>
+                </div>
+              )}
             </div>
           </SwiperSlide>
         ))}
