@@ -1,224 +1,59 @@
-/* ✅ Main Hero Section */
+/* Tweak this once and the whole hero resizes everywhere */
+:root {
+  --hero-h: clamp(420px, 70vh, 720px); /* <— adjust this to make it smaller/bigger */
+}
+
+/* container */
 .hero-section {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  margin-top: 16vh;
+  width: 100%;
+  margin-top: 16vh; /* keep if you have a sticky header; otherwise reduce/remove */
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
 
-
+/* swiper wrapper sized by variable, not 100vh */
 .hero-swiper {
-  width: 100vw;
-  height: 100%;
+  width: 100%;
+  height: var(--hero-h);
 }
 
+/* slide sized by variable, not 100vh */
 .hero-slide {
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  background-size: 100vw 100vh;
-  /* background-repeat: no-repeat; */
   position: relative;
+  width: 100%;
+  height: var(--hero-h);
   display: flex;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.hero-overlay {
-  background: rgba(0, 0, 0, 0.45);
-  padding: 60px;
-  border-radius: 20px;
-  max-width: 700px;
-  margin-left: 5%;
+/* actual image: fully controllable */
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;          /* keeps aspect ratio, fills the box */
+  object-position: center;    /* per-slide override via inline style */
+  display: block;
 }
 
-.hero-overlay h1 {
-  font-size: 2.8rem;
-  margin-bottom: 10px;
+/* optional: reduce height on smaller laptops */
+@media (max-width: 1366px) {
+  :root { --hero-h: clamp(380px, 62vh, 640px); }
 }
 
-.hero-overlay p.lead {
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.hero-overlay .btn {
-  border: 2px solid #fff;
-  padding: 12px 30px;
-  transition: all 0.3s ease;
-}
-
-.hero-overlay .btn:hover {
-  background: #fff;
-  color: #000;
+@media (max-width: 992px) {
+  :root { --hero-h: clamp(320px, 52vh, 560px); }
 }
 
 /* Swiper arrows */
 .swiper-button-next,
 .swiper-button-prev {
-  color: white !important;
+  color: #fff !important;
   transition: opacity 0.3s;
 }
-
 .swiper-button-next:hover,
-.swiper-button-prev:hover {
-  opacity: 0.8;
-}
-
-/* 🎥 Background Video Styling */
-.hero-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  filter: brightness(65%);
-  /* Keeps text readable */
-}
-
-/* ✨ Overlay Text Section */
-.hero-overlay {
-  position: relative;
-  z-index: 2;
-  color: white;
-  /* margin-left: 5vw; */
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  /* border: 2px solid red; */
-  max-width: 60vw;
-}
-
-.hero-overlay h1 {
-  font-family: "Chiron Sung HK", serif;
-  font-size: 5.5vh;
-  font-weight: bold;
-  color: #fff89c;
-  /* Gold accent */
-  /* color: #5d0019; Gold accent */
-  margin-bottom: 2vh;
-  line-height: 6vh;
-}
-
-.lead {
-  font-size: 4vh;
-  font-weight: bold;
-  font-family: "Special Gothic", sans-serif;
-  color: #fff;
-  color: #fff89c;
-  /* Gold accent */
-  margin-bottom: 3vh;
-}
-
-
-.lead2 {
-  font-size: 3vh;
-  font-style: italic;
-  font-family: "Arimo", sans-serif;
-  color: #fff;
-  text-align: center;
-  margin-bottom: 3vh;
-}
-
-/* 💎 Explore Button */
-.exp {
-  background-color: #5d0019;
-  color: #fff89c;
-  border: none;
-  font-size: 2.6vh;
-  padding: 1.8vh 2.5vw;
-  border-radius: 0.8vh;
-  transition: all 0.3s ease;
-  font-family: "Arimo", sans-serif;
-}
-
-.exp:hover {
-  background-color: #d4af37;
-  color: white;
-}
-
-/* 🧭 Responsive Adjustments */
-@media (max-width: 1170px) {
-  .hero-overlay {
-    /* width: 85vw; */
-    max-width: 85vw;
-    /* border: 2px solid blue; */
-    margin-left: 5vw;
-  }
-
-  .hero-overlay h1 {
-    font-size: 4.8vh;
-    line-height: 5.5vh;
-  }
-
-  .lead {
-    font-size: 4vh;
-  }
-}
-
-@media (max-width: 992px) {
-  .hero-section {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    margin-top: 8vh;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .hero-overlay {
-    /* width: 85vw; */
-    max-width: 85vw;
-    /* border: 2px solid rgb(255, 0, 0); */
-    margin-left: 5vw;
-  }
-
-  .hero-overlay h1 {
-    font-size: 4.8vh;
-    line-height: 5.5vh;
-  }
-
-  .lead {
-    font-size: 4vh;
-  }
-}
-
-@media (max-width: 776px) {
-  .hero-section {
-    justify-content: center;
-    /* border: 2px solid green; */
-  }
-
-  .hero-overlay {
-    max-width: 90vw;
-    margin: 0;
-    text-align: center;
-  }
-
-  .hero-overlay h1 {
-    font-size: 3vh;
-  }
-
-  .lead {
-    font-size: 2.8vh;
-  }
-
-    .lead2 {
-    font-size: 2vh;
-  }
-
-  .exp {
-    font-size: 2.4vh;
-    padding: 1vh 4vw;
-  }
-}
+.swiper-button-prev:hover { opacity: 0.8; }
