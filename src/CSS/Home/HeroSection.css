@@ -20,7 +20,8 @@
   background-size: cover;
   background-position: center;
   height: 100vh;
-  background-size: 100vw auto;
+  background-size: 100vw 40vh;
+  background-repeat: no-repeat;
   position: relative;
   display: flex;
   align-items: center;
