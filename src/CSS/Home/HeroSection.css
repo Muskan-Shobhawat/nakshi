@@ -125,6 +125,15 @@
   width: 100vw;
   height: 70vh !important;
   }
+  .hero-card {
+  width: 94vw;
+  height: auto;
+  border-radius: var(--hero-radius);
+  overflow: hidden;
+  box-shadow: var(--hero-shadow);
+  background: #eee;
+  position: relative;
+}
 
   .hero-img {
   width: 94vw;
