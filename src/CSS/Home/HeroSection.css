@@ -120,6 +120,19 @@
     --hero-w: 94vw;
   }
 
+  .hero-section {
+  position: relative;
+  width: 100vw;
+  height: 70vh !important;
+  }
+
+  .hero-img {
+  width: 94vw;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
   .hero-cta {
     right: 5vw;
     bottom: 4vh;
