@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../CSS/nav.css";
-import {
-  Navbar,
-  Nav,
-  Container,
-  Button,
-  Dropdown,
-} from "react-bootstrap";
+import "../CSS/nav.css"; // keep your path
+import { Navbar, Nav, Container, Button, Dropdown } from "react-bootstrap";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import call from "../assets/call.png";
@@ -19,11 +13,13 @@ function NavbarNakshi() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [activeMega, setActiveMega] = useState(null); // 'all' | 'earrings' | 'rings' | null
+  const [mobilePanel, setMobilePanel] = useState(null); // 'all' | 'earrings' | 'rings' | 'profile' | null
 
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ✅ Check login on mount
+  // ---- Auth check (your existing logic, unchanged) ----
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -33,25 +29,21 @@ function NavbarNakshi() {
         const res = await fetch(`${API}user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         if (!res.ok) {
           localStorage.removeItem("token");
           setIsLoggedIn(false);
           return;
         }
-
         const data = await res.json();
-        if (data.success && data.user) {
+        if (data?.success && data?.user) {
           setIsLoggedIn(true);
           setUserName(data.user.name || "");
         }
-      } catch (err) {
-        console.error("Token verification failed:", err);
+      } catch {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
       }
     };
-
     verifyToken();
   }, [API]);
 
@@ -62,18 +54,165 @@ function NavbarNakshi() {
     navigate("/login");
   };
 
-  const handleLoginClick = () => {
-    navigate("/login");
+  // --------- DATA (exact per your spec) ----------
+  const menus = {
+    all: {
+      title: "All Jewellery",
+      columns: [
+        {
+          head: "Category",
+          items: [
+            "All Jewellery",
+            "Earrings",
+            "Pendants",
+            "Finger Rings",
+            "Mangalsutra",
+            "Necklaces",
+            "Bracelets",
+            "Pendants & Earring Set",
+            "Chains",
+          ],
+        },
+        { head: "Price", items: ["<25K", "25K–50K", "50K–1L", "1L & Above"] },
+        {
+          head: "Occasion",
+          items: ["Everyday", "Casual", "Festive", "Traditional", "Modern Wear", "Office Wear"],
+        },
+        { head: "Gender", items: ["Women", "Men", "Kids & Teens"] },
+      ],
+    },
+    earrings: {
+      title: "Earrings",
+      columns: [
+        { head: "Category", items: ["All Earrings", "Studs & Tops", "Jhumkas"] },
+        { head: "Occasion", items: ["Everyday", "Casual", "Festive"] },
+      ],
+    },
+    rings: {
+      title: "Rings",
+      columns: [
+        { head: "Category", items: ["All Rings", "Casual Rings", "Traditional Rings"] },
+        { head: "Occasion", items: ["Everyday", "Casual", "Festive"] },
+        { head: "Gender", items: ["Women", "Men"] },
+      ],
+    },
+  };
+
+  // Desktop Mega Menu
+  const MegaMenu = ({ type }) => {
+    const data = menus[type];
+    if (!data) return null;
+
+    return (
+      <div
+        className={`mega-wrap ${activeMega === type ? "show" : ""}`}
+        onMouseEnter={() => setActiveMega(type)}
+        onMouseLeave={() => setActiveMega(null)}
+      >
+        <div className="mega-inner">
+          {data.columns.map((col, idx) => (
+            <div className="mega-col" key={idx}>
+              <div className="mega-head">{col.head}</div>
+              <div className="mega-grid">
+                {col.items.map((it, i) => (
+                  <Link
+                    key={i}
+                    to="/shop"
+                    className="mega-chip"
+                    onClick={() => setActiveMega(null)}
+                  >
+                    {it}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Mobile MV-style Panel
+  const MobilePanel = ({ type }) => {
+    // profile panel (when logged in)
+    if (type === "profile") {
+      return (
+        <div className="mv-panel">
+          <div className="mv-head">
+            <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
+            <span className="mv-title">{userName ? userName.split(" ")[0] : "Profile"}</span>
+            <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
+          </div>
+          <div className="mv-body">
+            <div className="mv-block">
+              <div className="mv-chip-wrap">
+                <Link to="/account" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                  My Account
+                </Link>
+                <Link to="/cart" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                  My Cart
+                </Link>
+                <Link to="/orders" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                  My Orders
+                </Link>
+                <button
+                  className="mv-chip mv-danger"
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const data = menus[type];
+    if (!data) return null;
+
+    return (
+      <div className="mv-panel">
+        <div className="mv-head">
+          <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
+          <span className="mv-title">{data.title}</span>
+          <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
+        </div>
+        <div className="mv-body">
+          {data.columns.map((col, idx) => (
+            <div className="mv-block" key={idx}>
+              <div className="mv-block-head">{col.head}</div>
+              <div className="mv-chip-wrap">
+                {col.items.map((it, i) => (
+                  <Link
+                    key={i}
+                    to="/shop"
+                    className="mv-chip"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setMobilePanel(null);
+                    }}
+                  >
+                    {it}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
     <>
       <Navbar expand="lg" className="py-3 shadow-sm custom-navbar">
-        <Container
-          fluid
-          className="d-flex justify-content-between align-items-center"
-        >
-          {/* Left - Contact Info (desktop only) */}
+        <Container fluid className="d-flex justify-content-between align-items-center">
+
+          {/* Left info (desktop) */}
           <div className="d-none d-lg-flex align-items-center twin">
             <div className="flexrow2">
               <img src={call} alt="Call" className="fficonrow" />
@@ -81,13 +220,11 @@ function NavbarNakshi() {
             </div>
             <div className="flexrow2">
               <img src={location} alt="Location" className="fficonrow" />
-              <div className="fftext">
-                Bhadwasiya, Jodhpur, Rajasthan, India
-              </div>
+              <div className="fftext">Bhadwasiya, Jodhpur, Rajasthan, India</div>
             </div>
           </div>
 
-          {/* Center - Brand Name */}
+          {/* Center brand + desktop nav */}
           <div className="centerflex">
             <div
               className="mx-auto fs-3 brand-text navbar-brand"
@@ -97,17 +234,54 @@ function NavbarNakshi() {
               NAKSHI
             </div>
 
-            {/* Nav Links (desktop only) */}
             <Nav className="d-none d-lg-flex align-items-center">
-              <Nav.Link as={Link} to="/">Home</Nav.Link>
-              <Nav.Link as={Link} to="/collections">Collections</Nav.Link>
-              <Nav.Link as={Link} to="/shop">Shop</Nav.Link>
-              <Nav.Link as={Link} to="/about">About</Nav.Link>
-              <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
+              <Nav.Link as={Link} to="/" onMouseEnter={() => setActiveMega(null)}>
+                Home
+              </Nav.Link>
+
+              {/* All Jewellery */}
+              <div
+                className="mega-trigger"
+                onMouseEnter={() => setActiveMega("all")}
+                onMouseLeave={() => setActiveMega(null)}
+              >
+                <Nav.Link as={Link} to="/shop">All Jewellery</Nav.Link>
+                <MegaMenu type="all" />
+              </div>
+
+              {/* Earrings */}
+              <div
+                className="mega-trigger"
+                onMouseEnter={() => setActiveMega("earrings")}
+                onMouseLeave={() => setActiveMega(null)}
+              >
+                <Nav.Link as={Link} to="/shop">Earrings</Nav.Link>
+                <MegaMenu type="earrings" />
+              </div>
+
+              {/* Rings */}
+              <div
+                className="mega-trigger"
+                onMouseEnter={() => setActiveMega("rings")}
+                onMouseLeave={() => setActiveMega(null)}
+              >
+                <Nav.Link as={Link} to="/shop">Rings</Nav.Link>
+                <MegaMenu type="rings" />
+              </div>
+
+              <Nav.Link as={Link} to="/collections" onMouseEnter={() => setActiveMega(null)}>
+                Collections
+              </Nav.Link>
+              <Nav.Link as={Link} to="/about" onMouseEnter={() => setActiveMega(null)}>
+                About
+              </Nav.Link>
+              <Nav.Link as={Link} to="/contact" onMouseEnter={() => setActiveMega(null)}>
+                Contact
+              </Nav.Link>
             </Nav>
           </div>
 
-          {/* Right - Social Icons + Auth/Profile (desktop only) */}
+          {/* Right desktop: socials + auth */}
           <div className="d-none d-lg-flex align-items-center twin2">
             <div className="flexrow">
               <img src={fb} alt="Facebook" className="fficonrow" />
@@ -122,140 +296,95 @@ function NavbarNakshi() {
                     id="profile-dropdown"
                     className="d-flex align-items-center border-0 bg-transparent"
                   >
-                    {userName && (
-                      <span className="me-2">
-                        Hello, {userName.split(" ")[0]}
-                      </span>
-                    )}
-                    <AccountCircleIcon
-                      style={{ fontSize: "2rem", color: "#333" }}
-                    />
+                    <AccountCircleIcon style={{ fontSize: "2rem", color: "#333" }} />
                   </Dropdown.Toggle>
-
                   <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to="/account">
-                      My Account
-                    </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/cart">
-                      My Cart
-                    </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/orders">
-                      My Orders
-                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/account">My Account</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/cart">My Cart</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/orders">My Orders</Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Item
-                      onClick={handleLogout}
-                      className="text-danger"
-                    >
+                    <Dropdown.Item onClick={handleLogout} className="text-danger">
                       Logout
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               ) : (
-                <Button id="navbtn" size="sm" onClick={handleLoginClick}>
+                <Button id="navbtn" size="sm" onClick={() => navigate("/login")}>
                   Login / Signup
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Hamburger Icon (mobile only) */}
+          {/* Hamburger (mobile) */}
           <div
             className="d-lg-none ms-2"
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => {
+              setMenuOpen(!menuOpen);
+              setMobilePanel(null);
+            }}
             style={{ cursor: "pointer" }}
           >
             <MenuIcon className="navbar-icons" />
           </div>
         </Container>
 
-        {/* MOBILE MENU */}
+        {/* ===== Mobile Menu ===== */}
         {menuOpen && (
           <div className="mobile-menu p-4 text-left d-lg-none">
-            <Nav className="flex-column mb-3">
-              <Nav.Link as={Link} to="/" onClick={() => setMenuOpen(false)}>
-                Home
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/collections"
-                onClick={() => setMenuOpen(false)}
-              >
-                Collections
-              </Nav.Link>
-              <Nav.Link as={Link} to="/shop" onClick={() => setMenuOpen(false)}>
-                Shop
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/about"
-                onClick={() => setMenuOpen(false)}
-              >
-                About
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/contact"
-                onClick={() => setMenuOpen(false)}
-              >
-                Contact
-              </Nav.Link>
-            </Nav>
-
-            {/* Auth Section */}
-            {isLoggedIn ? (
-              <>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={() => {
-                    handleLogout();
-                    setMenuOpen(false);
-                  }}
-                  className="mb-2"
-                >
-                  Logout
-                </Button>
-                <Button
-                  variant="outline-dark"
-                  size="sm"
-                  as={Link}
-                  to="/account"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  My Account
-                </Button>
-              </>
-            ) : (
-              <Button
-                id="navbtn"
-                size="sm"
-                onClick={() => {
-                  navigate("/login");
-                  setMenuOpen(false);
-                }}
-              >
-                Login / Signup
-              </Button>
+            {/* Profile icon ABOVE Home (only if logged in) */}
+            {isLoggedIn && (
+              <button className="mv-profile" onClick={() => setMobilePanel("profile")}>
+                <AccountCircleIcon style={{ fontSize: "3.2vh" }} />
+                <span>{userName ? userName.split(" ")[0] : "Profile"}</span>
+              </button>
             )}
 
-            {/* Contact Info + Social Icons */}
-            <div className="mobile-contact mb-3 mt-3">
-              <div className="flexrow2 mb-2">
-                <img src={call} alt="Call" className="fficonrow" />
-                <div className="fftext">+91 9461008590</div>
-              </div>
-              <div className="flexrow2 mb-3">
-                <img src={location} alt="Location" className="fficonrow" />
-                <div className="fftext">
-                  Bhadwasiya, Jodhpur, Rajasthan, India
-                </div>
-              </div>
-              <div className="flexrow mb-3">
-                <img src={fb} alt="Facebook" className="fficonrow" />
-                <img src={insta} alt="Instagram" className="fficonrow" />
-              </div>
-            </div>
+            {/* Main list */}
+            {!mobilePanel && (
+              <Nav className="flex-column mb-3">
+                <Nav.Link as={Link} to="/" onClick={() => setMenuOpen(false)}>
+                  Home
+                </Nav.Link>
+
+                <button className="mv-link" onClick={() => setMobilePanel("all")}>
+                  All Jewellery
+                </button>
+                <button className="mv-link" onClick={() => setMobilePanel("earrings")}>
+                  Earrings
+                </button>
+                <button className="mv-link" onClick={() => setMobilePanel("rings")}>
+                  Rings
+                </button>
+
+                <Nav.Link as={Link} to="/collections" onClick={() => setMenuOpen(false)}>
+                  Collections
+                </Nav.Link>
+                <Nav.Link as={Link} to="/about" onClick={() => setMenuOpen(false)}>
+                  About
+                </Nav.Link>
+                <Nav.Link as={Link} to="/contact" onClick={() => setMenuOpen(false)}>
+                  Contact
+                </Nav.Link>
+
+                {!isLoggedIn && (
+                  <Button
+                    id="navbtn"
+                    size="sm"
+                    onClick={() => {
+                      navigate("/login");
+                      setMenuOpen(false);
+                    }}
+                    className="mt-2"
+                  >
+                    Login / Signup
+                  </Button>
+                )}
+              </Nav>
+            )}
+
+            {/* MV-style panels */}
+            {mobilePanel && <MobilePanel type={mobilePanel} />}
           </div>
         )}
       </Navbar>
