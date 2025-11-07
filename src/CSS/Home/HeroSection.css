@@ -1,99 +1,129 @@
-/* Tweak this once and the whole hero resizes everywhere */
 :root {
-  --hero-h: clamp(400px, 85vh, 720px); /* <— adjust this to make it smaller/bigger */
+  --hero-h: 75vh;
+  --hero-w: 95vw;
+  --hero-radius: 2.2vh;
+  --hero-shadow: 0 1.2vh 4vh rgba(0, 0, 0, 0.15);
 }
 
-/* container */
 .hero-section {
   position: relative;
-  width: 100%;
-  margin-top: 16vh; /* keep if you have a sticky header; otherwise reduce/remove */
-  overflow: hidden;
+  width: 100vw;
+  height: 84vh !important;
+  /* border: 2px solid blue; */
+  margin-top: 16vh;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  overflow: visible;
 }
 
-/* swiper wrapper sized by variable, not 100vh */
-.hero-swiper {
-  width: 100%;
+/* Carousel container */
+.hero-carousel {
+  /* border: 2px solid red; */
+  /* margin-top: 25vh; */
+  width: var(--hero-w);
   height: var(--hero-h);
 }
 
-/* slide sized by variable, not 100vh */
+/* Each slide fixed size */
 .hero-slide {
-  position: relative;
+  /* border: 2px solid red; */
   width: 100%;
   height: var(--hero-h);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Card shell */
+.hero-card {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--hero-radius);
+  overflow: hidden;
+  box-shadow: var(--hero-shadow);
+  background: #eee;
+  position: relative;
+}
+
+/* Image wrapper (for clean overflow hidden) */
+.hero-img-wrapper {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
-/* actual image: fully controllable */
 .hero-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;          /* keeps aspect ratio, fills the box */
-  object-position: center;    /* per-slide override via inline style */
-  display: block;
+  object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
-.hero-content {
-  position: absolute;
-  bottom: 12%;
-  left: 10%;
-  z-index: 5;
-    animation: fadeUp 0.8s ease-in-out forwards;
-  opacity: 0;
-}
-
-.hero-btn {
-  display: inline-block;
-  padding: 14px 36px;
-  background-color: rgba(255, 215, 0, 0.9); /* gold tone */
-  color: #000;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-radius: 30px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.hero-btn:hover {
-  background-color: #fff;
-  color: #000;
+/* subtle zoom on hover */
+.hero-card:hover .hero-img {
   transform: scale(1.05);
 }
 
-@keyframes fadeUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
+/* CTA button */
+.hero-cta {
+  position: absolute;
+  right: 4vw;
+  bottom: 6vh;
+  background: #ffffff;
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  padding: 1.4vh 3vw;
+  border-radius: 0.8vh;
+  box-shadow: 0 0.6vh 2vh rgba(0, 0, 0, 0.15);
+  font-size: 1.8vh;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-0.3vh);
+  box-shadow: 0 1vh 2.6vh rgba(0, 0, 0, 0.25);
+}
+
+/* Indicators (make diamond style) */
+.carousel-indicators [data-bs-target] {
+  width: 1vh;
+  height: 1vh;
+  border-radius: 0;
+  transform: rotate(45deg);
+  background-color: #c7bab3;
+}
+
+.carousel-indicators .active {
+  background-color: #6a1b1b;
+}
+
+/* Arrows */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: drop-shadow(0 0.6vh 1.4vh rgba(0, 0, 0, 0.35));
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  :root {
+    --hero-h: 50vh;
+    --hero-w: 90vw;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --hero-h: 45vh;
+    --hero-w: 94vw;
+  }
+
+  .hero-cta {
+    right: 5vw;
+    bottom: 4vh;
+    padding: 1.2vh 4vw;
+    font-size: 1.6vh;
   }
 }
-
-
-/* optional: reduce height on smaller laptops */
-@media (max-width: 1366px) {
-  :root { --hero-h: clamp(380px, 62vh, 640px); }
-}
-
-@media (max-width: 992px) {
-  :root { --hero-h: clamp(320px, 52vh, 560px); }
-}
-
-/* Swiper arrows */
-.swiper-button-next,
-.swiper-button-prev {
-  color: #fff !important;
-  transition: opacity 0.3s;
-}
-.swiper-button-next:hover,
-.swiper-button-prev:hover { opacity: 0.8; }

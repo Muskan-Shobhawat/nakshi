@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../CSS/nav.css"; // keep your path
 import { Navbar, Nav, Container, Button, Dropdown } from "react-bootstrap";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -19,7 +19,10 @@ function NavbarNakshi() {
   const API = import.meta.env.VITE_APP_BACKEND_URI;
   const navigate = useNavigate();
 
-  // ---- Auth check (your existing logic, unchanged) ----
+  // ref to detect outside clicks for desktop mega menu
+  const navRef = useRef(null);
+
+  // ---- Auth check (unchanged) ----
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -54,7 +57,27 @@ function NavbarNakshi() {
     navigate("/login");
   };
 
-  // --------- DATA (exact per your spec) ----------
+  // ---- Close mega on outside click or Esc ----
+  useEffect(() => {
+    const handleDocClick = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setActiveMega(null);
+      }
+    };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setActiveMega(null);
+    };
+    document.addEventListener("mousedown", handleDocClick);
+    document.addEventListener("touchstart", handleDocClick, { passive: true });
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleDocClick);
+      document.removeEventListener("touchstart", handleDocClick);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  // --------- DATA ----------
   const menus = {
     all: {
       title: "All Jewellery",
@@ -64,21 +87,18 @@ function NavbarNakshi() {
           items: [
             "All Jewellery",
             "Earrings",
-            "Pendants",
-            "Finger Rings",
+            "Rings",
             "Mangalsutra",
-            "Necklaces",
+            "Necklace Sets",
             "Bracelets",
-            "Pendants & Earring Set",
             "Chains",
           ],
         },
-        { head: "Price", items: ["<25K", "25K–50K", "50K–1L", "1L & Above"] },
         {
           head: "Occasion",
-          items: ["Everyday", "Casual", "Festive", "Traditional", "Modern Wear", "Office Wear"],
+          items: ["Everyday", "Casual", "Festive"],
         },
-        { head: "Gender", items: ["Women", "Men", "Kids & Teens"] },
+        { head: "Gender", items: ["Women", "Men"] },
       ],
     },
     earrings: {
@@ -134,7 +154,6 @@ function NavbarNakshi() {
 
   // Mobile MV-style Panel
   const MobilePanel = ({ type }) => {
-    // profile panel (when logged in)
     if (type === "profile") {
       return (
         <div className="mv-panel">
@@ -207,11 +226,21 @@ function NavbarNakshi() {
     );
   };
 
+  // Click togglers for desktop links
+  const toggleMega = (key) => (e) => {
+    // prevent navigation when used as a toggle
+    e.preventDefault();
+    setActiveMega((prev) => (prev === key ? null : key));
+  };
+
   return (
     <>
       <Navbar expand="lg" className="py-3 shadow-sm custom-navbar">
-        <Container fluid className="d-flex justify-content-between align-items-center">
-
+        <Container
+          fluid
+          className="d-flex justify-content-between align-items-center"
+          ref={navRef}
+        >
           {/* Left info (desktop) */}
           <div className="d-none d-lg-flex align-items-center twin">
             <div className="flexrow2">
@@ -245,7 +274,9 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("all")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="/shop">All Jewellery</Nav.Link>
+                <Nav.Link as={Link} to="#" onClick={toggleMega("all")}>
+                  All Jewellery
+                </Nav.Link>
                 <MegaMenu type="all" />
               </div>
 
@@ -255,7 +286,9 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("earrings")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="/shop">Earrings</Nav.Link>
+                <Nav.Link as={Link} to="#" onClick={toggleMega("earrings")}>
+                  Earrings
+                </Nav.Link>
                 <MegaMenu type="earrings" />
               </div>
 
@@ -265,12 +298,19 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("rings")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="/shop">Rings</Nav.Link>
+                <Nav.Link as={Link} to="#" onClick={toggleMega("rings")}>
+                  Rings
+                </Nav.Link>
                 <MegaMenu type="rings" />
               </div>
-
-              <Nav.Link as={Link} to="/collections" onMouseEnter={() => setActiveMega(null)}>
-                Collections
+<Nav.Link as={Link} to="" onMouseEnter={() => setActiveMega(null)}>
+                Women
+              </Nav.Link>
+              <Nav.Link as={Link} to="" onMouseEnter={() => setActiveMega(null)}>
+                Men
+              </Nav.Link>
+              <Nav.Link as={Link} to="/shop" onMouseEnter={() => setActiveMega(null)}>
+                Shop
               </Nav.Link>
               <Nav.Link as={Link} to="/about" onMouseEnter={() => setActiveMega(null)}>
                 About
@@ -322,6 +362,7 @@ function NavbarNakshi() {
             onClick={() => {
               setMenuOpen(!menuOpen);
               setMobilePanel(null);
+              setActiveMega(null); // ensure desktop mega closed
             }}
             style={{ cursor: "pointer" }}
           >
