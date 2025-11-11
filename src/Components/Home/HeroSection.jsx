@@ -6,27 +6,27 @@ function HeroSection() {
   const slides = [
     {
       id: 1,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F2.jpg?alt=media&token=880de144-ed03-491b-92ac-d5058a037420",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F2.jpg?alt=media&token=e469a120-b656-4827-9689-f400adea0c50",
       cta: { label: "EXPLORE NOW", href: "#collection" },
     },
     {
       id: 2,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FNAKSHI6.jpg?alt=media&token=7b66219f-fca8-4143-9c29-81dd3f7b0c28",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F4.jpg?alt=media&token=8a4d5405-3a4e-46a4-b7a0-b8bca11d6d22",
     },
     {
       id: 3,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2Fnakshiwooo.jpg?alt=media&token=127b247e-6b1b-4cf4-993a-a220317f9cb6",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F5.jpg?alt=media&token=bf9afb62-1cce-4711-bc38-fd5647a272a2",
     },
   ];
 
   return (
     <section className="hero-section hrfix">
       <Carousel
-        fade
-        interval={4000}
-        controls
-        indicators
-        pause="hover"
+   fade
+        interval={6000}   // autoplay speed (in ms)
+        controls={false}  // 🔸 disables arrows
+        indicators        // 🔸 keeps dots
+        pause={false}     // 🔸 keeps autoplay even on hover
         className="hero-carousel"
       >
         {slides.map((s) => (
