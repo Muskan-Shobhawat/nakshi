@@ -5,29 +5,27 @@
   --hero-shadow: 0 1.2vh 4vh rgba(0, 0, 0, 0.15);
 }
 
+/* ----------- Base Container ----------- */
 .hero-section {
   position: relative;
-  width: 100vw;
-  height: 84vh !important;
-  /* border: 2px solid blue; */
+  width: 100%;
+  min-height: var(--hero-h);
   margin-top: 16vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
+  overflow: hidden;
 }
 
-/* Carousel container */
+/* ----------- Carousel Container ----------- */
 .hero-carousel {
-  /* border: 2px solid red; */
-  /* margin-top: 25vh; */
   width: var(--hero-w);
   height: var(--hero-h);
+  max-width: 1600px; /* keeps it elegant on large screens */
 }
 
-/* Each slide fixed size */
+/* Each slide */
 .hero-slide {
-  /* border: 2px solid red; */
   width: 100%;
   height: var(--hero-h);
   display: flex;
@@ -35,7 +33,7 @@
   justify-content: center;
 }
 
-/* Card shell */
+/* ----------- Card Wrapper ----------- */
 .hero-card {
   width: 100%;
   height: 100%;
@@ -46,7 +44,7 @@
   position: relative;
 }
 
-/* Image wrapper (for clean overflow hidden) */
+/* ----------- Image ----------- */
 .hero-img-wrapper {
   width: 100%;
   height: 100%;
@@ -60,12 +58,14 @@
   transition: transform 0.5s ease;
 }
 
-/* subtle zoom on hover */
-.hero-card:hover .hero-img {
-  transform: scale(1.05);
+/* subtle zoom on hover (desktop only) */
+@media (hover: hover) {
+  .hero-card:hover .hero-img {
+    transform: scale(1.05);
+  }
 }
 
-/* CTA button */
+/* ----------- CTA Button ----------- */
 .hero-cta {
   position: absolute;
   right: 4vw;
@@ -87,66 +87,89 @@
   box-shadow: 0 1vh 2.6vh rgba(0, 0, 0, 0.25);
 }
 
-
-/* Indicators (make diamond style) */
+/* ----------- Indicators (Diamond Dots) ----------- */
+.carousel-indicators {
+  bottom: 1.5vh !important;
+}
 .carousel-indicators [data-bs-target] {
-  width: 1vh;
-  height: 1vh;
+  width: 1.1vh;
+  height: 1.1vh;
   border-radius: 0;
   transform: rotate(45deg);
   background-color: #c7bab3;
 }
-
 .carousel-indicators .active {
   background-color: #6a1b1b;
 }
 
-/* Arrows */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  filter: drop-shadow(0 0.6vh 1.4vh rgba(0, 0, 0, 0.35));
-}
+/* ----------- Responsive Tweaks ----------- */
 
-/* Responsive */
+/* Tablets (≤1024px) */
 @media (max-width: 1024px) {
   :root {
-    --hero-h: 50vh;
-    --hero-w: 90vw;
+    --hero-h: 55vh;
+    --hero-w: 92vw;
+  }
+
+  .hero-carousel {
+    height: var(--hero-h);
+  }
+
+  .hero-cta {
+    bottom: 4vh;
+    right: 5vw;
+    font-size: 1.6vh;
+    padding: 1.2vh 3vw;
   }
 }
 
-@media (max-width: 600px) {
+/* Mobiles (≤768px) */
+@media (max-width: 768px) {
   :root {
-    --hero-h: 45vh;
+    --hero-h: 50vh;
     --hero-w: 94vw;
   }
 
   .hero-section {
-  position: relative;
-  width: 100vw;
-  height: 70vh !important;
+    height: auto;
+    margin-top: 14vh;
   }
+
   .hero-card {
-  width: 94vw;
-  height: auto;
-  border-radius: var(--hero-radius);
-  overflow: hidden;
-  box-shadow: var(--hero-shadow);
-  background: #eee;
-  position: relative;
-}
+    width: 94vw;
+    height: auto;
+    border: 2px solid red;
+  }
 
   .hero-img {
-  width: 94vw;
-  height: auto;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+  }
 
   .hero-cta {
     right: 5vw;
-    bottom: 4vh;
+    bottom: 3vh;
+    font-size: 1.4vh;
     padding: 1.2vh 4vw;
-    font-size: 1.6vh;
+  }
+}
+
+/* Extra small (≤480px) */
+@media (max-width: 480px) {
+  :root {
+    --hero-h: 45vh;
+  }
+
+  .hero-img {
+    max-height: 50vh;
+  }
+
+  .hero-cta {
+    right: 50%;
+    bottom: 3vh;
+    transform: translateX(50%);
+    padding: 1.1vh 6vw;
+    font-size: 1.3vh;
   }
 }

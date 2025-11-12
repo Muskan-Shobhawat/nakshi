@@ -165,17 +165,17 @@ export default function Shop() {
 
   return (
     <section className="shop-section">
-      <div className="shop-hero">
+      {/* <div className="shop-hero">
         <h1 className="shop-hero-title">Bridal & Everyday Collections</h1>
         <p className="shop-hero-tagline">
           Golden touch to your everyday — Explore our timeless 1gm gold-plated
           jewelry.
         </p>
-      </div>
+      </div> */}
 
-      <section className="hb-root" aria-label="Shop hero banner">
+      {/*<section className="hb-root" aria-label="Shop hero banner">
         <div className="hb-inner">
-          {/* Left text column */}
+          Left text column
           <div className="hb-left">
             <h1 className="hb-title">
               <span className="hb-title-line1">Luxury</span>
@@ -198,14 +198,14 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* Right image column */}
+          Right image column 
           {/* <div className="hb-right">
             <div className="hb-image-wrap">
               <img src={heroImage} alt="Jewellery hero" className="hb-image" />
             </div>
-          </div> */}
+          </div>
         </div>
-      </section>
+      </section>*/}
 
       {/* Filter Buttons */}
       <Stack
