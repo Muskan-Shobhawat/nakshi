@@ -71,8 +71,8 @@
 
 /* image area: holds two images stacked absolutely */
 .img {
-  width:100vw;
-  height:28vh;
+  width:24vw;
+  height:auto;
   overflow:hidden;
   display:block;
   position:relative;
