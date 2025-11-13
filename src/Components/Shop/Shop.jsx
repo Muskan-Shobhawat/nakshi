@@ -1,14 +1,12 @@
 // src/components/Shop.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import heroImage from "../../assets/shopimg2.jpg";
 import axios from "axios";
 import "../../CSS/Shop/Shop.css";
 import {
   Button,
   Stack,
   Typography,
-  Pagination,
   Drawer,
   FormControl,
   FormLabel,
@@ -17,13 +15,6 @@ import {
   FormControlLabel,
   Slider,
   Divider,
-  Paper,
-  Slide,
-  IconButton,
-  Box,
-  Grid,
-  Card,
-  CardContent,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
@@ -33,11 +24,6 @@ import DiamondIcon from "@mui/icons-material/Diamond";
 import RingVolumeIcon from "@mui/icons-material/RingVolume";
 import EarbudsIcon from "@mui/icons-material/Earbuds";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
-import CheckIcon from "@mui/icons-material/Check";
-import AutorenewIcon from "@mui/icons-material/Autorenew";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import LockIcon from "@mui/icons-material/Lock";
-import StarIcon from "@mui/icons-material/Star";
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -53,15 +39,13 @@ export default function Shop() {
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRange, setPriceRange] = useState([1000, 1000000]);
   const [sortOrder, setSortOrder] = useState("");
-  const [cartCount, setCartCount] = useState(0);
-  const [showCartPopup, setShowCartPopup] = useState(false);
   const [tempGenderFilter, setTempGenderFilter] = useState(genderFilter);
   const [tempTypeFilter, setTempTypeFilter] = useState(typeFilter);
   const [tempPriceRange, setTempPriceRange] = useState(priceRange);
   const [tempSortOrder, setTempSortOrder] = useState(sortOrder);
   const productsPerPage = 48;
 
-  // ✅ Fetch products from backend
+  // fetch
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -74,85 +58,44 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  // 🛒 Add to cart handlers
-  const handleAddToCart = (id) => {
-    setQuantities((prev) => {
-      const newQuantities = { ...prev, [id]: 1 };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
+  const handlePageChange = (event, value) => setPage(value);
 
-  const increaseQty = (id) => {
-    setQuantities((prev) => {
-      const newQuantities = { ...prev, [id]: (prev[id] || 0) + 1 };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const decreaseQty = (id) => {
-    setQuantities((prev) => {
-      let newQty = (prev[id] || 0) - 1;
-      if (newQty < 0) newQty = 0;
-      const newQuantities = { ...prev, [id]: newQty };
-      updateCartCount(newQuantities);
-      return newQuantities;
-    });
-  };
-
-  const updateCartCount = (newQuantities) => {
-    const totalItems = Object.values(newQuantities).reduce((sum, q) => sum + q, 0);
-    setCartCount(totalItems);
-    setShowCartPopup(totalItems > 0);
-  };
-
-  // 🧭 Pagination
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
-
-  // ------------------ FILTER & SORT LOGIC ------------------
-  // note: products may be empty initially
+  // simple quick-filter logic
   let filteredProducts = Array.isArray(products)
     ? products.filter((p) => {
-        let genderMatch = genderFilter ? p.gender.toLowerCase() === genderFilter.toLowerCase() : true;
-        let typeMatch = typeFilter ? p.category.toLowerCase() === typeFilter.toLowerCase() : true;
-        let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
+        let genderMatch = genderFilter ? (p.gender || "").toLowerCase() === genderFilter.toLowerCase() : true;
+        let typeMatch = typeFilter ? (p.category || "").toLowerCase() === typeFilter.toLowerCase() : true;
+        let priceMatch = (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1];
         let quickFilterMatch = filter
           ? filter === "Women" || filter === "Men"
-            ? p.gender === filter
+            ? (p.gender || "") === filter
             : ["Ring", "Earring", "Necklace"].includes(filter)
-            ? p.category === filter
+            ? (p.category || "") === filter
             : true
           : true;
         return genderMatch && typeMatch && priceMatch && quickFilterMatch;
       })
     : [];
 
-  // ⚙️ Sorting
-  if (sortOrder === "lowToHigh") {
-    filteredProducts.sort((a, b) => a.price - b.price);
-  } else if (sortOrder === "highToLow") {
-    filteredProducts.sort((a, b) => b.price - a.price);
-  }
+  // sorting
+  if (sortOrder === "lowToHigh") filteredProducts.sort((a, b) => (a.price || 0) - (b.price || 0));
+  else if (sortOrder === "highToLow") filteredProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
 
-  // 🧾 Pagination logic
+  // pagination
   const startIndex = (page - 1) * productsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
-  // 🎨 Button active style
   const getButtonStyle = (btnFilter) => ({
     backgroundColor: filter === btnFilter ? "#a60019" : "transparent",
     color: filter === btnFilter ? "#fff" : "inherit",
     borderColor: "#a60019",
     "&:hover": {
-      backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166, 0, 25, 0.1)",
+      backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166, 0, 25, 0.08)",
     },
   });
 
-  // ------------------ BREADCRUMB & TITLE LOGIC ------------------
-  const pathSegments = location.pathname.split("/").filter(Boolean); // e.g. ['shop','gold']
+  // breadcrumb/title/result count
+  const pathSegments = location.pathname.split("/").filter(Boolean);
   const friendly = (seg) => {
     if (!seg) return "Home";
     const map = {
@@ -167,49 +110,40 @@ export default function Shop() {
     return map[seg.toLowerCase()] || seg.charAt(0).toUpperCase() + seg.slice(1);
   };
 
-  // build breadcrumb array
   const breadcrumbCrumbs = [{ label: "Home", to: "/" }];
   if (pathSegments.length > 0) {
-    breadcrumbCrumbs.push({
-      label: friendly(pathSegments[0]),
-      to: `/${pathSegments[0]}`,
-    });
-    if (pathSegments.length > 1) {
-      breadcrumbCrumbs.push({
-        label: friendly(pathSegments[1]),
-        to: `/${pathSegments.slice(0, 2).join("/")}`,
-      });
-    }
-  } else {
-    breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
-  }
+    breadcrumbCrumbs.push({ label: friendly(pathSegments[0]), to: `/${pathSegments[0]}` });
+    if (pathSegments.length > 1) breadcrumbCrumbs.push({ label: friendly(pathSegments[1]), to: `/${pathSegments.slice(0,2).join("/")}` });
+  } else breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
 
-  // if quick filter active show it in breadcrumb
   if (filter) {
     const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== filter) {
-      breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
-    }
+    if (last !== filter) breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
   } else if (typeFilter) {
     const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== typeFilter) {
-      breadcrumbCrumbs.push({ label: typeFilter, to: `/shop?type=${encodeURIComponent(typeFilter)}` });
-    }
+    if (last !== typeFilter) breadcrumbCrumbs.push({ label: typeFilter, to: `/shop?type=${encodeURIComponent(typeFilter)}` });
   }
 
-  // Determine the page title shown below breadcrumb:
-  // Priority: active quick filter -> first meaningful path segment -> 'All Jewellery'
-  const pageTitle =
-    filter || (pathSegments.length > 0 ? friendly(pathSegments[0]) : "All Jewellery");
-
-  // total visible count (formatted)
+  const pageTitle = filter || (pathSegments.length > 0 ? friendly(pathSegments[0]) : "All Jewellery");
   const resultCount = (filteredProducts || []).length;
   const formattedCount = resultCount.toLocaleString();
 
-  // ------------------ RENDER ------------------
+  // helper to get second image robustly
+  const getSecondImage = (item) => {
+    // check common fields: photos array, gallery, secondaryPhoto, altPhoto
+    return (
+      item?.photos?.[1] ||
+      (item?.gallery && item.gallery[1]) ||
+      item?.secondaryPhoto ||
+      item?.altPhoto ||
+      item?.mainPhoto ||
+      ""
+    );
+  };
+
   return (
     <section className="shop-section">
-      {/* ===== Breadcrumb ===== */}
+      {/* breadcrumb */}
       <div className="shop-breadcrumb-wrap">
         <nav className="shop-breadcrumb" aria-label="breadcrumb">
           {breadcrumbCrumbs.map((c, idx) => {
@@ -230,7 +164,7 @@ export default function Shop() {
         </nav>
       </div>
 
-      {/* ===== Title + result count (NEW) ===== */}
+      {/* results title */}
       <div className="shop-results-wrap">
         <div className="shop-results-inner">
           <h1 className="shop-results-title">{pageTitle}</h1>
@@ -238,131 +172,38 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* ===== Filter Buttons ===== */}
-      <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="center"
-        alignItems="center"
-        sx={{ flexWrap: "wrap", padding: "1rem" }}
-      >
-        <Button
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          onClick={() => {
-            setDrawerType("filter");
-            setDrawerOpen(true);
-          }}
-        >
+      {/* filters (kept above grid) */}
+      <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ flexWrap: "wrap", padding: "1rem" }}>
+        <Button variant="outlined" startIcon={<FilterListIcon />} onClick={() => { setDrawerType("filter"); setDrawerOpen(true); }}>
           Filter
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<SortIcon />}
-          onClick={() => {
-            setDrawerType("sort");
-            setDrawerOpen(true);
-          }}
-        >
+        <Button variant="outlined" startIcon={<SortIcon />} onClick={() => { setDrawerType("sort"); setDrawerOpen(true); }}>
           Sort
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<WomanIcon />}
-          onClick={() => {
-            setFilter("Women");
-            setPage(1);
-          }}
-          sx={{
-            ...getButtonStyle("Women"),
-            "@media (max-width: 768px)": { display: "none" },
-          }}
-        >
+
+        <Button variant="outlined" startIcon={<WomanIcon />} onClick={() => { setFilter("Women"); setPage(1); }} sx={{ ...getButtonStyle("Women"), "@media (max-width: 768px)": { display: "none" } }}>
           Women
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<ManIcon />}
-          onClick={() => {
-            setFilter("Men");
-            setPage(1);
-          }}
-          sx={{
-            ...getButtonStyle("Men"),
-            "@media (max-width: 766px)": { display: "none" },
-          }}
-        >
+        <Button variant="outlined" startIcon={<ManIcon />} onClick={() => { setFilter("Men"); setPage(1); }} sx={{ ...getButtonStyle("Men"), "@media (max-width: 766px)": { display: "none" } }}>
           Men
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<RingVolumeIcon />}
-          onClick={() => {
-            setFilter("Ring");
-            setPage(1);
-          }}
-          sx={{
-            ...getButtonStyle("Ring"),
-            "@media (max-width: 766px)": { display: "none" },
-          }}
-        >
+        <Button variant="outlined" startIcon={<RingVolumeIcon />} onClick={() => { setFilter("Ring"); setPage(1); }} sx={{ ...getButtonStyle("Ring"), "@media (max-width: 766px)": { display: "none" } }}>
           Rings
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<EarbudsIcon />}
-          onClick={() => {
-            setFilter("Earring");
-            setPage(1);
-          }}
-          sx={{
-            ...getButtonStyle("Earring"),
-            "@media (max-width: 768px)": { display: "none" },
-          }}
-        >
+        <Button variant="outlined" startIcon={<EarbudsIcon />} onClick={() => { setFilter("Earring"); setPage(1); }} sx={{ ...getButtonStyle("Earring"), "@media (max-width: 768px)": { display: "none" } }}>
           Earrings
         </Button>
-        <Button
-          variant="outlined"
-          startIcon={<DiamondIcon />}
-          onClick={() => {
-            setFilter("Necklace");
-            setPage(1);
-          }}
-          sx={{
-            ...getButtonStyle("Necklace"),
-            "@media (max-width: 768px)": { display: "none" },
-          }}
-        >
+        <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { setFilter("Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>
           Necklace
         </Button>
-        <Button
-          variant="contained"
-          color="error"
-          startIcon={<ClearAllIcon />}
-          onClick={() => {
-            setFilter(null);
-            setGenderFilter("");
-            setTypeFilter("");
-            setPriceRange([1000, 1000000]);
-            setSortOrder("");
-            setPage(1);
-          }}
-          sx={{
-            "@media (max-width: 766px)": { display: "none" },
-          }}
-        >
+
+        <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => { setFilter(null); setGenderFilter(""); setTypeFilter(""); setPriceRange([1000, 1000000]); setSortOrder(""); setPage(1); }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>
           Clear Filters
         </Button>
       </Stack>
 
       {/* Drawer for filter/sort */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        sx={{ width: 300, zIndex: 10000 }}
-      >
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)} sx={{ width: 300, zIndex: 10000 }}>
         <div style={{ width: 300, padding: "1rem" }}>
           {drawerType === "filter" && (
             <>
@@ -380,59 +221,20 @@ export default function Shop() {
               <FormControl fullWidth sx={{ mt: 2 }}>
                 <FormLabel>Product Type</FormLabel>
                 <RadioGroup value={tempTypeFilter} onChange={(e) => setTempTypeFilter(e.target.value)}>
-                  {[
-                    "Rings",
-                    "Chains",
-                    "Earrings",
-                    "Necklace",
-                    "Bangles",
-                    "Bracelet",
-                    "Mangalsutra",
-                    "Kada",
-                    "Watches",
-                  ].map((cat) => (
+                  {["Rings", "Chains", "Earrings", "Necklace", "Bangles", "Bracelet", "Mangalsutra", "Kada", "Watches"].map((cat) => (
                     <FormControlLabel key={cat} value={cat} control={<Radio />} label={cat} />
                   ))}
                 </RadioGroup>
               </FormControl>
 
-              <Typography gutterBottom>
-                Price Range: ₹{tempPriceRange[0]} - ₹{tempPriceRange[1]}
-              </Typography>
-              <Slider
-                value={tempPriceRange}
-                onChange={(_, newValue) => setTempPriceRange(newValue)}
-                valueLabelDisplay="auto"
-                min={1000}
-                max={1000000}
-                step={500}
-              />
+              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹{tempPriceRange[1]}</Typography>
+              <Slider value={tempPriceRange} onChange={(_, newValue) => setTempPriceRange(newValue)} valueLabelDisplay="auto" min={1000} max={1000000} step={500} />
 
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 2 }}
-                onClick={() => {
-                  setGenderFilter(tempGenderFilter);
-                  setTypeFilter(tempTypeFilter);
-                  setPriceRange(tempPriceRange);
-                  setDrawerOpen(false);
-                }}
-              >
+              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setGenderFilter(tempGenderFilter); setTypeFilter(tempTypeFilter); setPriceRange(tempPriceRange); setDrawerOpen(false); }}>
                 Apply Filters
               </Button>
 
-              <Button
-                variant="contained"
-                color="error"
-                fullWidth
-                sx={{ mt: 2 }}
-                onClick={() => {
-                  setTempGenderFilter("");
-                  setTempTypeFilter("");
-                  setTempPriceRange([1000, 1000000]);
-                }}
-              >
+              <Button variant="contained" color="error" fullWidth sx={{ mt: 2 }} onClick={() => { setTempGenderFilter(""); setTempTypeFilter(""); setTempPriceRange([1000, 1000000]); }}>
                 Clear Filters
               </Button>
             </>
@@ -449,15 +251,7 @@ export default function Shop() {
                 </RadioGroup>
               </FormControl>
 
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 2 }}
-                onClick={() => {
-                  setSortOrder(tempSortOrder);
-                  setDrawerOpen(false);
-                }}
-              >
+              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setSortOrder(tempSortOrder); setDrawerOpen(false); }}>
                 Apply Sorting
               </Button>
             </>
@@ -469,25 +263,34 @@ export default function Shop() {
       <div className="gridflex">
         <div className="shop-grid">
           {paginatedProducts.length === 0 ? (
-            <Typography align="center" sx={{ mt: 5 }}>
-              No products found.
-            </Typography>
+            <Typography align="center" sx={{ mt: 5 }}>No products found.</Typography>
           ) : (
             paginatedProducts.map((item) => {
-              const qty = quantities[item._id] || 0;
+              const secondImg = getSecondImage(item);
               return (
-                <div
-                  className="shop-card"
-                  key={item._id}
-                  onClick={() => navigate(`/product/${item._id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <Link to={`/product/${item._1d}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <div className="shop-card" key={item._id || item.id}>
+                  <Link to={`/product/${item._id || item.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="img">
-                      <img src={item.mainPhoto} alt={item.name} className="shop-img" />
+                      {/* badge if product has badge or isExpert */}
+                      {(item.badge || item.isExpert) && (
+                        <div className="card-badge">{item.badge || "EXPERT'S CHOICE"}</div>
+                      )}
+
+                      {/* wishlist heart */}
+                      <div className="card-heart">♡</div>
+
+                      {/* primary image */}
+                      <img className="shop-img primary" src={item.mainPhoto || item.image || ""} alt={item.name} />
+
+                      {/* secondary image (fades in on hover) */}
+                      <img className="shop-img secondary" src={secondImg} alt={`${item.name} alt`} />
+
+                      {/* small tooltip showing name on hover */}
+                      <div className="img-tooltip">{item.name}</div>
                     </div>
+
                     <h3 className="shop-name">{item.name}</h3>
-                    <p className="shop-price">₹{item.price.toLocaleString()}</p>
+                    <p className="shop-price">₹{(item.price || 0).toLocaleString()}</p>
                   </Link>
                 </div>
               );

@@ -1,9 +1,7 @@
 /* src/CSS/shop.css
-   Cleaned & fixed version
-   Uses vw/vh for major layout units where appropriate
+   Card hover image swap + layout tweaks
 */
 
-/* ---------- variables ---------- */
 :root{
   --page-margin-top: 16vh;
   --accent-maroon: #8a0f14;
@@ -16,7 +14,7 @@
   --grid-gap: 4vh;
 }
 
-/* ---------- Page / Section ---------- */
+/* ---------- Page ---------- */
 .shop-section {
   background: #ffffff;
   text-align: center;
@@ -25,300 +23,175 @@
   padding-bottom: 4vh;
 }
 
-/* ---------- Top hero (kept from your file) ---------- */
-.shop-hero {
-  text-align: center;
-  height: 50vh;
-  padding: 2vh 2vw;
-  background-image: url("../../assets/shopimg.jpg");
-  background-position: center -10vh;
-  background-size: cover;
-  color: var(--text-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 3vh;
-}
-
-.shop-hero-title {
-  font-size: clamp(2.4rem, 3.2vw, 3.2rem);
-  font-family: 'Playfair Display', serif;
-  color: var(--text-dark);
-  margin: 0;
-}
-.shop-hero-tagline {
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
-  color: var(--text-dark);
-  margin-top: 1vh;
-}
-
-/* ---------- Hero banner inner (hb-*) ---------- */
-.hb-root {
-  width: 100vw;
-  padding: 4vh 4vw;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.hb-inner {
-  width: 100%;
-  height: 40vh;
-  border-radius: 2vw;
-  background-image: url("../../assets/shopimg2.jpg");
-  background-size: cover;
-  background-position: 10vw -10vh;
-  box-shadow: 0 0.6vh 2vh rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2vw;
-  padding: 3vh 3vw;
-  box-sizing: border-box;
-}
-
-.hb-left {
-  width: 30vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2vh;
-  color: var(--text-dark);
-  align-items: flex-start;
-}
-
-.hb-title-line1 {
-  font-size: 4.0vw;
-  color: #c99a3a;
-  margin: 0;
-}
-.hb-title-line2 {
-  font-size: 2.4vw;
-  color: #c99a3a;
-  margin: 0;
-}
-.hb-sub {
-  font-size: 1.1vw;
-  margin: 0;
-  max-width: 30vw;
-  color: #fff;
-  line-height: 1.65;
-}
-
-.hb-right {
-  width: 40vw;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hb-image-wrap {
-  width: 38vw;
-  height: 34vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 1.2vw;
-}
-.hb-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ---------- Results breadcrumb & title ---------- */
-.shop-breadcrumb-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 1.2vh 0;
-  background: transparent;
-}
-
-.shop-breadcrumb {
-  width: 92vw;
-  max-width: 1400px;
-  display: flex;
-  align-items: center;
-  gap: 1.2vw;
-  font-family: "Poppins", sans-serif;
-  font-size: 1.6vh;
-  color: var(--muted);
-  padding: 0.6vh 0;
-}
-
-.shop-breadcrumb .crumb { display: inline-flex; align-items:center; gap:0.6vw; }
-.shop-breadcrumb .crumb-link { color: var(--muted); text-decoration:none; }
+/* Breadcrumb / results (kept) */
+.shop-breadcrumb-wrap { width:100%; display:flex; justify-content:center; padding:1.2vh 0; }
+.shop-breadcrumb { width:92vw; max-width:1400px; display:flex; align-items:center; gap:1.2vw; font-family:"Poppins",sans-serif; font-size:1.6vh; color:var(--muted); padding:0.6vh 0; }
+.shop-breadcrumb .crumb { display:inline-flex; align-items:center; gap:0.6vw; }
+.shop-breadcrumb .crumb-link { color:var(--muted); text-decoration:none; }
 .shop-breadcrumb .crumb-sep { color:#bdbdbd; margin:0 0.6vw; font-size:1.6vh; }
-.shop-breadcrumb .crumb-current { color: var(--accent-maroon); font-weight:600; }
+.shop-breadcrumb .crumb-current { color:var(--accent-maroon); font-weight:600; }
 
-/* Results title & count */
-.shop-results-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 1vh 0 0.8vh 0;
-  background: transparent;
-}
-.shop-results-inner {
-  width: 92vw;
-  max-width: 1400px;
-  display: flex;
-  align-items: baseline;
-  gap: 1.2vw;
-  padding: 0.4vh 0;
-}
-.shop-results-title {
-  font-family: "Cinzel Decorative", serif;
-  color: var(--accent-maroon);
-  font-size: clamp(2.2rem, 3.2vh, 3.2vh);
-  margin: 0;
-  line-height: 1;
-}
-.shop-results-count {
-  color: var(--muted);
-  font-size: 1.8vh;
-  margin-left: 1vw;
-  align-self: center;
-}
+.shop-results-wrap { width:100%; display:flex; justify-content:center; padding:1vh 0 0.8vh 0; background:transparent; }
+.shop-results-inner { width:92vw; max-width:1400px; display:flex; align-items:baseline; gap:1.2vw; padding:0.4vh 0; }
+.shop-results-title { font-family:"Cinzel Decorative", serif; color:var(--accent-maroon); font-size:clamp(2.2rem,3.2vh,3.2vh); margin:0; line-height:1; }
+.shop-results-count { color:var(--muted); font-size:1.8vh; margin-left:1vw; align-self:center; }
 
-/* ---------- Filter buttons wrapper (keeps previous MUI Stack look) ---------- */
-/* no change required here (MUI controls styles) */
+/* ---------- Filters wrapper ---------- */
+ /* MUI buttons control appearance; no extra CSS needed here */
 
-/* ---------- Product grid ---------- */
-/* Use grid with fixed columns on large, adapt on smaller screens */
-.gridflex {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* ---------- Grid ---------- */
+.gridflex { display:flex; align-items:center; justify-content:center; }
 .shop-grid {
-  display: grid;
-  width: var(--container-width);
-  grid-template-columns: repeat(3, 1fr); /* default 3 per row */
-  gap: var(--grid-gap);
-  padding: 1rem 0 4vh 0;
-  box-sizing: border-box;
-  justify-items: center;
-  align-items: start;
-  max-width: 1400px;
+  display:grid;
+  width:var(--container-width);
+  grid-template-columns: repeat(3, 1fr);
+  gap:var(--grid-gap);
+  padding:1rem 0 4vh 0;
+  box-sizing:border-box;
+  justify-items:center;
+  align-items:start;
+  max-width:1400px;
 }
 
-/* Card (use relative sizing with vw/vh) */
+/* ---------- Card ---------- */
 .shop-card {
-  background: #fff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: var(--card-radius);
-  width: 24vw;                 /* desktop card width */
-  min-width: 220px;
-  height: auto;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 1.2vh;
+  background:#fff;
+  transition: transform .3s ease, box-shadow .3s ease;
+  border-radius:var(--card-radius);
+  width:24vw;
+  min-width:220px;
+  height:auto;
+  box-shadow:var(--card-shadow);
+  overflow:hidden;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom:1.2vh;
+  position:relative;
 }
 
-.shop-card:hover {
-  transform: translateY(-0.6vh);
-  box-shadow: 0 1.6vh 3vh rgba(0,0,0,0.12);
-}
+/* hover elevation */
+.shop-card:hover { transform:translateY(-0.6vh); box-shadow:0 1.6vh 3vh rgba(0,0,0,0.12); }
 
-/* Image container: maintain aspect ratio and avoid distortion */
+/* image area: holds two images stacked */
 .img {
-  width: 100%;
-  height: 28vh; /* fixed image area height */
-  overflow: hidden;
-  display: block;
-  background: #fff;
-}
-.shop-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* cover is better for product cards */
-  display: block;
+  width:100%;
+  height:28vh;
+  overflow:hidden;
+  display:block;
+  position:relative;
+  background:#fff;
 }
 
-/* Text & price */
-.shop-name {
-  font-size: 1.6vh;
-  color: var(--text-dark);
-  margin: 1.2vh 1vw 0.6vh 1vw;
-  line-height: 1.15;
-}
-.shop-price {
-  font-size: 1.6vh;
-  color: var(--accent-gold);
-  margin: 0.6vh 0 1.2vh 0;
+/* images fill area and are stacked absolutely for fade swap */
+.img .shop-img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  position:absolute;
+  top:0;
+  left:0;
+  transition:opacity .35s ease, transform .45s ease;
+  backface-visibility:hidden;
 }
 
-/* CTA style (if you use .shop-btn) */
-.shop-btn {
-  padding: 1vh 2vw;
-  background: var(--accent-gold);
-  color: var(--text-dark);
-  font-size: 1.6vh;
-  font-weight: 700;
-  border: none;
-  border-radius: 0.8vh;
-  cursor: pointer;
-  margin-top: auto;
+/* primary on top by default */
+.img .primary { opacity:1; z-index:2; transform:scale(1); }
+.img .secondary { opacity:0; z-index:1; transform:scale(1.03); }
+
+/* on card hover swap images */
+.shop-card:hover .img .primary { opacity:0; transform:scale(1.03); }
+.shop-card:hover .img .secondary { opacity:1; transform:scale(1); }
+
+/* small dark tooltip label that appears when hovering image */
+.img-tooltip {
+  position:absolute;
+  left:50%;
+  bottom:1.8vh;
+  transform:translateX(-50%) translateY(6px);
+  background:rgba(0,0,0,0.8);
+  color:white;
+  padding:0.6vh 1vw;
+  font-size:1.4vh;
+  border-radius:0.4vh;
+  opacity:0;
+  transition:opacity .25s ease, transform .25s ease;
+  pointer-events:none;
+  z-index:6;
 }
-.shop-btn:hover { background: #b58e2f; color: #fff; }
+.shop-card:hover .img-tooltip { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* ---------- Why section (kept) ---------- */
-.why-nakshi { text-align:center; padding:3rem 1rem; background:linear-gradient(135deg,#fff6f6,#ffe9e9); margin-top:3rem; border-radius:10px; }
-.why-title { font-size:2rem; font-weight:700; color:#8b0000; margin-bottom:.5rem; }
-.why-subtitle { color:#444; font-size:1rem; margin-bottom:2rem; }
-.why-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
-.why-card { background:#fff; padding:1.5rem; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.05); transition:transform .3s; }
-.why-card:hover { transform:translateY(-5px); }
-.why-icon { width:50px; margin-bottom:1rem; }
+/* badge top-left */
+.card-badge {
+  position:absolute;
+  top:0.9vh;
+  left:0.9vh;
+  background:rgba(138,15,20,0.95);
+  color:white;
+  padding:0.6vh 1.2vw;
+  border-radius:0.8vh;
+  font-size:1.2vh;
+  z-index:7;
+  box-shadow:0 .4vh .8vh rgba(0,0,0,0.12);
+  text-transform:uppercase;
+}
 
-/* ---------- Responsive breakpoints ---------- */
-/* Large tablets / small laptops: 2 columns */
+/* heart icon top-right */
+.card-heart {
+  position:absolute;
+  top:1vh;
+  right:1vh;
+  z-index:7;
+  font-size:1.9vh;
+  color:rgba(0,0,0,0.35);
+  background:rgba(255,255,255,0.9);
+  width:3.2vh;
+  height:3.2vh;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 .4vh .8vh rgba(0,0,0,0.06);
+}
+
+/* product meta */
+.shop-name { font-size:1.6vh; color:var(--text-dark); margin:1.2vh 1vw 0.6vh 1vw; line-height:1.15; }
+.shop-price { font-size:1.6vh; color:var(--accent-gold); margin:0.6vh 0 1.2vh 0; }
+
+/* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
   :root { --container-width: 90vw; }
-  .shop-grid { grid-template-columns: repeat(2, 1fr); gap: 4vh; }
-  .shop-card { width: 40vw; min-width: 220px; }
-  .img { height: 26vh; }
-  .hb-inner { height: 38vh; padding: 2.5vh 2.5vw; }
-  .shop-results-title { font-size: 2.6vh; }
+  .shop-grid { grid-template-columns: repeat(2, 1fr); gap:4vh; }
+  .shop-card { width:40vw; min-width:220px; }
+  .img { height:26vh; }
+  .shop-results-title { font-size:2.6vh; }
 }
 
-/* Mobile: 1 column */
 @media (max-width: 600px) {
   :root { --page-margin-top: 8vh; --container-width: 94vw; }
-  .shop-grid { grid-template-columns: 1fr; gap: 3.5vh; width: 94vw; padding: 1rem 0 6vh 0; }
-  .shop-card { width: 94vw; border-radius: 1.4vh; padding-bottom: 2vh; }
-  .img { height: 40vh; }
-  .shop-name { font-size: 2.4vh; margin-top: 1vh; }
-  .shop-price { font-size: 2.2vh; margin-bottom: 1vh; }
-  .hb-inner { flex-direction: column; height: auto; background-position: center -15vh; padding: 3vh; }
-  .hb-left { width: 100%; align-items: center; text-align:center; }
-  .hb-title-line1 { font-size: 8.0vw; }
-  .hb-title-line2 { font-size: 5.0vw; }
-  .hb-sub { font-size: 3.4vw; max-width: 86vw; color: #3f0012; }
+  .shop-grid { grid-template-columns: 1fr; gap:3.5vh; width:94vw; padding:1rem 0 6vh 0; }
+  .shop-card { width:94vw; border-radius:1.4vh; padding-bottom:2vh; }
+  .img { height:40vh; }
+  .shop-name { font-size:2.4vh; margin-top:1vh; }
+  .shop-price { font-size:2.2vh; margin-bottom:1vh; }
+  .hb-inner { flex-direction:column; height:auto; background-position:center -15vh; padding:3vh; }
+  .hb-left { width:100%; align-items:center; text-align:center; }
+  .hb-title-line1 { font-size:8.0vw; }
+  .hb-title-line2 { font-size:5.0vw; }
+  .hb-sub { font-size:3.4vw; max-width:86vw; color:#3f0012; }
 }
 
-/* Very small devices tweaks */
 @media (max-width: 400px) {
-  .img { height: 36vh; }
-  .shop-name { font-size: 2.0vh; }
-  .shop-price { font-size: 1.9vh; }
-  .shop-results-title { font-size: 2.2vh; }
+  .img { height:36vh; }
+  .shop-name { font-size:2.0vh; }
+  .shop-price { font-size:1.9vh; }
+  .shop-results-title { font-size:2.2vh; }
 }
 
-/* ensure breadcrumb compacts on small screens */
 @media (max-width: 480px) {
-  .shop-breadcrumb { width: 96vw; gap: 0.8vw; font-size: 1.4vh; }
-  .shop-breadcrumb .crumb-sep { display: none; }
-  .shop-results-inner { width: 96vw; gap: 0.8vw; }
+  .shop-breadcrumb { width:96vw; gap:0.8vw; font-size:1.4vh; }
+  .shop-breadcrumb .crumb-sep { display:none; }
+  .shop-results-inner { width:96vw; gap:0.8vw; }
 }
