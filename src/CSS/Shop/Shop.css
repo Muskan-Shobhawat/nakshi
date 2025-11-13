@@ -491,3 +491,49 @@
   }
   .shop-breadcrumb .crumb-sep { display: none; } /* keep it compact */
 }
+
+/* ---------- Results title under breadcrumb ---------- */
+.shop-results-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1vh 0 0.8vh 0;
+  background: transparent;
+}
+
+.shop-results-inner {
+  width: 92vw;
+  max-width: 1400px;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2vw;
+  padding: 0.4vh 0;
+}
+
+.shop-results-title {
+  font-family: "Cinzel Decorative", serif;
+  color: #5b0e12; /* deep maroon */
+  font-size: 3.2vh;
+  margin: 0;
+  line-height: 1;
+}
+
+.shop-results-count {
+  color: #6b6b6b;
+  font-size: 1.8vh;
+  margin-left: 1vw;
+  align-self: center;
+}
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .shop-results-inner { width: 94vw; }
+  .shop-results-title { font-size: 2.6vh; }
+  .shop-results-count { font-size: 1.6vh; }
+}
+@media (max-width: 480px) {
+  .shop-results-inner { width: 96vw; gap: 0.8vw; }
+  .shop-results-title { font-size: 2.2vh; }
+  .shop-results-count { font-size: 1.4vh; }
+}
+

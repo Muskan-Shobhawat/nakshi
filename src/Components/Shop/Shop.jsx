@@ -67,7 +67,6 @@ export default function Shop() {
       try {
         const res = await axios.get("https://nakshi.onrender.com/api/products");
         setProducts(Array.isArray(res.data) ? res.data : res.data.products || []);
-        console.log("Fetched products:", res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -113,7 +112,8 @@ export default function Shop() {
     setPage(value);
   };
 
-  // 🧩 Filtering logic
+  // ------------------ FILTER & SORT LOGIC ------------------
+  // note: products may be empty initially
   let filteredProducts = Array.isArray(products)
     ? products.filter((p) => {
         let genderMatch = genderFilter ? p.gender.toLowerCase() === genderFilter.toLowerCase() : true;
@@ -151,14 +151,12 @@ export default function Shop() {
     },
   });
 
-  // ------------------ BREADCRUMB LOGIC ------------------
-  // derive friendly names from path segments
+  // ------------------ BREADCRUMB & TITLE LOGIC ------------------
   const pathSegments = location.pathname.split("/").filter(Boolean); // e.g. ['shop','gold']
   const friendly = (seg) => {
     if (!seg) return "Home";
-    // map common slugs to display names
     const map = {
-      shop: "Shop",
+      shop: "All Jewellery",
       gold: "Gold",
       rings: "Rings",
       earrings: "Earrings",
@@ -169,7 +167,7 @@ export default function Shop() {
     return map[seg.toLowerCase()] || seg.charAt(0).toUpperCase() + seg.slice(1);
   };
 
-  // if a quick filter is active, show it as the last crumb
+  // build breadcrumb array
   const breadcrumbCrumbs = [{ label: "Home", to: "/" }];
   if (pathSegments.length > 0) {
     breadcrumbCrumbs.push({
@@ -183,13 +181,11 @@ export default function Shop() {
       });
     }
   } else {
-    // when at / or empty path, show Shop if on this page
     breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
   }
 
-  // if user clicked a quick filter (e.g., "Gold" or "Women") use that as active crumb
+  // if quick filter active show it in breadcrumb
   if (filter) {
-    // avoid duplicate
     const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
     if (last !== filter) {
       breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
@@ -201,10 +197,19 @@ export default function Shop() {
     }
   }
 
+  // Determine the page title shown below breadcrumb:
+  // Priority: active quick filter -> first meaningful path segment -> 'All Jewellery'
+  const pageTitle =
+    filter || (pathSegments.length > 0 ? friendly(pathSegments[0]) : "All Jewellery");
+
+  // total visible count (formatted)
+  const resultCount = (filteredProducts || []).length;
+  const formattedCount = resultCount.toLocaleString();
+
   // ------------------ RENDER ------------------
   return (
     <section className="shop-section">
-      {/* ===== Breadcrumb (new) ===== */}
+      {/* ===== Breadcrumb ===== */}
       <div className="shop-breadcrumb-wrap">
         <nav className="shop-breadcrumb" aria-label="breadcrumb">
           {breadcrumbCrumbs.map((c, idx) => {
@@ -225,7 +230,15 @@ export default function Shop() {
         </nav>
       </div>
 
-      {/* Filter Buttons */}
+      {/* ===== Title + result count (NEW) ===== */}
+      <div className="shop-results-wrap">
+        <div className="shop-results-inner">
+          <h1 className="shop-results-title">{pageTitle}</h1>
+          <span className="shop-results-count">({formattedCount} results)</span>
+        </div>
+      </div>
+
+      {/* ===== Filter Buttons ===== */}
       <Stack
         direction="row"
         spacing={2}
@@ -469,7 +482,7 @@ export default function Shop() {
                   onClick={() => navigate(`/product/${item._id}`)}
                   style={{ cursor: "pointer" }}
                 >
-                  <Link to={`/product/${item._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <Link to={`/product/${item._1d}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="img">
                       <img src={item.mainPhoto} alt={item.name} className="shop-img" />
                     </div>
