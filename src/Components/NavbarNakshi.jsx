@@ -18,19 +18,20 @@ function NavbarNakshi() {
   const [mobilePanel, setMobilePanel] = useState(null); // 'all' | 'earrings' | 'rings' | 'profile' | null
 
   const API = import.meta.env.VITE_APP_BACKEND_URI;
+  const API_BASE = API?.replace(/\/+$/, "") || ""; // normalize base (no trailing slash)
   const navigate = useNavigate();
 
   // ref to detect outside clicks for desktop mega menu
   const navRef = useRef(null);
 
-  // ---- Auth check (unchanged) ----
+  // ---- Auth check (unchanged except using API_BASE) ----
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     const verifyToken = async () => {
       try {
-        const res = await fetch(`${API}user/profile`, {
+        const res = await fetch(`${API_BASE}/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
@@ -49,7 +50,7 @@ function NavbarNakshi() {
       }
     };
     verifyToken();
-  }, [API]);
+  }, [API_BASE]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -119,52 +120,53 @@ function NavbarNakshi() {
     },
   };
 
+  // minimal category slug map to ensure exact backend slug (use exact case expected by backend)
+  const categorySlugMap = {
+    earrings: "Earrings",
+    rings: "Rings",
+    necklaces: "Necklaces",
+    "necklace sets": "NecklaceSets",
+    necklace: "Necklace",
+    chains: "Chains",
+    mangalsutra: "Mangalsutra",
+    bracelets: "Bracelets",
+    bangles: "Bangles",
+    watches: "Watches",
+    kada: "Kada",
+  };
+
   // ---------- navigation helper ----------
   // maps clicked menu text -> route or query and closes menus
   const goToFromMega = (item) => {
-    if (!item) {
+    const raw = String(item || "").trim();
+    if (!raw) {
       navigate("/shop");
       setActiveMega(null);
       return;
     }
-    const lower = item.toString().toLowerCase().trim();
+    const lower = raw.toLowerCase();
 
-    // categories mapping - route style
-    const categories = [
-      "Earrings",
-      "Rings",
-      "Necklaces",
-      "Necklace sets",
-      "Necklace",
-      "Chains",
-      "Bangles",
-      "Bracelets",
-      "Mangalsutra",
-      "Kada",
-      "Watches",
-    ];
-
-    // normalize some names
+    // direct "all" route
     if (lower.includes("all jewellery") || lower === "all jewellery" || lower === "all") {
       navigate("/shop");
       setActiveMega(null);
       return;
     }
 
-    // if item is category-like
-    const catFound = categories.find((c) => lower.includes(c.split(" ")[0]));
-    if (catFound) {
-      // use route /shop/category/<slug>
-      const slug = catFound.split(" ")[0]; // e.g. "earrings" or "necklace"
+    // check category mapping keys for exact slug mapping (ensures "Rings" slug not "rings")
+    const mapKeys = Object.keys(categorySlugMap);
+    const foundKey = mapKeys.find((k) => lower === k || lower.includes(k));
+    if (foundKey) {
+      const slug = categorySlugMap[foundKey];
       navigate(`/shop/category/${encodeURIComponent(slug)}`);
       setActiveMega(null);
       return;
     }
 
-    // occasions
-    const occasions = ["Everyday", "Casual", "Festive", "Traditional", "modern wear", "office wear"];
+    // occasions (use lowercase comparison)
+    const occasions = ["everyday", "casual", "festive", "traditional", "modern wear", "office wear"];
     if (occasions.includes(lower)) {
-      navigate(`/shop?occasion=${encodeURIComponent(item)}`);
+      navigate(`/shop?occasion=${encodeURIComponent(raw)}`);
       setActiveMega(null);
       return;
     }
@@ -172,7 +174,7 @@ function NavbarNakshi() {
     // gender
     const genders = ["women", "men", "kids & teens", "unisex"];
     if (genders.includes(lower)) {
-      navigate(`/shop?gender=${encodeURIComponent(item)}`);
+      navigate(`/shop?gender=${encodeURIComponent(raw)}`);
       setActiveMega(null);
       return;
     }
@@ -180,7 +182,8 @@ function NavbarNakshi() {
     // Earrings subcategories (e.g., "studs & tops", "jhumkas") - map to earrings category with subquery
     const earringsSub = ["studs & tops", "jhumkas", "all earrings"];
     if (earringsSub.includes(lower)) {
-      navigate(`/shop/category/earrings?subcategory=${encodeURIComponent(item)}`);
+      const earringsSlug = categorySlugMap["earrings"] || "Earrings";
+      navigate(`/shop/category/${encodeURIComponent(earringsSlug)}?subcategory=${encodeURIComponent(raw)}`);
       setActiveMega(null);
       return;
     }
@@ -188,7 +191,8 @@ function NavbarNakshi() {
     // Rings subcategories
     const ringsSub = ["all rings", "casual rings", "traditional rings"];
     if (ringsSub.includes(lower)) {
-      navigate(`/shop/category/rings?subcategory=${encodeURIComponent(item)}`);
+      const ringsSlug = categorySlugMap["rings"] || "Rings";
+      navigate(`/shop/category/${encodeURIComponent(ringsSlug)}?subcategory=${encodeURIComponent(raw)}`);
       setActiveMega(null);
       return;
     }
