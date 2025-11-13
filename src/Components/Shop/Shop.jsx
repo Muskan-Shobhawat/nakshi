@@ -57,8 +57,15 @@ export default function Shop() {
   // detect new-arrivals route
   const isNewArrivalsRoute = location.pathname.includes("/shop/new-arrivals");
 
-  // backend base
-  const API_BASE = import.meta.env.VITE_APP_BACKEND_URI || "https://nakshi.onrender.com";
+  // backend base (normalized)
+  const RAW_API_BASE = import.meta.env.VITE_APP_BACKEND_URI || "https://nakshi.onrender.com";
+
+  // Normalise API base and build products endpoint correctly
+  const API_BASE = RAW_API_BASE.replace(/\/+$/, ""); // remove trailing slash(es)
+  // If API_BASE already ends with '/api' use that, otherwise append '/api'
+  const PRODUCTS_ENDPOINT = API_BASE.endsWith("/api")
+    ? `${API_BASE}/products`
+    : `${API_BASE}/api/products`;
 
   // build server query and fetch products (server-side filtering preferred)
   useEffect(() => {
@@ -92,12 +99,13 @@ export default function Shop() {
         if (sortOrder) qs.push(`sort=${encodeURIComponent(sortOrder)}`);
 
         // pagination (server-side) - request enough records for client pagination
-        const limit = productsPerPage * 4; // fetch some pages (adjust if you want)
+        const limit = productsPerPage * 4; // fetch a few pages
         qs.push(`limit=${limit}`);
         qs.push(`skip=${(page - 1) * productsPerPage}`);
 
         const queryStr = qs.length ? `?${qs.join("&")}` : "";
-        const url = `${API_BASE}/api/products${queryStr}`;
+        // Use the computed PRODUCTS_ENDPOINT (safe, no double /api)
+        const url = `${PRODUCTS_ENDPOINT}${queryStr}`;
 
         const res = await axios.get(url);
         if (!mounted) return;
@@ -134,7 +142,7 @@ export default function Shop() {
     priceRange,
     sortOrder,
     page,
-    API_BASE,
+    PRODUCTS_ENDPOINT,
     isNewArrivalsRoute,
   ]);
 
@@ -304,8 +312,6 @@ export default function Shop() {
           setPriceRange([1000, 1000000]);
           setSortOrder("");
           setPage(1);
-          // also navigate to clear category/query if desired:
-          // navigate("/shop");
         }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>Clear Filters</Button>
       </Stack>
 
