@@ -135,10 +135,10 @@
 }
 
 /* hover raise */
-.shop-card:hover {
+/* .shop-card:hover {
   transform: translateY(-0.6vh);
   box-shadow: 0 1.6vh 3vh rgba(0, 0, 0, 0.12);
-}
+} */
 
 /* IMAGE BLOCK - full width and fixed height region that images will cover */
 .img {
