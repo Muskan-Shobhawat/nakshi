@@ -1,6 +1,6 @@
 // src/components/Shop.jsx
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, Link, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import "../../CSS/Shop/Shop.css";
 import {
@@ -28,58 +28,154 @@ import ClearAllIcon from "@mui/icons-material/ClearAll";
 export default function Shop() {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams(); // supports route /shop/category/:category
 
+  // UI state
   const [products, setProducts] = useState([]);
+  const [serverTotal, setServerTotal] = useState(null); // total from server (if provided)
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState(null); // quick filter (Women/Men etc)
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerType, setDrawerType] = useState(""); // 'filter' or 'sort'
   const [genderFilter, setGenderFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRange, setPriceRange] = useState([1000, 1000000]);
   const [sortOrder, setSortOrder] = useState("");
-  const [tempGenderFilter, setTempGenderFilter] = useState(genderFilter);
-  const [tempTypeFilter, setTempTypeFilter] = useState(typeFilter);
-  const [tempPriceRange, setTempPriceRange] = useState(priceRange);
-  const [tempSortOrder, setTempSortOrder] = useState(sortOrder);
+  const [tempGenderFilter, setTempGenderFilter] = useState("");
+  const [tempTypeFilter, setTempTypeFilter] = useState("");
+  const [tempPriceRange, setTempPriceRange] = useState([1000, 1000000]);
+  const [tempSortOrder, setTempSortOrder] = useState("");
   const productsPerPage = 48;
 
-  // fetch products
+  // derive category from route or query param
+  const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const qCategory = query.get("category");
+  const qOccasion = query.get("occasion");
+  const qGender = query.get("gender");
+  const routeCategory = params?.category || null;
+
+  // detect new-arrivals route
+  const isNewArrivalsRoute = location.pathname.includes("/shop/new-arrivals");
+
+  // backend base
+  const API_BASE = import.meta.env.VITE_APP_BACKEND_URI || "https://nakshi.onrender.com";
+
+  // build server query and fetch products (server-side filtering preferred)
   useEffect(() => {
+    let mounted = true;
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://nakshi.onrender.com/api/products");
-        setProducts(Array.isArray(res.data) ? res.data : res.data.products || []);
-      } catch (error) {
-        console.error("Error fetching products:", error);
+        const qs = [];
+
+        // new arrivals
+        if (isNewArrivalsRoute) {
+          qs.push("new=true");
+        }
+
+        // category: prefer route param then ?category=
+        const categoryForQuery = routeCategory || qCategory || typeFilter || "";
+        if (categoryForQuery) qs.push(`category=${encodeURIComponent(categoryForQuery)}`);
+
+        // occasion & gender from URL (these are separate from drawer-controlled filters)
+        if (qOccasion) qs.push(`occasion=${encodeURIComponent(qOccasion)}`);
+        if (qGender) qs.push(`gender=${encodeURIComponent(qGender)}`);
+
+        // drawer / UI filters (if user applied them)
+        if (genderFilter) qs.push(`gender=${encodeURIComponent(genderFilter)}`);
+        if (typeFilter && !categoryForQuery) qs.push(`category=${encodeURIComponent(typeFilter)}`);
+
+        // price & sort (you can use them server-side if API supports)
+        if (priceRange && (priceRange[0] !== 1000 || priceRange[1] !== 1000000)) {
+          qs.push(`priceMin=${encodeURIComponent(priceRange[0])}`);
+          qs.push(`priceMax=${encodeURIComponent(priceRange[1])}`);
+        }
+        if (sortOrder) qs.push(`sort=${encodeURIComponent(sortOrder)}`);
+
+        // pagination (server-side) - request enough records for client pagination
+        const limit = productsPerPage * 4; // fetch some pages (adjust if you want)
+        qs.push(`limit=${limit}`);
+        qs.push(`skip=${(page - 1) * productsPerPage}`);
+
+        const queryStr = qs.length ? `?${qs.join("&")}` : "";
+        const url = `${API_BASE}/api/products${queryStr}`;
+
+        const res = await axios.get(url);
+        if (!mounted) return;
+
+        // server returns { success, total, products } per your controller
+        if (res.data && typeof res.data === "object" && Array.isArray(res.data.products)) {
+          setProducts(res.data.products || []);
+          setServerTotal(typeof res.data.total === "number" ? res.data.total : null);
+        } else if (Array.isArray(res.data)) {
+          // older responses that returned an array directly
+          setProducts(res.data || []);
+          setServerTotal(null);
+        } else {
+          // fallback: try to find products array inside res.data
+          setProducts(res.data.products || []);
+          setServerTotal(res.data.total || null);
+        }
+      } catch (err) {
+        console.error("fetch products error", err);
       }
     };
+
     fetchProducts();
-  }, []);
+    return () => {
+      mounted = false;
+    };
+    // re-run when route/category/query/search or any filters change
+  }, [
+    routeCategory,
+    location.search,
+    location.pathname,
+    genderFilter,
+    typeFilter,
+    priceRange,
+    sortOrder,
+    page,
+    API_BASE,
+    isNewArrivalsRoute,
+  ]);
 
-  // simple filtering / sorting logic
-  let filteredProducts = Array.isArray(products)
-    ? products.filter((p) => {
-        let genderMatch = genderFilter ? (p.gender || "").toLowerCase() === genderFilter.toLowerCase() : true;
-        let typeMatch = typeFilter ? (p.category || "").toLowerCase() === typeFilter.toLowerCase() : true;
-        let priceMatch = (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1];
-        let quickFilterMatch = filter
-          ? filter === "Women" || filter === "Men"
-            ? (p.gender || "") === filter
-            : ["Ring", "Earring", "Necklace"].includes(filter)
-            ? (p.category || "") === filter
-            : true
-          : true;
-        return genderMatch && typeMatch && priceMatch && quickFilterMatch;
-      })
-    : [];
+  // client-side simple filtering & sorting as a fallback (applied to 'products' returned)
+  const filteredProducts = useMemo(() => {
+    const list = Array.isArray(products) ? products : [];
 
-  if (sortOrder === "lowToHigh") filteredProducts.sort((a, b) => (a.price || 0) - (b.price || 0));
-  else if (sortOrder === "highToLow") filteredProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
+    // apply quick filter (filter state like clicking Women/Men/Rings buttons)
+    let out = list.filter((p) => {
+      const genderMatch = filter
+        ? filter === "Women" || filter === "Men"
+          ? (p.gender || "").toLowerCase() === filter.toLowerCase()
+          : ["Ring", "Earring", "Necklace"].includes(filter)
+          ? (p.category || "").toLowerCase() === filter.toLowerCase()
+          : true
+        : true;
 
+      // additional UI drawer filters (client-side safety)
+      const drawerGenderMatch = genderFilter ? (p.gender || "").toLowerCase() === genderFilter.toLowerCase() : true;
+      const drawerTypeMatch = typeFilter ? (p.category || "").toLowerCase() === (typeFilter || "").toLowerCase() : true;
+      const priceMatch = (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1];
+
+      return genderMatch && drawerGenderMatch && drawerTypeMatch && priceMatch;
+    });
+
+    // sorting (client-side)
+    if (sortOrder === "lowToHigh") out.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (sortOrder === "highToLow") out.sort((a, b) => (b.price || 0) - (a.price || 0));
+
+    return out;
+  }, [products, filter, genderFilter, typeFilter, priceRange, sortOrder]);
+
+  // pagination (client-side on filteredProducts)
   const startIndex = (page - 1) * productsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
+  // displayed count uses serverTotal when available else filteredProducts.length
+  const resultCount = serverTotal !== null ? serverTotal : filteredProducts.length;
+  const formattedCount = resultCount.toLocaleString();
+
+  // helpers
   const getButtonStyle = (btnFilter) => ({
     backgroundColor: filter === btnFilter ? "#a60019" : "transparent",
     color: filter === btnFilter ? "#fff" : "inherit",
@@ -87,8 +183,6 @@ export default function Shop() {
     "&:hover": { backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166,0,25,0.08)" },
   });
 
-  // breadcrumb/title/result count
-  const pathSegments = location.pathname.split("/").filter(Boolean);
   const friendly = (seg) => {
     if (!seg) return "Home";
     const map = {
@@ -103,39 +197,65 @@ export default function Shop() {
     return map[seg.toLowerCase()] || seg.charAt(0).toUpperCase() + seg.slice(1);
   };
 
+  // breadcrumb build
+  const pathSegments = location.pathname.split("/").filter(Boolean);
   const breadcrumbCrumbs = [{ label: "Home", to: "/" }];
   if (pathSegments.length > 0) {
     breadcrumbCrumbs.push({ label: friendly(pathSegments[0]), to: `/${pathSegments[0]}` });
-    if (pathSegments.length > 1) breadcrumbCrumbs.push({ label: friendly(pathSegments[1]), to: `/${pathSegments.slice(0,2).join("/")}` });
+    if (pathSegments.length > 1) breadcrumbCrumbs.push({ label: friendly(pathSegments[1]), to: `/${pathSegments.slice(0, 2).join("/")}` });
   } else breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
 
+  // if quick filter active show it in breadcrumb
   if (filter) {
     const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
     if (last !== filter) breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
   } else if (typeFilter) {
     const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
     if (last !== typeFilter) breadcrumbCrumbs.push({ label: typeFilter, to: `/shop?type=${encodeURIComponent(typeFilter)}` });
+  } else if (routeCategory || qCategory) {
+    const catLabel = routeCategory || qCategory;
+    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
+    if (last !== catLabel) breadcrumbCrumbs.push({ label: catLabel, to: location.pathname + location.search });
+  } else if (isNewArrivalsRoute) {
+    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
+    if (last !== "New Arrivals") breadcrumbCrumbs.push({ label: "New Arrivals", to: location.pathname });
   }
 
-  const pageTitle = filter || (pathSegments.length > 0 ? friendly(pathSegments[0]) : "All Jewellery");
-  const resultCount = (filteredProducts || []).length;
-  const formattedCount = resultCount.toLocaleString();
+  // page title priority: new arrivals -> route category -> quick filter -> All Jewellery
+  const pageTitle = isNewArrivalsRoute
+    ? "New Arrivals"
+    : (routeCategory || qCategory) ? (routeCategory || qCategory) :
+    (filter || "All Jewellery");
 
-  // determine second image robustly
-  const getSecondImage = (item) => {
-    return (
-      item?.photos?.[1] ||
-      (item?.gallery && item.gallery[1]) ||
-      item?.secondaryPhoto ||
-      item?.altPhoto ||
-      item?.mainPhoto ||
-      ""
-    );
+  // robust second image
+  const getSecondImage = (item) =>
+    item?.photos?.[1] ||
+    (item?.gallery && item.gallery[1]) ||
+    item?.secondaryPhoto ||
+    item?.altPhoto ||
+    item?.mainPhoto ||
+    "";
+
+  // Drawer apply handlers
+  const applyFiltersFromDrawer = () => {
+    setGenderFilter(tempGenderFilter);
+    setTypeFilter(tempTypeFilter);
+    setPriceRange(tempPriceRange);
+    setSortOrder(tempSortOrder);
+    setDrawerOpen(false);
+    setPage(1);
+  };
+
+  const clearDrawerFilters = () => {
+    setTempGenderFilter("");
+    setTempTypeFilter("");
+    setTempPriceRange([1000, 1000000]);
+    setTempSortOrder("");
   };
 
   return (
     <section className="shop-section">
-      {/* breadcrumb */}
+      {/* Breadcrumb */}
       <div className="shop-breadcrumb-wrap">
         <nav className="shop-breadcrumb" aria-label="breadcrumb">
           {breadcrumbCrumbs.map((c, idx) => {
@@ -154,7 +274,7 @@ export default function Shop() {
         </nav>
       </div>
 
-      {/* results title */}
+      {/* Results title */}
       <div className="shop-results-wrap">
         <div className="shop-results-inner">
           <h1 className="shop-results-title">{pageTitle}</h1>
@@ -162,7 +282,7 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* filters - unchanged layout */}
+      {/* Filter buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ flexWrap: "wrap", padding: "1rem" }}>
         <Button variant="outlined" startIcon={<FilterListIcon />} onClick={() => { setDrawerType("filter"); setDrawerOpen(true); }}>Filter</Button>
         <Button variant="outlined" startIcon={<SortIcon />} onClick={() => { setDrawerType("sort"); setDrawerOpen(true); }}>Sort</Button>
@@ -177,10 +297,19 @@ export default function Shop() {
 
         <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { setFilter("Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>Necklace</Button>
 
-        <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => { setFilter(null); setGenderFilter(""); setTypeFilter(""); setPriceRange([1000, 1000000]); setSortOrder(""); setPage(1); }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>Clear Filters</Button>
+        <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => {
+          setFilter(null);
+          setGenderFilter("");
+          setTypeFilter("");
+          setPriceRange([1000, 1000000]);
+          setSortOrder("");
+          setPage(1);
+          // also navigate to clear category/query if desired:
+          // navigate("/shop");
+        }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>Clear Filters</Button>
       </Stack>
 
-      {/* Drawer for filter/sort (unchanged) */}
+      {/* Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)} sx={{ width: 300, zIndex: 10000 }}>
         <div style={{ width: 300, padding: "1rem" }}>
           {drawerType === "filter" && (
@@ -205,12 +334,12 @@ export default function Shop() {
                 </RadioGroup>
               </FormControl>
 
-              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹{tempPriceRange[1]}</Typography>
+              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹tempPriceRange[1]}</Typography>
               <Slider value={tempPriceRange} onChange={(_, newValue) => setTempPriceRange(newValue)} valueLabelDisplay="auto" min={1000} max={1000000} step={500} />
 
-              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setGenderFilter(tempGenderFilter); setTypeFilter(tempTypeFilter); setPriceRange(tempPriceRange); setDrawerOpen(false); }}>Apply Filters</Button>
+              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={applyFiltersFromDrawer}>Apply Filters</Button>
 
-              <Button variant="contained" color="error" fullWidth sx={{ mt: 2 }} onClick={() => { setTempGenderFilter(""); setTempTypeFilter(""); setTempPriceRange([1000, 1000000]); }}>Clear Filters</Button>
+              <Button variant="contained" color="error" fullWidth sx={{ mt: 2 }} onClick={() => clearDrawerFilters()}>Clear Filters</Button>
             </>
           )}
 
@@ -239,7 +368,6 @@ export default function Shop() {
           ) : (
             paginatedProducts.map((item) => {
               const secondImg = getSecondImage(item);
-              // check if product is low stock (simulate)
               const isLow = item?.stock === 1 || item?.onlyOne;
               return (
                 <div className="shop-card" key={item._id || item.id}>
@@ -247,15 +375,11 @@ export default function Shop() {
                     <div className="img">
                       {(item.badge || item.isExpert) && <div className="card-badge">{item.badge || "EXPERT'S CHOICE"}</div>}
                       <div className="card-heart">♡</div>
-
-                      {/* primary + secondary images stacked for slide/fade */}
                       <img className="shop-img primary" src={item.mainPhoto || item.image || ""} alt={item.name} />
                       <img className="shop-img secondary" src={secondImg} alt={`${item.name} alt`} />
-
                       <div className="img-tooltip">{item.name}</div>
                     </div>
 
-                    {/* Title & price block (matches your reference) */}
                     <h3 className="shop-name">{item.name}</h3>
                     <p className="shop-price">
                       <span className="rupee">₹</span>

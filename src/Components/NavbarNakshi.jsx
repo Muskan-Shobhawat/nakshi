@@ -1,3 +1,4 @@
+// src/components/NavbarNakshi.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "../CSS/nav.css"; // keep your path
 import { Navbar, Nav, Container, Button, Dropdown } from "react-bootstrap";
@@ -7,7 +8,7 @@ import call from "../assets/call.png";
 import location from "../assets/location.png";
 import fb from "../assets/fb.png";
 import insta from "../assets/insta.png";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function NavbarNakshi() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -118,7 +119,86 @@ function NavbarNakshi() {
     },
   };
 
-  // Desktop Mega Menu
+  // ---------- navigation helper ----------
+  // maps clicked menu text -> route or query and closes menus
+  const goToFromMega = (item) => {
+    if (!item) {
+      navigate("/shop");
+      setActiveMega(null);
+      return;
+    }
+    const lower = item.toString().toLowerCase().trim();
+
+    // categories mapping - route style
+    const categories = [
+      "earrings",
+      "rings",
+      "necklaces",
+      "necklace sets",
+      "necklace",
+      "chains",
+      "bangles",
+      "bracelets",
+      "mangalsutra",
+      "kada",
+      "watches",
+    ];
+
+    // normalize some names
+    if (lower.includes("all jewellery") || lower === "all jewellery" || lower === "all") {
+      navigate("/shop");
+      setActiveMega(null);
+      return;
+    }
+
+    // if item is category-like
+    const catFound = categories.find((c) => lower.includes(c.split(" ")[0]));
+    if (catFound) {
+      // use route /shop/category/<slug>
+      const slug = catFound.split(" ")[0]; // e.g. "earrings" or "necklace"
+      navigate(`/shop/category/${encodeURIComponent(slug)}`);
+      setActiveMega(null);
+      return;
+    }
+
+    // occasions
+    const occasions = ["everyday", "casual", "festive", "traditional", "modern wear", "office wear"];
+    if (occasions.includes(lower)) {
+      navigate(`/shop?occasion=${encodeURIComponent(item)}`);
+      setActiveMega(null);
+      return;
+    }
+
+    // gender
+    const genders = ["women", "men", "kids & teens", "unisex"];
+    if (genders.includes(lower)) {
+      navigate(`/shop?gender=${encodeURIComponent(item)}`);
+      setActiveMega(null);
+      return;
+    }
+
+    // Earrings subcategories (e.g., "studs & tops", "jhumkas") - map to earrings category with subquery
+    const earringsSub = ["studs & tops", "jhumkas", "all earrings"];
+    if (earringsSub.includes(lower)) {
+      navigate(`/shop/category/earrings?subcategory=${encodeURIComponent(item)}`);
+      setActiveMega(null);
+      return;
+    }
+
+    // Rings subcategories
+    const ringsSub = ["all rings", "casual rings", "traditional rings"];
+    if (ringsSub.includes(lower)) {
+      navigate(`/shop/category/rings?subcategory=${encodeURIComponent(item)}`);
+      setActiveMega(null);
+      return;
+    }
+
+    // fallback to shop root
+    navigate("/shop");
+    setActiveMega(null);
+  };
+
+  // Desktop Mega Menu (uses buttons so we can call navigate & close menu)
   const MegaMenu = ({ type }) => {
     const data = menus[type];
     if (!data) return null;
@@ -135,14 +215,14 @@ function NavbarNakshi() {
               <div className="mega-head">{col.head}</div>
               <div className="mega-grid">
                 {col.items.map((it, i) => (
-                  <Link
+                  <button
                     key={i}
-                    to="/shop"
                     className="mega-chip"
-                    onClick={() => setActiveMega(null)}
+                    type="button"
+                    onClick={() => goToFromMega(it)}
                   >
                     {it}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
@@ -152,33 +232,59 @@ function NavbarNakshi() {
     );
   };
 
-  // Mobile MV-style Panel
+  // Mobile MV-style Panel (use buttons to navigate + close mobile menu)
   const MobilePanel = ({ type }) => {
     if (type === "profile") {
       return (
         <div className="mv-panel">
           <div className="mv-head">
-            <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
+            <button className="mv-back" onClick={() => setMobilePanel(null)}>
+              &larr;
+            </button>
             <span className="mv-title">{userName ? userName.split(" ")[0] : "Profile"}</span>
-            <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
+            <button className="mv-close" onClick={() => setMenuOpen(false)}>
+              ×
+            </button>
           </div>
           <div className="mv-body">
             <div className="mv-block">
               <div className="mv-chip-wrap">
-                <Link to="/account" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                <button
+                  className="mv-chip"
+                  onClick={() => {
+                    navigate("/account");
+                    setMenuOpen(false);
+                    setMobilePanel(null);
+                  }}
+                >
                   My Account
-                </Link>
-                <Link to="/cart" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                </button>
+                <button
+                  className="mv-chip"
+                  onClick={() => {
+                    navigate("/cart");
+                    setMenuOpen(false);
+                    setMobilePanel(null);
+                  }}
+                >
                   My Cart
-                </Link>
-                <Link to="/orders" className="mv-chip" onClick={() => setMenuOpen(false)}>
+                </button>
+                <button
+                  className="mv-chip"
+                  onClick={() => {
+                    navigate("/orders");
+                    setMenuOpen(false);
+                    setMobilePanel(null);
+                  }}
+                >
                   My Orders
-                </Link>
+                </button>
                 <button
                   className="mv-chip mv-danger"
                   onClick={() => {
                     handleLogout();
                     setMenuOpen(false);
+                    setMobilePanel(null);
                   }}
                 >
                   Logout
@@ -196,9 +302,13 @@ function NavbarNakshi() {
     return (
       <div className="mv-panel">
         <div className="mv-head">
-          <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
+          <button className="mv-back" onClick={() => setMobilePanel(null)}>
+            &larr;
+          </button>
           <span className="mv-title">{data.title}</span>
-          <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
+          <button className="mv-close" onClick={() => setMenuOpen(false)}>
+            ×
+          </button>
         </div>
         <div className="mv-body">
           {data.columns.map((col, idx) => (
@@ -206,17 +316,19 @@ function NavbarNakshi() {
               <div className="mv-block-head">{col.head}</div>
               <div className="mv-chip-wrap">
                 {col.items.map((it, i) => (
-                  <Link
+                  <button
                     key={i}
-                    to="/shop"
                     className="mv-chip"
                     onClick={() => {
+                      // navigate & close
+                      goToFromMega(it);
                       setMenuOpen(false);
                       setMobilePanel(null);
                     }}
+                    type="button"
                   >
                     {it}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
@@ -226,7 +338,7 @@ function NavbarNakshi() {
     );
   };
 
-  // Click togglers for desktop links
+  // Click togglers for desktop links (keeps your toggle behavior)
   const toggleMega = (key) => (e) => {
     // prevent navigation when used as a toggle
     e.preventDefault();
@@ -264,7 +376,7 @@ function NavbarNakshi() {
             </div>
 
             <Nav className="d-none d-lg-flex align-items-center">
-              <Nav.Link as={Link} to="/" onMouseEnter={() => setActiveMega(null)}>
+              <Nav.Link onMouseEnter={() => setActiveMega(null)} href="/">
                 Home
               </Nav.Link>
 
@@ -274,7 +386,7 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("all")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="#" onClick={toggleMega("all")}>
+                <Nav.Link href="#" onClick={toggleMega("all")}>
                   All Jewellery
                 </Nav.Link>
                 <MegaMenu type="all" />
@@ -286,7 +398,7 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("earrings")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="#" onClick={toggleMega("earrings")}>
+                <Nav.Link href="#" onClick={toggleMega("earrings")}>
                   Earrings
                 </Nav.Link>
                 <MegaMenu type="earrings" />
@@ -298,24 +410,25 @@ function NavbarNakshi() {
                 onMouseEnter={() => setActiveMega("rings")}
                 onMouseLeave={() => setActiveMega(null)}
               >
-                <Nav.Link as={Link} to="#" onClick={toggleMega("rings")}>
+                <Nav.Link href="#" onClick={toggleMega("rings")}>
                   Rings
                 </Nav.Link>
                 <MegaMenu type="rings" />
               </div>
-<Nav.Link as={Link} to="" onMouseEnter={() => setActiveMega(null)}>
+
+              <Nav.Link href="" onMouseEnter={() => setActiveMega(null)}>
                 Women
               </Nav.Link>
-              <Nav.Link as={Link} to="" onMouseEnter={() => setActiveMega(null)}>
+              <Nav.Link href="" onMouseEnter={() => setActiveMega(null)}>
                 Men
               </Nav.Link>
-              <Nav.Link as={Link} to="/shop" onMouseEnter={() => setActiveMega(null)}>
+              <Nav.Link href="/shop" onMouseEnter={() => setActiveMega(null)}>
                 Shop
               </Nav.Link>
-              <Nav.Link as={Link} to="/about" onMouseEnter={() => setActiveMega(null)}>
+              <Nav.Link href="/about" onMouseEnter={() => setActiveMega(null)}>
                 About
               </Nav.Link>
-              <Nav.Link as={Link} to="/contact" onMouseEnter={() => setActiveMega(null)}>
+              <Nav.Link href="/contact" onMouseEnter={() => setActiveMega(null)}>
                 Contact
               </Nav.Link>
             </Nav>
@@ -339,9 +452,9 @@ function NavbarNakshi() {
                     <AccountCircleIcon style={{ fontSize: "2rem", color: "#333" }} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to="/account">My Account</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/cart">My Cart</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/orders">My Orders</Dropdown.Item>
+                    <Dropdown.Item onClick={() => navigate("/account")}>My Account</Dropdown.Item>
+                    <Dropdown.Item onClick={() => navigate("/cart")}>My Cart</Dropdown.Item>
+                    <Dropdown.Item onClick={() => navigate("/orders")}>My Orders</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout} className="text-danger">
                       Logout
@@ -384,7 +497,7 @@ function NavbarNakshi() {
             {/* Main list */}
             {!mobilePanel && (
               <Nav className="flex-column mb-3">
-                <Nav.Link as={Link} to="/" onClick={() => setMenuOpen(false)}>
+                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/"); }}>
                   Home
                 </Nav.Link>
 
@@ -398,13 +511,13 @@ function NavbarNakshi() {
                   Rings
                 </button>
 
-                <Nav.Link as={Link} to="/collections" onClick={() => setMenuOpen(false)}>
+                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/collections"); }}>
                   Collections
                 </Nav.Link>
-                <Nav.Link as={Link} to="/about" onClick={() => setMenuOpen(false)}>
+                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/about"); }}>
                   About
                 </Nav.Link>
-                <Nav.Link as={Link} to="/contact" onClick={() => setMenuOpen(false)}>
+                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/contact"); }}>
                   Contact
                 </Nav.Link>
 

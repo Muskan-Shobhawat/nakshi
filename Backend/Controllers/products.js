@@ -12,14 +12,65 @@ export const createProduct = async (req, res) => {
 };
 
 // Get all products
+// export const getProducts = async (req, res) => {
+//   try {
+//     const products = await Product.find().sort({ createdAt: -1 });
+//     res.json({ success: true, products });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json({ success: true, products });
+    const { category, occasion, gender, new: isNew, since, limit, skip, q } = req.query;
+
+    const filter = {};
+
+    // Category / Occasion / Gender filters
+    if (category) filter.category = category;
+    if (occasion) filter.occasion = occasion;
+    if (gender) filter.gender = gender;
+
+    // New arrivals (last 14 days)
+    if (isNew === "true") {
+      const days = 14;
+      const dateFrom = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      filter.createdAt = { $gte: dateFrom };
+    }
+
+    // Custom date filter
+    if (since) {
+      const dateFrom = new Date(since);
+      if (!isNaN(dateFrom)) {
+        filter.createdAt = { $gte: dateFrom };
+      }
+    }
+
+    // Simple search support
+    if (q) {
+      filter.$text = { $search: q };
+    }
+
+    // Pagination
+    const qLimit = Math.min(parseInt(limit || "48", 10), 200);
+    const qSkip = Math.max(parseInt(skip || "0", 10), 0);
+
+    const [products, total] = await Promise.all([
+      Product.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(qSkip)
+        .limit(qLimit)
+        .lean(),
+      Product.countDocuments(filter),
+    ]);
+
+    res.json({ success: true, total, products });
   } catch (error) {
+    console.error("getProducts error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Get single product by ID
 export const getProductById = async (req, res) => {

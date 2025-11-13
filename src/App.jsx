@@ -84,6 +84,22 @@ function App() {
         </Layout>
       ),
     },
+     {
+      path: "/shop/category/:category",
+      element: (
+        <Layout>
+          <Shop />
+        </Layout>
+      ),
+    },
+    {
+      path: "/shop/new-arrivals",
+      element: (
+        <Layout>
+          <Shop />
+        </Layout>
+      ),
+    },
     {
       path: "/product/:id",
       element: (
