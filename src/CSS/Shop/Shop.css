@@ -4,7 +4,7 @@
   /* background: linear-gradient(to right, #fff7e6, #f9efe1); */
   background: white;
   text-align: center;
-  margin-top: 15vh;
+  margin-top: 16vh;
   /* border: 2px solid red; */
 }
 
@@ -422,4 +422,72 @@
   .why-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- Breadcrumb / current path bar ---------- */
+.shop-breadcrumb-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1.2vh 0;
+  background: transparent; /* keep page bg */
+}
+
+.shop-breadcrumb {
+  width: 92vw;
+  max-width: 1400px;
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.6vh;
+  color: #6b6b6b;
+  padding: 0.6vh 0;
+}
+
+/* each crumb */
+.shop-breadcrumb .crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6vw;
+}
+
+/* link style */
+.shop-breadcrumb .crumb-link {
+  color: #6b6b6b;
+  text-decoration: none;
+}
+
+/* separator */
+.shop-breadcrumb .crumb-sep {
+  color: #bdbdbd;
+  margin: 0 0.6vw;
+  font-size: 1.6vh;
+}
+
+/* current/active crumb */
+.shop-breadcrumb .crumb-current {
+  color: #8a0f14; /* maroon */
+  font-weight: 600;
+}
+
+/* smaller/pale Home crumb */
+.shop-breadcrumb .crumb-link.home {
+  color: #9b9b9b;
+}
+
+/* responsive tweaks */
+@media (max-width: 1024px) {
+  .shop-breadcrumb {
+    width: 94vw;
+    font-size: 1.5vh;
+  }
+}
+@media (max-width: 480px) {
+  .shop-breadcrumb {
+    width: 96vw;
+    font-size: 1.4vh;
+    gap: 0.8vw;
+  }
+  .shop-breadcrumb .crumb-sep { display: none; } /* keep it compact */
 }

@@ -1,6 +1,6 @@
 // src/components/Shop.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import heroImage from "../../assets/shopimg2.jpg";
 import axios from "axios";
 import "../../CSS/Shop/Shop.css";
@@ -41,6 +41,8 @@ import StarIcon from "@mui/icons-material/Star";
 
 export default function Shop() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [products, setProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [page, setPage] = useState(1);
@@ -64,10 +66,7 @@ export default function Shop() {
     const fetchProducts = async () => {
       try {
         const res = await axios.get("https://nakshi.onrender.com/api/products");
-        // ✅ Ensure data is an array
-        setProducts(
-          Array.isArray(res.data) ? res.data : res.data.products || []
-        );
+        setProducts(Array.isArray(res.data) ? res.data : res.data.products || []);
         console.log("Fetched products:", res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -104,10 +103,7 @@ export default function Shop() {
   };
 
   const updateCartCount = (newQuantities) => {
-    const totalItems = Object.values(newQuantities).reduce(
-      (sum, q) => sum + q,
-      0
-    );
+    const totalItems = Object.values(newQuantities).reduce((sum, q) => sum + q, 0);
     setCartCount(totalItems);
     setShowCartPopup(totalItems > 0);
   };
@@ -120,12 +116,8 @@ export default function Shop() {
   // 🧩 Filtering logic
   let filteredProducts = Array.isArray(products)
     ? products.filter((p) => {
-        let genderMatch = genderFilter
-          ? p.gender.toLowerCase() === genderFilter.toLowerCase()
-          : true;
-        let typeMatch = typeFilter
-          ? p.category.toLowerCase() === typeFilter.toLowerCase()
-          : true;
+        let genderMatch = genderFilter ? p.gender.toLowerCase() === genderFilter.toLowerCase() : true;
+        let typeMatch = typeFilter ? p.category.toLowerCase() === typeFilter.toLowerCase() : true;
         let priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
         let quickFilterMatch = filter
           ? filter === "Women" || filter === "Men"
@@ -147,10 +139,7 @@ export default function Shop() {
 
   // 🧾 Pagination logic
   const startIndex = (page - 1) * productsPerPage;
-  const paginatedProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + productsPerPage
-  );
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
   // 🎨 Button active style
   const getButtonStyle = (btnFilter) => ({
@@ -158,54 +147,83 @@ export default function Shop() {
     color: filter === btnFilter ? "#fff" : "inherit",
     borderColor: "#a60019",
     "&:hover": {
-      backgroundColor:
-        filter === btnFilter ? "#8b0015" : "rgba(166, 0, 25, 0.1)",
+      backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166, 0, 25, 0.1)",
     },
   });
 
+  // ------------------ BREADCRUMB LOGIC ------------------
+  // derive friendly names from path segments
+  const pathSegments = location.pathname.split("/").filter(Boolean); // e.g. ['shop','gold']
+  const friendly = (seg) => {
+    if (!seg) return "Home";
+    // map common slugs to display names
+    const map = {
+      shop: "Shop",
+      gold: "Gold",
+      rings: "Rings",
+      earrings: "Earrings",
+      necklace: "Necklace",
+      collections: "Collections",
+      account: "Account",
+    };
+    return map[seg.toLowerCase()] || seg.charAt(0).toUpperCase() + seg.slice(1);
+  };
+
+  // if a quick filter is active, show it as the last crumb
+  const breadcrumbCrumbs = [{ label: "Home", to: "/" }];
+  if (pathSegments.length > 0) {
+    breadcrumbCrumbs.push({
+      label: friendly(pathSegments[0]),
+      to: `/${pathSegments[0]}`,
+    });
+    if (pathSegments.length > 1) {
+      breadcrumbCrumbs.push({
+        label: friendly(pathSegments[1]),
+        to: `/${pathSegments.slice(0, 2).join("/")}`,
+      });
+    }
+  } else {
+    // when at / or empty path, show Shop if on this page
+    breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
+  }
+
+  // if user clicked a quick filter (e.g., "Gold" or "Women") use that as active crumb
+  if (filter) {
+    // avoid duplicate
+    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
+    if (last !== filter) {
+      breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
+    }
+  } else if (typeFilter) {
+    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
+    if (last !== typeFilter) {
+      breadcrumbCrumbs.push({ label: typeFilter, to: `/shop?type=${encodeURIComponent(typeFilter)}` });
+    }
+  }
+
+  // ------------------ RENDER ------------------
   return (
     <section className="shop-section">
-      {/* <div className="shop-hero">
-        <h1 className="shop-hero-title">Bridal & Everyday Collections</h1>
-        <p className="shop-hero-tagline">
-          Golden touch to your everyday — Explore our timeless 1gm gold-plated
-          jewelry.
-        </p>
-      </div> */}
-
-      {/*<section className="hb-root" aria-label="Shop hero banner">
-        <div className="hb-inner">
-          Left text column
-          <div className="hb-left">
-            <h1 className="hb-title">
-              <span className="hb-title-line1">Luxury</span>
-              <span className="hb-title-line2">Jewellery</span>
-            </h1>
-
-            <p className="hb-sub">
-              Exquisitely crafted gold-plated jewellery — timeless pieces for
-              everyday elegance and special celebrations.
-            </p>
-
-            <div className="hb-cta">
-              <Button
-                className="hb-btn"
-                variant="outlined"
-                onClick={() => navigate("/shop")}
-              >
-                Shop Now
-              </Button>
-            </div>
-          </div>
-
-          Right image column 
-          {/* <div className="hb-right">
-            <div className="hb-image-wrap">
-              <img src={heroImage} alt="Jewellery hero" className="hb-image" />
-            </div>
-          </div>
-        </div>
-      </section>*/}
+      {/* ===== Breadcrumb (new) ===== */}
+      <div className="shop-breadcrumb-wrap">
+        <nav className="shop-breadcrumb" aria-label="breadcrumb">
+          {breadcrumbCrumbs.map((c, idx) => {
+            const isLast = idx === breadcrumbCrumbs.length - 1;
+            return (
+              <span key={idx} className={`crumb ${isLast ? "active" : ""}`}>
+                {!isLast ? (
+                  <Link to={c.to} onClick={() => navigate(c.to)} className="crumb-link">
+                    {c.label}
+                  </Link>
+                ) : (
+                  <span className="crumb-current">{c.label}</span>
+                )}
+                {!isLast && <span className="crumb-sep">›</span>}
+              </span>
+            );
+          })}
+        </nav>
+      </div>
 
       {/* Filter Buttons */}
       <Stack
@@ -238,7 +256,10 @@ export default function Shop() {
         <Button
           variant="outlined"
           startIcon={<WomanIcon />}
-          onClick={() => setFilter("Women")}
+          onClick={() => {
+            setFilter("Women");
+            setPage(1);
+          }}
           sx={{
             ...getButtonStyle("Women"),
             "@media (max-width: 768px)": { display: "none" },
@@ -249,7 +270,10 @@ export default function Shop() {
         <Button
           variant="outlined"
           startIcon={<ManIcon />}
-          onClick={() => setFilter("Men")}
+          onClick={() => {
+            setFilter("Men");
+            setPage(1);
+          }}
           sx={{
             ...getButtonStyle("Men"),
             "@media (max-width: 766px)": { display: "none" },
@@ -260,7 +284,10 @@ export default function Shop() {
         <Button
           variant="outlined"
           startIcon={<RingVolumeIcon />}
-          onClick={() => setFilter("Ring")}
+          onClick={() => {
+            setFilter("Ring");
+            setPage(1);
+          }}
           sx={{
             ...getButtonStyle("Ring"),
             "@media (max-width: 766px)": { display: "none" },
@@ -271,7 +298,10 @@ export default function Shop() {
         <Button
           variant="outlined"
           startIcon={<EarbudsIcon />}
-          onClick={() => setFilter("Earring")}
+          onClick={() => {
+            setFilter("Earring");
+            setPage(1);
+          }}
           sx={{
             ...getButtonStyle("Earring"),
             "@media (max-width: 768px)": { display: "none" },
@@ -282,7 +312,10 @@ export default function Shop() {
         <Button
           variant="outlined"
           startIcon={<DiamondIcon />}
-          onClick={() => setFilter("Necklace")}
+          onClick={() => {
+            setFilter("Necklace");
+            setPage(1);
+          }}
           sx={{
             ...getButtonStyle("Necklace"),
             "@media (max-width: 768px)": { display: "none" },
@@ -324,34 +357,16 @@ export default function Shop() {
               <Divider sx={{ my: 1 }} />
               <FormControl fullWidth sx={{ mt: 2 }}>
                 <FormLabel>Gender</FormLabel>
-                <RadioGroup
-                  value={tempGenderFilter}
-                  onChange={(e) => setTempGenderFilter(e.target.value)}
-                >
-                  <FormControlLabel
-                    value="Female"
-                    control={<Radio />}
-                    label="Women"
-                  />
-                  <FormControlLabel
-                    value="Male"
-                    control={<Radio />}
-                    label="Men"
-                  />
-                  <FormControlLabel
-                    value="Unisex"
-                    control={<Radio />}
-                    label="Unisex"
-                  />
+                <RadioGroup value={tempGenderFilter} onChange={(e) => setTempGenderFilter(e.target.value)}>
+                  <FormControlLabel value="Female" control={<Radio />} label="Women" />
+                  <FormControlLabel value="Male" control={<Radio />} label="Men" />
+                  <FormControlLabel value="Unisex" control={<Radio />} label="Unisex" />
                 </RadioGroup>
               </FormControl>
 
               <FormControl fullWidth sx={{ mt: 2 }}>
                 <FormLabel>Product Type</FormLabel>
-                <RadioGroup
-                  value={tempTypeFilter}
-                  onChange={(e) => setTempTypeFilter(e.target.value)}
-                >
+                <RadioGroup value={tempTypeFilter} onChange={(e) => setTempTypeFilter(e.target.value)}>
                   {[
                     "Rings",
                     "Chains",
@@ -363,12 +378,7 @@ export default function Shop() {
                     "Kada",
                     "Watches",
                   ].map((cat) => (
-                    <FormControlLabel
-                      key={cat}
-                      value={cat}
-                      control={<Radio />}
-                      label={cat}
-                    />
+                    <FormControlLabel key={cat} value={cat} control={<Radio />} label={cat} />
                   ))}
                 </RadioGroup>
               </FormControl>
@@ -420,20 +430,9 @@ export default function Shop() {
               <Typography variant="h6">Sort By</Typography>
               <Divider sx={{ my: 1 }} />
               <FormControl>
-                <RadioGroup
-                  value={tempSortOrder}
-                  onChange={(e) => setTempSortOrder(e.target.value)}
-                >
-                  <FormControlLabel
-                    value="lowToHigh"
-                    control={<Radio />}
-                    label="Price: Low to High"
-                  />
-                  <FormControlLabel
-                    value="highToLow"
-                    control={<Radio />}
-                    label="Price: High to Low"
-                  />
+                <RadioGroup value={tempSortOrder} onChange={(e) => setTempSortOrder(e.target.value)}>
+                  <FormControlLabel value="lowToHigh" control={<Radio />} label="Price: Low to High" />
+                  <FormControlLabel value="highToLow" control={<Radio />} label="Price: High to Low" />
                 </RadioGroup>
               </FormControl>
 
@@ -470,112 +469,19 @@ export default function Shop() {
                   onClick={() => navigate(`/product/${item._id}`)}
                   style={{ cursor: "pointer" }}
                 >
-                  <Link
-                    to={`/product/${item._id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
+                  <Link to={`/product/${item._id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="img">
-                      <img
-                        src={item.mainPhoto}
-                        alt={item.name}
-                        className="shop-img"
-                      />
+                      <img src={item.mainPhoto} alt={item.name} className="shop-img" />
                     </div>
                     <h3 className="shop-name">{item.name}</h3>
                     <p className="shop-price">₹{item.price.toLocaleString()}</p>
-                    {/* <p className="shop-description">{item.description}</p> */}
                   </Link>
-
-                  {/* {qty === 0 ? (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 1 }}
-                    onClick={() => handleAddToCart(item._id)}
-                  >
-                    Add to Cart
-                  </Button>
-                ) : (
-                  <div
-                    className="added-section"
-                    style={{ marginTop: "0.5rem" }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                      disabled
-                      sx={{ mb: 1 }}
-                    >
-                      Added <CheckIcon sx={{ ml: 1 }} />
-                    </Button>
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Button
-                        variant="outlined"
-                        onClick={() => decreaseQty(item._id)}
-                      >
-                        -
-                      </Button>
-                      <Typography variant="body1">{qty}</Typography>
-                      <Button
-                        variant="outlined"
-                        onClick={() => increaseQty(item._id)}
-                      >
-                        +
-                      </Button>
-                    </Stack>
-                  </div>
-                )} */}
                 </div>
               );
             })
           )}
         </div>
       </div>
-
-      {/* <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
-        <Pagination
-          count={Math.ceil(filteredProducts.length / productsPerPage)}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Stack> */}
-
-      {/* <Slide direction="up" in={showCartPopup} mountOnEnter unmountOnExit>
-        <Paper
-          elevation={6}
-          sx={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            p: 2,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            backgroundColor: "#a60019",
-            color: "white",
-            borderRadius: "12px 12px 0 0",
-            zIndex: 1300,
-          }}
-        >
-          <Typography variant="body1">{cartCount} item(s) added</Typography>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "white", color: "#a60019" }}
-            onClick={() => navigate("/cart")}
-          >
-            View Cart
-          </Button>
-        </Paper>
-      </Slide> */}
     </section>
   );
 }

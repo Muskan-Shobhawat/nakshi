@@ -10,7 +10,8 @@
   position: relative;
   width: 100%;
   min-height: var(--hero-h);
-  margin-top: 16vh;
+  margin-top: 20vh;
+  /* border: 2px solid red; */
   display: flex;
   align-items: center;
   justify-content: center;
