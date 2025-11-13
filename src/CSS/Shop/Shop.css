@@ -11,7 +11,7 @@
   --muted: #6b6b6b;
   --card-shadow: 0 0.8vh 2vh rgba(0, 0, 0, 0.08);
   --card-radius: 1.6vh;
-  --container-width: 80vw;
+  --container-width: 70vw;
   --grid-gap: 5vh;
 }
 
@@ -89,11 +89,12 @@
 .gridflex {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 2vh 4vw;
 }
 
 .shop-grid {
+  /* border: 2px solid red; */
   display: grid;
   width: var(--container-width);
   grid-template-columns: repeat(3, 1fr);
@@ -101,7 +102,7 @@
   padding: 0 0 4vh 0;
   justify-items: flex-start;
   align-items: start;
-  max-width: 1400px;
+  /* max-width: 1400px; */
 }
 
 /* ---------- CARD ---------- */
