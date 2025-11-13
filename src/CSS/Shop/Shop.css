@@ -11,7 +11,7 @@
   --muted: #6b6b6b;
   --card-shadow: 0 0.8vh 2vh rgba(0, 0, 0, 0.08);
   --card-radius: 1.6vh;
-  --container-width: 70vw;
+  --container-width: 80vw;
   --grid-gap: 5vh;
 }
 
@@ -41,7 +41,7 @@
 
 .shop-breadcrumb {
   /* border: 2px solid red; */
-  width: 70vw;
+  width: 80vw;
   max-width: 1400px;
   display: flex;
   align-items: center;
@@ -61,7 +61,7 @@
 }
 
 .shop-results-inner {
-  width: 70vw;
+  width: 80vw;
   /* max-width: 1400px; */
   display: flex;
   align-items: baseline;
