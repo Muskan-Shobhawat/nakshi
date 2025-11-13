@@ -1,5 +1,5 @@
-/* src/CSS/shop.css
-   Card hover image swap + layout tweaks
+/* src/CSS/Shop/Shop.css
+   Adds sliding hover effect for images + covers card width/height
 */
 
 :root{
@@ -23,7 +23,7 @@
   padding-bottom: 4vh;
 }
 
-/* Breadcrumb / results (kept) */
+/* Breadcrumb / results */
 .shop-breadcrumb-wrap { width:100%; display:flex; justify-content:center; padding:1.2vh 0; }
 .shop-breadcrumb { width:92vw; max-width:1400px; display:flex; align-items:center; gap:1.2vw; font-family:"Poppins",sans-serif; font-size:1.6vh; color:var(--muted); padding:0.6vh 0; }
 .shop-breadcrumb .crumb { display:inline-flex; align-items:center; gap:0.6vw; }
@@ -36,10 +36,7 @@
 .shop-results-title { font-family:"Cinzel Decorative", serif; color:var(--accent-maroon); font-size:clamp(2.2rem,3.2vh,3.2vh); margin:0; line-height:1; }
 .shop-results-count { color:var(--muted); font-size:1.8vh; margin-left:1vw; align-self:center; }
 
-/* ---------- Filters wrapper ---------- */
- /* MUI buttons control appearance; no extra CSS needed here */
-
-/* ---------- Grid ---------- */
+/* Grid */
 .gridflex { display:flex; align-items:center; justify-content:center; }
 .shop-grid {
   display:grid;
@@ -53,7 +50,7 @@
   max-width:1400px;
 }
 
-/* ---------- Card ---------- */
+/* Card */
 .shop-card {
   background:#fff;
   transition: transform .3s ease, box-shadow .3s ease;
@@ -62,7 +59,7 @@
   min-width:220px;
   height:auto;
   box-shadow:var(--card-shadow);
-  overflow:hidden;
+  overflow:visible; /* images are absolutely positioned inside .img */
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -70,11 +67,9 @@
   padding-bottom:1.2vh;
   position:relative;
 }
-
-/* hover elevation */
 .shop-card:hover { transform:translateY(-0.6vh); box-shadow:0 1.6vh 3vh rgba(0,0,0,0.12); }
 
-/* image area: holds two images stacked */
+/* image area: holds two images stacked absolutely */
 .img {
   width:100%;
   height:28vh;
@@ -82,30 +77,48 @@
   display:block;
   position:relative;
   background:#fff;
+  border-radius: calc(var(--card-radius) - 0.2vh);
 }
 
-/* images fill area and are stacked absolutely for fade swap */
+/* images fill area and are stacked absolutely for slide/fade effect */
 .img .shop-img {
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:cover;          /* ensure it covers the width & height */
   display:block;
   position:absolute;
   top:0;
   left:0;
-  transition:opacity .35s ease, transform .45s ease;
+  transition:
+    transform .45s cubic-bezier(.22,.9,.35,1),
+    opacity .35s ease;
   backface-visibility:hidden;
 }
 
-/* primary on top by default */
-.img .primary { opacity:1; z-index:2; transform:scale(1); }
-.img .secondary { opacity:0; z-index:1; transform:scale(1.03); }
+/* initial positions:
+   primary centered (no shift), secondary placed to the right slightly */
+.img .primary {
+  opacity: 1;
+  z-index: 2;
+  transform: translateX(0) scale(1);
+}
+.img .secondary {
+  opacity: 0;
+  z-index: 1;
+  transform: translateX(12%) scale(1.02);
+}
 
-/* on card hover swap images */
-.shop-card:hover .img .primary { opacity:0; transform:scale(1.03); }
-.shop-card:hover .img .secondary { opacity:1; transform:scale(1); }
+/* On hover: primary slides left and fades; secondary slides in from right and becomes visible */
+.shop-card:hover .img .primary {
+  opacity: 0;
+  transform: translateX(-12%) scale(1.02);
+}
+.shop-card:hover .img .secondary {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
 
-/* small dark tooltip label that appears when hovering image */
+/* tooltip label on hover */
 .img-tooltip {
   position:absolute;
   left:50%;
@@ -160,7 +173,7 @@
 .shop-name { font-size:1.6vh; color:var(--text-dark); margin:1.2vh 1vw 0.6vh 1vw; line-height:1.15; }
 .shop-price { font-size:1.6vh; color:var(--accent-gold); margin:0.6vh 0 1.2vh 0; }
 
-/* ---------- Responsive ---------- */
+/* Responsive */
 @media (max-width: 1024px) {
   :root { --container-width: 90vw; }
   .shop-grid { grid-template-columns: repeat(2, 1fr); gap:4vh; }
@@ -168,12 +181,11 @@
   .img { height:26vh; }
   .shop-results-title { font-size:2.6vh; }
 }
-
 @media (max-width: 600px) {
   :root { --page-margin-top: 8vh; --container-width: 94vw; }
   .shop-grid { grid-template-columns: 1fr; gap:3.5vh; width:94vw; padding:1rem 0 6vh 0; }
   .shop-card { width:94vw; border-radius:1.4vh; padding-bottom:2vh; }
-  .img { height:40vh; }
+  .img { height:40vh; border-radius:1.2vh; }
   .shop-name { font-size:2.4vh; margin-top:1vh; }
   .shop-price { font-size:2.2vh; margin-bottom:1vh; }
   .hb-inner { flex-direction:column; height:auto; background-position:center -15vh; padding:3vh; }
@@ -182,14 +194,12 @@
   .hb-title-line2 { font-size:5.0vw; }
   .hb-sub { font-size:3.4vw; max-width:86vw; color:#3f0012; }
 }
-
 @media (max-width: 400px) {
   .img { height:36vh; }
   .shop-name { font-size:2.0vh; }
   .shop-price { font-size:1.9vh; }
   .shop-results-title { font-size:2.2vh; }
 }
-
 @media (max-width: 480px) {
   .shop-breadcrumb { width:96vw; gap:0.8vw; font-size:1.4vh; }
   .shop-breadcrumb .crumb-sep { display:none; }
