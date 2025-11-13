@@ -85,7 +85,7 @@ function App() {
       ),
     },
      {
-      path: "/shop/category/:category",
+      path: "/shop/category/:Category",
       element: (
         <Layout>
           <Shop />
