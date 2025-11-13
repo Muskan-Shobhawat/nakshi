@@ -131,17 +131,17 @@ function NavbarNakshi() {
 
     // categories mapping - route style
     const categories = [
-      "earrings",
-      "rings",
-      "necklaces",
-      "necklace sets",
-      "necklace",
-      "chains",
-      "bangles",
-      "bracelets",
-      "mangalsutra",
-      "kada",
-      "watches",
+      "Earrings",
+      "Rings",
+      "Necklaces",
+      "Necklace sets",
+      "Necklace",
+      "Chains",
+      "Bangles",
+      "Bracelets",
+      "Mangalsutra",
+      "Kada",
+      "Watches",
     ];
 
     // normalize some names
@@ -162,7 +162,7 @@ function NavbarNakshi() {
     }
 
     // occasions
-    const occasions = ["everyday", "casual", "festive", "traditional", "modern wear", "office wear"];
+    const occasions = ["Everyday", "Casual", "Festive", "Traditional", "modern wear", "office wear"];
     if (occasions.includes(lower)) {
       navigate(`/shop?occasion=${encodeURIComponent(item)}`);
       setActiveMega(null);
