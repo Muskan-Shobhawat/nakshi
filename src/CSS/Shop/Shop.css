@@ -1,5 +1,6 @@
 /* src/CSS/Shop/Shop.css
-   Adds sliding hover effect for images + covers card width/height
+   Card layout: full image then title + price
+   Hover slide + swap preserved; images cover full area
 */
 
 :root{
@@ -9,21 +10,21 @@
   --text-dark: #3e2723;
   --muted: #6b6b6b;
   --card-shadow: 0 0.8vh 2vh rgba(0,0,0,0.08);
-  --card-radius: 1.2vh;
+  --card-radius: 1.6vh;     /* slightly larger radius to match reference */
   --container-width: 80vw;
-  --grid-gap: 4vh;
+  --grid-gap: 5vh;          /* more vertical spacing like reference */
 }
 
-/* ---------- Page ---------- */
+/* PAGE */
 .shop-section {
   background: #ffffff;
-  text-align: center;
+  text-align: left; /* left-aligned like reference */
   margin-top: var(--page-margin-top);
   box-sizing: border-box;
   padding-bottom: 4vh;
 }
 
-/* Breadcrumb / results */
+/* Breadcrumb/results */
 .shop-breadcrumb-wrap { width:100%; display:flex; justify-content:center; padding:1.2vh 0; }
 .shop-breadcrumb { width:92vw; max-width:1400px; display:flex; align-items:center; gap:1.2vw; font-family:"Poppins",sans-serif; font-size:1.6vh; color:var(--muted); padding:0.6vh 0; }
 .shop-breadcrumb .crumb { display:inline-flex; align-items:center; gap:0.6vw; }
@@ -31,175 +32,152 @@
 .shop-breadcrumb .crumb-sep { color:#bdbdbd; margin:0 0.6vw; font-size:1.6vh; }
 .shop-breadcrumb .crumb-current { color:var(--accent-maroon); font-weight:600; }
 
-.shop-results-wrap { width:100%; display:flex; justify-content:center; padding:1vh 0 0.8vh 0; background:transparent; }
+.shop-results-wrap { width:100%; display:flex; justify-content:flex-start; padding:1vh 4vw 0.8vh 4vw; background:transparent; }
 .shop-results-inner { width:92vw; max-width:1400px; display:flex; align-items:baseline; gap:1.2vw; padding:0.4vh 0; }
-.shop-results-title { font-family:"Cinzel Decorative", serif; color:var(--accent-maroon); font-size:clamp(2.2rem,3.2vh,3.2vh); margin:0; line-height:1; }
+.shop-results-title { font-family:"Playfair Display", serif; color:var(--accent-maroon); font-size:3.2vh; margin:0; line-height:1; }
 .shop-results-count { color:var(--muted); font-size:1.8vh; margin-left:1vw; align-self:center; }
 
-/* Grid */
-.gridflex { display:flex; align-items:center; justify-content:center; }
+/* FILTERS: keep center but below results */
+@media (min-width: 900px) {
+  .shop-results-wrap { justify-content:center; }
+  .shop-results-inner { justify-content:flex-start; }
+}
+
+/* GRID - use left alignment similar to reference */
+.gridflex { display:flex; align-items:center; justify-content:flex-start; padding: 2vh 4vw; }
 .shop-grid {
   display:grid;
   width:var(--container-width);
   grid-template-columns: repeat(3, 1fr);
   gap:var(--grid-gap);
-  padding:1rem 0 4vh 0;
+  padding:0 0 4vh 0;
   box-sizing:border-box;
-  justify-items:center;
+  justify-items:flex-start;
   align-items:start;
   max-width:1400px;
 }
 
-/* Card */
+/* CARD - image on top then title, price underneath */
 .shop-card {
   background:#fff;
-  transition: transform .3s ease, box-shadow .3s ease;
+  transition: transform .28s ease, box-shadow .28s ease;
   border-radius:var(--card-radius);
   width:24vw;
-  min-width:220px;
+  min-width:230px;
   height:auto;
   box-shadow:var(--card-shadow);
-  overflow:visible; /* images are absolutely positioned inside .img */
-  text-align:center;
+  overflow:visible;
   display:flex;
   flex-direction:column;
-  align-items:center;
-  padding-bottom:1.2vh;
+  align-items:flex-start;
   position:relative;
+  padding-bottom:1.2vh;
 }
+
+/* raise on hover */
 .shop-card:hover { transform:translateY(-0.6vh); box-shadow:0 1.6vh 3vh rgba(0,0,0,0.12); }
 
-/* image area: holds two images stacked absolutely */
+/* IMAGE BLOCK: full width of card; rounded top corners */
 .img {
-  width:24vw;
-  height:auto;
+  width:100%;
+  height:34vh; /* taller image like reference */
   overflow:hidden;
   display:block;
   position:relative;
   background:#fff;
-  border-radius: calc(var(--card-radius) - 0.2vh);
+  border-top-left-radius: calc(var(--card-radius));
+  border-top-right-radius: calc(var(--card-radius));
 }
 
-/* images fill area and are stacked absolutely for slide/fade effect */
+/* stacked images for slide/fade */
 .img .shop-img {
   width:100%;
   height:100%;
-  object-fit:cover;          /* ensure it covers the width & height */
+  object-fit:cover; /* cover to fill area */
   display:block;
   position:absolute;
   top:0;
   left:0;
-  transition:
-    transform .45s cubic-bezier(.22,.9,.35,1),
-    opacity .35s ease;
+  transition: transform .45s cubic-bezier(.22,.9,.35,1), opacity .35s ease;
   backface-visibility:hidden;
+  border-top-left-radius: calc(var(--card-radius));
+  border-top-right-radius: calc(var(--card-radius));
 }
 
-/* initial positions:
-   primary centered (no shift), secondary placed to the right slightly */
-.img .primary {
-  opacity: 1;
-  z-index: 2;
-  transform: translateX(0) scale(1);
-}
-.img .secondary {
-  opacity: 0;
-  z-index: 1;
-  transform: translateX(12%) scale(1.02);
-}
+/* primary visible, secondary hidden to right */
+.img .primary { opacity:1; z-index:2; transform:translateX(0) scale(1); }
+.img .secondary { opacity:0; z-index:1; transform:translateX(14%) scale(1.02); }
 
-/* On hover: primary slides left and fades; secondary slides in from right and becomes visible */
-.shop-card:hover .img .primary {
-  opacity: 0;
-  transform: translateX(-12%) scale(1.02);
-}
-.shop-card:hover .img .secondary {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
+/* hover swap: primary slides left, secondary moves in and shows */
+.shop-card:hover .img .primary { opacity:0; transform:translateX(-14%) scale(1.02); }
+.shop-card:hover .img .secondary { opacity:1; transform:translateX(0) scale(1); }
 
-/* tooltip label on hover */
-.img-tooltip {
-  position:absolute;
-  left:50%;
-  bottom:1.8vh;
-  transform:translateX(-50%) translateY(6px);
-  background:rgba(0,0,0,0.8);
-  color:white;
-  padding:0.6vh 1vw;
-  font-size:1.4vh;
-  border-radius:0.4vh;
-  opacity:0;
-  transition:opacity .25s ease, transform .25s ease;
-  pointer-events:none;
-  z-index:6;
-}
+/* small dark tooltip on hover (optional) */
+.img-tooltip { position:absolute; left:50%; bottom:1.6vh; transform:translateX(-50%) translateY(6px); background:rgba(0,0,0,0.75); color:white; padding:0.5vh 0.9vw; font-size:1.4vh; border-radius:0.4vh; opacity:0; transition:opacity .25s ease, transform .25s ease; pointer-events:none; z-index:6; }
 .shop-card:hover .img-tooltip { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* badge top-left */
-.card-badge {
-  position:absolute;
-  top:0.9vh;
-  left:0.9vh;
-  background:rgba(138,15,20,0.95);
-  color:white;
-  padding:0.6vh 1.2vw;
-  border-radius:0.8vh;
-  font-size:1.2vh;
-  z-index:7;
-  box-shadow:0 .4vh .8vh rgba(0,0,0,0.12);
-  text-transform:uppercase;
+/* badge at top-left and heart at top-right (inside image area) */
+.card-badge { position:absolute; top:1vh; left:1vh; background:var(--accent-maroon); color:white; padding:0.6vh 1vw; border-radius:0.8vh; font-size:1.1vh; z-index:7; box-shadow:0 .4vh .8vh rgba(0,0,0,0.12); text-transform:uppercase; }
+.card-heart { position:absolute; top:1vh; right:1vh; z-index:7; font-size:1.9vh; color:rgba(0,0,0,0.35); background:rgba(255,255,255,0.95); width:3.2vh; height:3.2vh; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 .4vh .8vh rgba(0,0,0,0.06); }
+
+/* TITLE & PRICE block */
+.shop-name {
+  font-family: "Playfair Display", serif; /* serif like reference */
+  font-size:1.9vh;
+  color:var(--text-dark);
+  margin:1.4vh 1.4vw 0.6vh 1.4vw; /* spacing under image */
+  line-height:1.15;
 }
 
-/* heart icon top-right */
-.card-heart {
-  position:absolute;
-  top:1vh;
-  right:1vh;
-  z-index:7;
-  font-size:1.9vh;
-  color:rgba(0,0,0,0.35);
-  background:rgba(255,255,255,0.9);
-  width:3.2vh;
-  height:3.2vh;
-  border-radius:50%;
+.shop-price {
   display:flex;
   align-items:center;
-  justify-content:center;
-  box-shadow:0 .4vh .8vh rgba(0,0,0,0.06);
+  gap:0.8vw;
+  margin:0.6vh 1.4vw 1.6vh 1.4vw;
+  font-size:1.8vh;
+  color:var(--accent-gold);
+  font-weight:700;
 }
 
-/* product meta */
-.shop-name { font-size:1.6vh; color:var(--text-dark); margin:1.2vh 1vw 0.6vh 1vw; line-height:1.15; }
-.shop-price { font-size:1.6vh; color:var(--accent-gold); margin:0.6vh 0 1.2vh 0; }
+/* rupee symbol separate style */
+.shop-price .rupee { margin-right:0.2vw; font-family: "Playfair Display", serif; color:var(--accent-gold); font-weight:700; }
 
-/* Responsive */
+/* small red "Only 1 left!" */
+.only-one {
+  color:#b81c1c;
+  font-size:1.2vh;
+  font-weight:600;
+  margin-left:1.2vw;
+  display:inline-block;
+}
+
+/* RESPONSIVE TWEAKS */
 @media (max-width: 1024px) {
-  :root { --container-width: 90vw; }
-  .shop-grid { grid-template-columns: repeat(2, 1fr); gap:4vh; }
-  .shop-card { width:40vw; min-width:220px; }
-  .img { height:26vh; }
-  .shop-results-title { font-size:2.6vh; }
+  :root { --container-width: 90vw; --grid-gap: 4vh; }
+  .shop-grid { grid-template-columns: repeat(2, 1fr); gap:var(--grid-gap); }
+  .shop-card { width:40vw; min-width:240px; }
+  .img { height:30vh; }
+  .shop-name { font-size:2.2vh; }
+  .shop-price { font-size:2.0vh; }
 }
+
 @media (max-width: 600px) {
   :root { --page-margin-top: 8vh; --container-width: 94vw; }
-  .shop-grid { grid-template-columns: 1fr; gap:3.5vh; width:94vw; padding:1rem 0 6vh 0; }
-  .shop-card { width:94vw; border-radius:1.4vh; padding-bottom:2vh; }
-  .img { height:40vh; border-radius:1.2vh; }
-  .shop-name { font-size:2.4vh; margin-top:1vh; }
-  .shop-price { font-size:2.2vh; margin-bottom:1vh; }
-  .hb-inner { flex-direction:column; height:auto; background-position:center -15vh; padding:3vh; }
-  .hb-left { width:100%; align-items:center; text-align:center; }
-  .hb-title-line1 { font-size:8.0vw; }
-  .hb-title-line2 { font-size:5.0vw; }
-  .hb-sub { font-size:3.4vw; max-width:86vw; color:#3f0012; }
+  .gridflex { justify-content:center; padding: 2vh 4vw; }
+  .shop-grid { grid-template-columns: 1fr; gap:3.5vh; width:94vw; padding:0 0 6vh 0; }
+  .shop-card { width:94vw; border-radius:1.4vh; padding-bottom:1vh; }
+  .img { height:44vh; border-top-left-radius: calc(var(--card-radius)); border-top-right-radius: calc(var(--card-radius)); }
+  .shop-name { font-size:2.6vh; margin:1.6vh 2.6vw 0.6vh 2.6vw; }
+  .shop-price { font-size:2.4vh; margin:0.8vh 2.6vw 1.4vh 2.6vw; }
 }
+
 @media (max-width: 400px) {
-  .img { height:36vh; }
-  .shop-name { font-size:2.0vh; }
-  .shop-price { font-size:1.9vh; }
-  .shop-results-title { font-size:2.2vh; }
+  .img { height:40vh; }
+  .shop-name { font-size:2.2vh; }
+  .shop-price { font-size:2.0vh; }
 }
+
+/* compact breadcrumb on small screens */
 @media (max-width: 480px) {
   .shop-breadcrumb { width:96vw; gap:0.8vw; font-size:1.4vh; }
   .shop-breadcrumb .crumb-sep { display:none; }

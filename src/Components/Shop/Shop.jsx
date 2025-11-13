@@ -30,7 +30,6 @@ export default function Shop() {
   const location = useLocation();
 
   const [products, setProducts] = useState([]);
-  const [quantities, setQuantities] = useState({});
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -45,7 +44,7 @@ export default function Shop() {
   const [tempSortOrder, setTempSortOrder] = useState(sortOrder);
   const productsPerPage = 48;
 
-  // fetch
+  // fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -58,9 +57,7 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  const handlePageChange = (event, value) => setPage(value);
-
-  // simple quick-filter logic
+  // simple filtering / sorting logic
   let filteredProducts = Array.isArray(products)
     ? products.filter((p) => {
         let genderMatch = genderFilter ? (p.gender || "").toLowerCase() === genderFilter.toLowerCase() : true;
@@ -77,11 +74,9 @@ export default function Shop() {
       })
     : [];
 
-  // sorting
   if (sortOrder === "lowToHigh") filteredProducts.sort((a, b) => (a.price || 0) - (b.price || 0));
   else if (sortOrder === "highToLow") filteredProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
 
-  // pagination
   const startIndex = (page - 1) * productsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
@@ -89,9 +84,7 @@ export default function Shop() {
     backgroundColor: filter === btnFilter ? "#a60019" : "transparent",
     color: filter === btnFilter ? "#fff" : "inherit",
     borderColor: "#a60019",
-    "&:hover": {
-      backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166, 0, 25, 0.08)",
-    },
+    "&:hover": { backgroundColor: filter === btnFilter ? "#8b0015" : "rgba(166,0,25,0.08)" },
   });
 
   // breadcrumb/title/result count
@@ -128,9 +121,8 @@ export default function Shop() {
   const resultCount = (filteredProducts || []).length;
   const formattedCount = resultCount.toLocaleString();
 
-  // helper to get second image robustly
+  // determine second image robustly
   const getSecondImage = (item) => {
-    // check common fields: photos array, gallery, secondaryPhoto, altPhoto
     return (
       item?.photos?.[1] ||
       (item?.gallery && item.gallery[1]) ||
@@ -151,9 +143,7 @@ export default function Shop() {
             return (
               <span key={idx} className={`crumb ${isLast ? "active" : ""}`}>
                 {!isLast ? (
-                  <Link to={c.to} onClick={() => navigate(c.to)} className="crumb-link">
-                    {c.label}
-                  </Link>
+                  <Link to={c.to} onClick={() => navigate(c.to)} className="crumb-link">{c.label}</Link>
                 ) : (
                   <span className="crumb-current">{c.label}</span>
                 )}
@@ -172,37 +162,25 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* filters (kept above grid) */}
+      {/* filters - unchanged layout */}
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ flexWrap: "wrap", padding: "1rem" }}>
-        <Button variant="outlined" startIcon={<FilterListIcon />} onClick={() => { setDrawerType("filter"); setDrawerOpen(true); }}>
-          Filter
-        </Button>
-        <Button variant="outlined" startIcon={<SortIcon />} onClick={() => { setDrawerType("sort"); setDrawerOpen(true); }}>
-          Sort
-        </Button>
+        <Button variant="outlined" startIcon={<FilterListIcon />} onClick={() => { setDrawerType("filter"); setDrawerOpen(true); }}>Filter</Button>
+        <Button variant="outlined" startIcon={<SortIcon />} onClick={() => { setDrawerType("sort"); setDrawerOpen(true); }}>Sort</Button>
 
-        <Button variant="outlined" startIcon={<WomanIcon />} onClick={() => { setFilter("Women"); setPage(1); }} sx={{ ...getButtonStyle("Women"), "@media (max-width: 768px)": { display: "none" } }}>
-          Women
-        </Button>
-        <Button variant="outlined" startIcon={<ManIcon />} onClick={() => { setFilter("Men"); setPage(1); }} sx={{ ...getButtonStyle("Men"), "@media (max-width: 766px)": { display: "none" } }}>
-          Men
-        </Button>
-        <Button variant="outlined" startIcon={<RingVolumeIcon />} onClick={() => { setFilter("Ring"); setPage(1); }} sx={{ ...getButtonStyle("Ring"), "@media (max-width: 766px)": { display: "none" } }}>
-          Rings
-        </Button>
-        <Button variant="outlined" startIcon={<EarbudsIcon />} onClick={() => { setFilter("Earring"); setPage(1); }} sx={{ ...getButtonStyle("Earring"), "@media (max-width: 768px)": { display: "none" } }}>
-          Earrings
-        </Button>
-        <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { setFilter("Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>
-          Necklace
-        </Button>
+        <Button variant="outlined" startIcon={<WomanIcon />} onClick={() => { setFilter("Women"); setPage(1); }} sx={{ ...getButtonStyle("Women"), "@media (max-width: 768px)": { display: "none" } }}>Women</Button>
 
-        <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => { setFilter(null); setGenderFilter(""); setTypeFilter(""); setPriceRange([1000, 1000000]); setSortOrder(""); setPage(1); }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>
-          Clear Filters
-        </Button>
+        <Button variant="outlined" startIcon={<ManIcon />} onClick={() => { setFilter("Men"); setPage(1); }} sx={{ ...getButtonStyle("Men"), "@media (max-width: 766px)": { display: "none" } }}>Men</Button>
+
+        <Button variant="outlined" startIcon={<RingVolumeIcon />} onClick={() => { setFilter("Ring"); setPage(1); }} sx={{ ...getButtonStyle("Ring"), "@media (max-width: 766px)": { display: "none" } }}>Rings</Button>
+
+        <Button variant="outlined" startIcon={<EarbudsIcon />} onClick={() => { setFilter("Earring"); setPage(1); }} sx={{ ...getButtonStyle("Earring"), "@media (max-width: 768px)": { display: "none" } }}>Earrings</Button>
+
+        <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { setFilter("Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>Necklace</Button>
+
+        <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => { setFilter(null); setGenderFilter(""); setTypeFilter(""); setPriceRange([1000, 1000000]); setSortOrder(""); setPage(1); }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>Clear Filters</Button>
       </Stack>
 
-      {/* Drawer for filter/sort */}
+      {/* Drawer for filter/sort (unchanged) */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)} sx={{ width: 300, zIndex: 10000 }}>
         <div style={{ width: 300, padding: "1rem" }}>
           {drawerType === "filter" && (
@@ -230,13 +208,9 @@ export default function Shop() {
               <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹{tempPriceRange[1]}</Typography>
               <Slider value={tempPriceRange} onChange={(_, newValue) => setTempPriceRange(newValue)} valueLabelDisplay="auto" min={1000} max={1000000} step={500} />
 
-              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setGenderFilter(tempGenderFilter); setTypeFilter(tempTypeFilter); setPriceRange(tempPriceRange); setDrawerOpen(false); }}>
-                Apply Filters
-              </Button>
+              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setGenderFilter(tempGenderFilter); setTypeFilter(tempTypeFilter); setPriceRange(tempPriceRange); setDrawerOpen(false); }}>Apply Filters</Button>
 
-              <Button variant="contained" color="error" fullWidth sx={{ mt: 2 }} onClick={() => { setTempGenderFilter(""); setTempTypeFilter(""); setTempPriceRange([1000, 1000000]); }}>
-                Clear Filters
-              </Button>
+              <Button variant="contained" color="error" fullWidth sx={{ mt: 2 }} onClick={() => { setTempGenderFilter(""); setTempTypeFilter(""); setTempPriceRange([1000, 1000000]); }}>Clear Filters</Button>
             </>
           )}
 
@@ -251,9 +225,7 @@ export default function Shop() {
                 </RadioGroup>
               </FormControl>
 
-              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setSortOrder(tempSortOrder); setDrawerOpen(false); }}>
-                Apply Sorting
-              </Button>
+              <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => { setSortOrder(tempSortOrder); setDrawerOpen(false); }}>Apply Sorting</Button>
             </>
           )}
         </div>
@@ -267,30 +239,29 @@ export default function Shop() {
           ) : (
             paginatedProducts.map((item) => {
               const secondImg = getSecondImage(item);
+              // check if product is low stock (simulate)
+              const isLow = item?.stock === 1 || item?.onlyOne;
               return (
                 <div className="shop-card" key={item._id || item.id}>
                   <Link to={`/product/${item._id || item.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="img">
-                      {/* badge if product has badge or isExpert */}
-                      {(item.badge || item.isExpert) && (
-                        <div className="card-badge">{item.badge || "EXPERT'S CHOICE"}</div>
-                      )}
-
-                      {/* wishlist heart */}
+                      {(item.badge || item.isExpert) && <div className="card-badge">{item.badge || "EXPERT'S CHOICE"}</div>}
                       <div className="card-heart">♡</div>
 
-                      {/* primary image */}
+                      {/* primary + secondary images stacked for slide/fade */}
                       <img className="shop-img primary" src={item.mainPhoto || item.image || ""} alt={item.name} />
-
-                      {/* secondary image (fades in on hover) */}
                       <img className="shop-img secondary" src={secondImg} alt={`${item.name} alt`} />
 
-                      {/* small tooltip showing name on hover */}
                       <div className="img-tooltip">{item.name}</div>
                     </div>
 
+                    {/* Title & price block (matches your reference) */}
                     <h3 className="shop-name">{item.name}</h3>
-                    <p className="shop-price">₹{(item.price || 0).toLocaleString()}</p>
+                    <p className="shop-price">
+                      <span className="rupee">₹</span>
+                      <span className="price-val">{(item.price || 0).toLocaleString()}</span>
+                      {isLow && <span className="only-one">Only 1 left!</span>}
+                    </p>
                   </Link>
                 </div>
               );
