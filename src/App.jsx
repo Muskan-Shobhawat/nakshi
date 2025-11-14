@@ -101,7 +101,7 @@ function App() {
       ),
     },
     {
-      path: "/shop/new-arrivals",
+      path: "/shop/new",
       element: (
         <Layout>
           <Shop />
