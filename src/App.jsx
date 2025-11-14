@@ -84,8 +84,16 @@ function App() {
         </Layout>
       ),
     },
-     {
-      path: "/shop/category/:category",
+    {
+      path: "/shop/rings", // 🔥 REQUIRED for Rings tab
+      element: (
+        <Layout>
+          <Shop />
+        </Layout>
+      ),
+    },
+    {
+      path: "/shop/earrings", // 🔥 REQUIRED for Earrings tab
       element: (
         <Layout>
           <Shop />
