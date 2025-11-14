@@ -28,15 +28,14 @@ import ClearAllIcon from "@mui/icons-material/ClearAll";
 export default function Shop() {
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams(); // supports route /shop/category/:category
+  const params = useParams();
 
-  // UI state
   const [products, setProducts] = useState([]);
-  const [serverTotal, setServerTotal] = useState(null); // total from server (if provided)
+  const [serverTotal, setServerTotal] = useState(null);
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState(null); // quick filter (Women/Men etc)
+  const [filter, setFilter] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerType, setDrawerType] = useState(""); // 'filter' or 'sort'
+  const [drawerType, setDrawerType] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRange, setPriceRange] = useState([1000, 1000000]);
@@ -47,79 +46,75 @@ export default function Shop() {
   const [tempSortOrder, setTempSortOrder] = useState("");
   const productsPerPage = 48;
 
-  // derive category from route or query param
   const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const qCategory = query.get("category");
   const qOccasion = query.get("occasion");
   const qGender = query.get("gender");
-  const routeCategory = params?.category || null;
+  // routeCategory: supports either /shop/category/:category OR specific paths /shop/earrings /shop/rings
+  let routeCategory = params?.category || null;
+  const path = location.pathname || "";
 
-  // detect new-arrivals route
-  const isNewArrivalsRoute = location.pathname.includes("/shop/new-arrivals");
+  // support direct routes like /shop/earrings and /shop/rings (per your Option A)
+  if (!routeCategory) {
+    if (path.startsWith("/shop/earrings")) routeCategory = "Earrings";
+    if (path.startsWith("/shop/rings")) routeCategory = "Rings";
+    // If you use /shop/new we will detect new arrivals below
+  }
 
-  // backend base (normalized)
+  const isNewArrivalsRoute = path === "/shop/new" || path.startsWith("/shop/new");
+
+  // backend base normalization
   const RAW_API_BASE = import.meta.env.VITE_APP_BACKEND_URI || "https://nakshi.onrender.com";
+  const API_BASE = RAW_API_BASE.replace(/\/+$/, "");
+  const PRODUCTS_ENDPOINT = API_BASE.endsWith("/api") ? `${API_BASE}/products` : `${API_BASE}/api/products`;
 
-  // Normalise API base and build products endpoint correctly
-  const API_BASE = RAW_API_BASE.replace(/\/+$/, ""); // remove trailing slash(es)
-  // If API_BASE already ends with '/api' use that, otherwise append '/api'
-  const PRODUCTS_ENDPOINT = API_BASE.endsWith("/api")
-    ? `${API_BASE}/products`
-    : `${API_BASE}/api/products`;
-
-  // build server query and fetch products (server-side filtering preferred)
+  // fetch products (server-side query where possible)
   useEffect(() => {
     let mounted = true;
     const fetchProducts = async () => {
       try {
         const qs = [];
 
-        // new arrivals
-        if (isNewArrivalsRoute) {
-          qs.push("new=true");
-        }
+        if (isNewArrivalsRoute) qs.push("new=true");
 
-        // category: prefer route param then ?category=
+        // routeCategory (from /shop/earrings, /shop/rings or /shop/category/:category)
         const categoryForQuery = routeCategory || qCategory || typeFilter || "";
         if (categoryForQuery) qs.push(`category=${encodeURIComponent(categoryForQuery)}`);
 
-        // occasion & gender from URL (these are separate from drawer-controlled filters)
+        // occasion/gender from URL query (priority)
         if (qOccasion) qs.push(`occasion=${encodeURIComponent(qOccasion)}`);
         if (qGender) qs.push(`gender=${encodeURIComponent(qGender)}`);
 
-        // drawer / UI filters (if user applied them)
+        // drawer filters (if applied)
         if (genderFilter) qs.push(`gender=${encodeURIComponent(genderFilter)}`);
         if (typeFilter && !categoryForQuery) qs.push(`category=${encodeURIComponent(typeFilter)}`);
 
-        // price & sort (you can use them server-side if API supports)
+        // price & sort
         if (priceRange && (priceRange[0] !== 1000 || priceRange[1] !== 1000000)) {
           qs.push(`priceMin=${encodeURIComponent(priceRange[0])}`);
           qs.push(`priceMax=${encodeURIComponent(priceRange[1])}`);
         }
         if (sortOrder) qs.push(`sort=${encodeURIComponent(sortOrder)}`);
 
-        // pagination (server-side) - request enough records for client pagination
-        const limit = productsPerPage * 4; // fetch a few pages
+        // pagination (request a chunk)
+        const limit = productsPerPage * 4;
         qs.push(`limit=${limit}`);
         qs.push(`skip=${(page - 1) * productsPerPage}`);
 
         const queryStr = qs.length ? `?${qs.join("&")}` : "";
-        // Use the computed PRODUCTS_ENDPOINT (safe, no double /api)
         const url = `${PRODUCTS_ENDPOINT}${queryStr}`;
 
         const res = await axios.get(url);
         if (!mounted) return;
 
-        // server returns { success, total, products } per your controller
+        // accept different server shapes
         if (res.data && typeof res.data === "object" && Array.isArray(res.data.products)) {
           setProducts(res.data.products || []);
           setServerTotal(typeof res.data.total === "number" ? res.data.total : null);
         } else if (Array.isArray(res.data)) {
-          // older responses that returned an array directly
           setProducts(res.data || []);
           setServerTotal(null);
         } else {
-          // fallback: try to find products array inside res.data
           setProducts(res.data.products || []);
           setServerTotal(res.data.total || null);
         }
@@ -129,13 +124,12 @@ export default function Shop() {
     };
 
     fetchProducts();
-    return () => {
-      mounted = false;
-    };
-    // re-run when route/category/query/search or any filters change
+    return () => { mounted = false; };
   }, [
     routeCategory,
-    location.search,
+    qCategory,
+    qOccasion,
+    qGender,
     location.pathname,
     genderFilter,
     typeFilter,
@@ -146,40 +140,50 @@ export default function Shop() {
     isNewArrivalsRoute,
   ]);
 
-  // client-side simple filtering & sorting as a fallback (applied to 'products' returned)
+  // client-side filtering fallback
   const filteredProducts = useMemo(() => {
     const list = Array.isArray(products) ? products : [];
-
-    // apply quick filter (filter state like clicking Women/Men/Rings buttons)
     let out = list.filter((p) => {
-      const genderMatch = filter
-        ? filter === "Female" || filter === "Male"
-          ? (p.gender || "").toLowerCase() === filter.toLowerCase()
-          : ["Ring", "Earring", "Necklace"].includes(filter)
-          ? (p.category || "").toLowerCase() === filter.toLowerCase()
-          : true
-        : true;
+      // handle query-supplied gender from URL or drawer
+      const urlGender = qGender || genderFilter;
+      const compareGender = (val) => {
+        if (!val) return true;
+        const a = (p.gender || "").toLowerCase();
+        return a === val.toLowerCase() || a === (val === "Women" ? "female" : val === "Men" ? "male" : val.toLowerCase());
+      };
 
-      // additional UI drawer filters (client-side safety)
-      const drawerGenderMatch = genderFilter ? (p.gender || "").toLowerCase() === genderFilter.toLowerCase() : true;
-      const drawerTypeMatch = typeFilter ? (p.category || "").toLowerCase() === (typeFilter || "").toLowerCase() : true;
+      // handle url category / route category / drawer type
+      const catFilter = routeCategory || qCategory || typeFilter || filter;
+      const compareCategory = (val) => {
+        if (!val) return true;
+        const pc = (p.category || "").toLowerCase();
+        return pc.includes(val.toLowerCase()) || (val.toLowerCase() === "all" && true);
+      };
+
       const priceMatch = (p.price || 0) >= priceRange[0] && (p.price || 0) <= priceRange[1];
 
-      return genderMatch && drawerGenderMatch && drawerTypeMatch && priceMatch;
+      // occasion match: qOccasion or any drawer occasion stored in typeFilter (if used)
+      const occFilter = qOccasion || null;
+      const compareOcc = (val) => {
+        if (!val) return true;
+        const occ = (p.occasion || "").toLowerCase();
+        return occ.includes(val.toLowerCase()) || occ === val.toLowerCase();
+      };
+
+      return compareGender(urlGender) && compareCategory(catFilter) && priceMatch && compareOcc(occFilter);
     });
 
-    // sorting (client-side)
-    if (sortOrder === "lowToHigh") out.sort((a, b) => (a.price || 0) - (b.price || 0));
-    else if (sortOrder === "highToLow") out.sort((a, b) => (b.price || 0) - (a.price || 0));
+    if (sortOrder === "lowToHigh") out.sort((a,b) => (a.price||0) - (b.price||0));
+    else if (sortOrder === "highToLow") out.sort((a,b) => (b.price||0) - (a.price||0));
 
     return out;
-  }, [products, filter, genderFilter, typeFilter, priceRange, sortOrder]);
+  }, [products, qGender, genderFilter, routeCategory, qCategory, typeFilter, filter, priceRange, qOccasion, sortOrder]);
 
-  // pagination (client-side on filteredProducts)
+  // pagination
   const startIndex = (page - 1) * productsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
-  // displayed count uses serverTotal when available else filteredProducts.length
+  // counts
   const resultCount = serverTotal !== null ? serverTotal : filteredProducts.length;
   const formattedCount = resultCount.toLocaleString();
 
@@ -195,7 +199,6 @@ export default function Shop() {
     if (!seg) return "Home";
     const map = {
       shop: "All Jewellery",
-      gold: "Gold",
       rings: "Rings",
       earrings: "Earrings",
       necklace: "Necklace",
@@ -210,32 +213,23 @@ export default function Shop() {
   const breadcrumbCrumbs = [{ label: "Home", to: "/" }];
   if (pathSegments.length > 0) {
     breadcrumbCrumbs.push({ label: friendly(pathSegments[0]), to: `/${pathSegments[0]}` });
-    if (pathSegments.length > 1) breadcrumbCrumbs.push({ label: friendly(pathSegments[1]), to: `/${pathSegments.slice(0, 2).join("/")}` });
+    if (pathSegments.length > 1) breadcrumbCrumbs.push({ label: friendly(pathSegments[1]), to: `/${pathSegments.slice(0,2).join("/")}` });
   } else breadcrumbCrumbs.push({ label: "Shop", to: "/shop" });
 
-  // if quick filter active show it in breadcrumb
-  if (filter) {
-    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== filter) breadcrumbCrumbs.push({ label: filter, to: `/shop?filter=${encodeURIComponent(filter)}` });
-  } else if (typeFilter) {
-    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== typeFilter) breadcrumbCrumbs.push({ label: typeFilter, to: `/shop?type=${encodeURIComponent(typeFilter)}` });
-  } else if (routeCategory || qCategory) {
-    const catLabel = routeCategory || qCategory;
-    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== catLabel) breadcrumbCrumbs.push({ label: catLabel, to: location.pathname + location.search });
-  } else if (isNewArrivalsRoute) {
-    const last = breadcrumbCrumbs[breadcrumbCrumbs.length - 1]?.label;
-    if (last !== "New Arrivals") breadcrumbCrumbs.push({ label: "New Arrivals", to: location.pathname });
-  }
+  // show query/category in breadcrumb if present
+  if (qCategory) breadcrumbCrumbs.push({ label: qCategory, to: location.pathname + location.search });
+  else if (routeCategory) breadcrumbCrumbs.push({ label: routeCategory, to: location.pathname });
+  else if (qOccasion) breadcrumbCrumbs.push({ label: qOccasion, to: location.pathname + location.search });
+  else if (qGender) breadcrumbCrumbs.push({ label: qGender, to: location.pathname + location.search });
+  else if (isNewArrivalsRoute) breadcrumbCrumbs.push({ label: "New Arrivals", to: location.pathname });
 
-  // page title priority: new arrivals -> route category -> quick filter -> All Jewellery
+  // page title
   const pageTitle = isNewArrivalsRoute
     ? "New Arrivals"
     : (routeCategory || qCategory) ? (routeCategory || qCategory) :
-    (filter || "All Jewellery");
+    (qGender || filter) ? (qGender || filter) : "All Jewellery";
 
-  // robust second image
+  // second image helper
   const getSecondImage = (item) =>
     item?.photos?.[1] ||
     (item?.gallery && item.gallery[1]) ||
@@ -244,7 +238,7 @@ export default function Shop() {
     item?.mainPhoto ||
     "";
 
-  // Drawer apply handlers
+  // drawer handlers
   const applyFiltersFromDrawer = () => {
     setGenderFilter(tempGenderFilter);
     setTypeFilter(tempTypeFilter);
@@ -263,7 +257,7 @@ export default function Shop() {
 
   return (
     <section className="shop-section">
-      {/* Breadcrumb */}
+      {/* breadcrumb */}
       <div className="shop-breadcrumb-wrap">
         <nav className="shop-breadcrumb" aria-label="breadcrumb">
           {breadcrumbCrumbs.map((c, idx) => {
@@ -282,7 +276,7 @@ export default function Shop() {
         </nav>
       </div>
 
-      {/* Results title */}
+      {/* results title + count */}
       <div className="shop-results-wrap">
         <div className="shop-results-inner">
           <h1 className="shop-results-title">{pageTitle}</h1>
@@ -290,20 +284,20 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* Filter buttons */}
+      {/* filter buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ flexWrap: "wrap", padding: "1rem" }}>
         <Button variant="outlined" startIcon={<FilterListIcon />} onClick={() => { setDrawerType("filter"); setDrawerOpen(true); }}>Filter</Button>
         <Button variant="outlined" startIcon={<SortIcon />} onClick={() => { setDrawerType("sort"); setDrawerOpen(true); }}>Sort</Button>
 
-        <Button variant="outlined" startIcon={<WomanIcon />} onClick={() => { setFilter("Women"); setPage(1); }} sx={{ ...getButtonStyle("Women"), "@media (max-width: 768px)": { display: "none" } }}>Women</Button>
+        <Button variant="outlined" startIcon={<WomanIcon />} onClick={() => { navigate("/shop?gender=Female"); setPage(1); }} sx={{ ...getButtonStyle("Women"), "@media (max-width: 768px)": { display: "none" } }}>Women</Button>
 
-        <Button variant="outlined" startIcon={<ManIcon />} onClick={() => { setFilter("Men"); setPage(1); }} sx={{ ...getButtonStyle("Men"), "@media (max-width: 766px)": { display: "none" } }}>Men</Button>
+        <Button variant="outlined" startIcon={<ManIcon />} onClick={() => { navigate("/shop?gender=Male"); setPage(1); }} sx={{ ...getButtonStyle("Men"), "@media (max-width: 766px)": { display: "none" } }}>Men</Button>
 
-        <Button variant="outlined" startIcon={<RingVolumeIcon />} onClick={() => { setFilter("Ring"); setPage(1); }} sx={{ ...getButtonStyle("Ring"), "@media (max-width: 766px)": { display: "none" } }}>Rings</Button>
+        <Button variant="outlined" startIcon={<RingVolumeIcon />} onClick={() => { navigate("/shop/rings"); setPage(1); }} sx={{ ...getButtonStyle("Ring"), "@media (max-width: 766px)": { display: "none" } }}>Rings</Button>
 
-        <Button variant="outlined" startIcon={<EarbudsIcon />} onClick={() => { setFilter("Earring"); setPage(1); }} sx={{ ...getButtonStyle("Earring"), "@media (max-width: 768px)": { display: "none" } }}>Earrings</Button>
+        <Button variant="outlined" startIcon={<EarbudsIcon />} onClick={() => { navigate("/shop/earrings"); setPage(1); }} sx={{ ...getButtonStyle("Earring"), "@media (max-width: 768px)": { display: "none" } }}>Earrings</Button>
 
-        <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { setFilter("Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>Necklace</Button>
+        <Button variant="outlined" startIcon={<DiamondIcon />} onClick={() => { navigate("/shop?category=Necklace"); setPage(1); }} sx={{ ...getButtonStyle("Necklace"), "@media (max-width: 768px)": { display: "none" } }}>Necklace</Button>
 
         <Button variant="contained" color="error" startIcon={<ClearAllIcon />} onClick={() => {
           setFilter(null);
@@ -312,10 +306,11 @@ export default function Shop() {
           setPriceRange([1000, 1000000]);
           setSortOrder("");
           setPage(1);
+          navigate("/shop");
         }} sx={{ "@media (max-width: 766px)": { display: "none" } }}>Clear Filters</Button>
       </Stack>
 
-      {/* Drawer */}
+      {/* drawer (filter / sort) */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)} sx={{ width: 300, zIndex: 10000 }}>
         <div style={{ width: 300, padding: "1rem" }}>
           {drawerType === "filter" && (
@@ -340,7 +335,7 @@ export default function Shop() {
                 </RadioGroup>
               </FormControl>
 
-              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹tempPriceRange[1]</Typography>
+              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹{tempPriceRange[1]}</Typography>
               <Slider value={tempPriceRange} onChange={(_, newValue) => setTempPriceRange(newValue)} valueLabelDisplay="auto" min={1000} max={1000000} step={500} />
 
               <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={applyFiltersFromDrawer}>Apply Filters</Button>
@@ -366,7 +361,7 @@ export default function Shop() {
         </div>
       </Drawer>
 
-      {/* Product grid */}
+      {/* product grid */}
       <div className="gridflex">
         <div className="shop-grid">
           {paginatedProducts.length === 0 ? (
