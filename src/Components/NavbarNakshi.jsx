@@ -171,10 +171,17 @@ function NavbarNakshi() {
       return;
     }
 
-    // gender
-    const genders = ["Female", "Male"];
-    if (genders.includes(lower)) {
-      navigate(`/shop?gender=${encodeURIComponent(raw)}`);
+    // ----- Gender: normalized mapping (case-insensitive) -----
+    // Accepts "female"/"male" as well as "women"/"men" from different places in UI.
+    const genderMap = {
+      female: "Female",
+      women: "Female",
+      male: "Male",
+      men: "Male",
+    };
+    if (genderMap[lower]) {
+      // navigate with canonical gender value that backend expects
+      navigate(`/shop?gender=${encodeURIComponent(genderMap[lower])}`);
       setActiveMega(null);
       return;
     }
@@ -242,13 +249,9 @@ function NavbarNakshi() {
       return (
         <div className="mv-panel">
           <div className="mv-head">
-            <button className="mv-back" onClick={() => setMobilePanel(null)}>
-              &larr;
-            </button>
+            <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
             <span className="mv-title">{userName ? userName.split(" ")[0] : "Profile"}</span>
-            <button className="mv-close" onClick={() => setMenuOpen(false)}>
-              ×
-            </button>
+            <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
           </div>
           <div className="mv-body">
             <div className="mv-block">
@@ -306,13 +309,9 @@ function NavbarNakshi() {
     return (
       <div className="mv-panel">
         <div className="mv-head">
-          <button className="mv-back" onClick={() => setMobilePanel(null)}>
-            &larr;
-          </button>
+          <button className="mv-back" onClick={() => setMobilePanel(null)}>&larr;</button>
           <span className="mv-title">{data.title}</span>
-          <button className="mv-close" onClick={() => setMenuOpen(false)}>
-            ×
-          </button>
+          <button className="mv-close" onClick={() => setMenuOpen(false)}>×</button>
         </div>
         <div className="mv-body">
           {data.columns.map((col, idx) => (
