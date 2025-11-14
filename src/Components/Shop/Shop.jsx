@@ -153,7 +153,7 @@ export default function Shop() {
     // apply quick filter (filter state like clicking Women/Men/Rings buttons)
     let out = list.filter((p) => {
       const genderMatch = filter
-        ? filter === "Women" || filter === "Men"
+        ? filter === "Female" || filter === "Male"
           ? (p.gender || "").toLowerCase() === filter.toLowerCase()
           : ["Ring", "Earring", "Necklace"].includes(filter)
           ? (p.category || "").toLowerCase() === filter.toLowerCase()
@@ -340,7 +340,7 @@ export default function Shop() {
                 </RadioGroup>
               </FormControl>
 
-              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹tempPriceRange[1]}</Typography>
+              <Typography gutterBottom>Price Range: ₹{tempPriceRange[0]} - ₹tempPriceRange[1]</Typography>
               <Slider value={tempPriceRange} onChange={(_, newValue) => setTempPriceRange(newValue)} valueLabelDisplay="auto" min={1000} max={1000000} step={500} />
 
               <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={applyFiltersFromDrawer}>Apply Filters</Button>

@@ -100,7 +100,7 @@ function NavbarNakshi() {
           head: "Occasion",
           items: ["Everyday", "Casual", "Festive"],
         },
-        { head: "Gender", items: ["Women", "Men"] },
+        { head: "Gender", items: ["Female", "Male"] },
       ],
     },
     earrings: {
@@ -115,7 +115,7 @@ function NavbarNakshi() {
       columns: [
         { head: "Category", items: ["All Rings", "Casual Rings", "Traditional Rings"] },
         { head: "Occasion", items: ["Everyday", "Casual", "Festive"] },
-        { head: "Gender", items: ["Women", "Men"] },
+        { head: "Gender", items: ["Female", "Male"] },
       ],
     },
   };
@@ -172,7 +172,7 @@ function NavbarNakshi() {
     }
 
     // gender
-    const genders = ["women", "men", "kids & teens", "unisex"];
+    const genders = ["Female", "Male"];
     if (genders.includes(lower)) {
       navigate(`/shop?gender=${encodeURIComponent(raw)}`);
       setActiveMega(null);
