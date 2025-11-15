@@ -87,7 +87,7 @@ function NavbarNakshi() {
             "Rings",
             "Mangalsutra",
             "Necklace Sets",
-            "Bracelets",
+            "Bracelet",
             "Chains",
           ],
         },
@@ -121,12 +121,12 @@ function NavbarNakshi() {
     rings: "Rings",
     "mangalsutra": "Mangalsutra",
     "necklace sets": "Necklace Sets",
-    "bracelets": "Bracelets",
+    "bracelet": "Bracelet",
     "chains": "Chains",
     // additional helpful keys:
     "necklace": "Necklace",
     "bangles": "Bangles",
-    "bracelet": "Bracelets",
+    "bracelet": "Bracelet",
   };
 
   /**
