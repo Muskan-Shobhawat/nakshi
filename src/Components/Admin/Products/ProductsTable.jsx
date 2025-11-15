@@ -33,9 +33,24 @@ export default function ProductsTable() {
     photo3: null,
     gender: "",
     category: "",
+    subcategory: "", // <-- added
     occasion: "",
   });
   const [errors, setErrors] = useState({});
+
+  // mapping of allowed subcategories per category (keep in sync with backend)
+  const allowedSubcategories = {
+    Rings: ["All Rings", "Casual Rings", "Traditional Rings"],
+    Earrings: ["All Earrings", "Studs & Tops", "Jhumkas"],
+    Chains: ["Thin Chains", "Thick Chains", "Box Chains"],
+    Necklace: ["Necklace", "Necklace Sets", "Choker"],
+    "Necklace Sets": ["Necklace Sets"],
+    Bangles: ["Glass Bangles", "Metal Bangles"],
+    Bracelet: ["Charm Bracelet", "Chain Bracelet"],
+    Mangalsutra: ["Traditional Mangalsutra", "Modern Mangalsutra"],
+    Kada: ["Plain Kada", "Stone Kada"],
+    Watches: ["Analog", "Digital", "Smartwatch"],
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -70,8 +85,17 @@ export default function ProductsTable() {
     if (!form.gender) newErrors.gender = "Gender is required";
     if (!form.category) newErrors.category = "Category is required";
     if (!form.occasion) newErrors.occasion = "Occasion is required";
-    if (!form.mainPhoto) newErrors.mainPhoto = "Main photo is required";
-    if (!form.photo1 || !form.photo2 || !form.photo3) newErrors.photos = "All 3 additional photos are required";
+    if (!form.mainPhoto && !editId) newErrors.mainPhoto = "Main photo is required";
+    // photos required when creating; when editing we allow keeping existing photos if user doesn't upload new ones
+    if (!editId && (!form.photo1 || !form.photo2 || !form.photo3)) newErrors.photos = "All 3 additional photos are required";
+
+    // optional: if subcategory provided, ensure it's allowed for category
+    if (form.subcategory && form.category) {
+      const allowed = allowedSubcategories[form.category] || [];
+      if (allowed.length && !allowed.map(s => s.toLowerCase()).includes(String(form.subcategory).toLowerCase())) {
+        newErrors.subcategory = `Invalid subcategory for ${form.category}`;
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -101,23 +125,46 @@ export default function ProductsTable() {
     setUploading(true);
 
     try {
-      // Upload all photos to Firebase
-      const mainPhotoURL = await uploadImageToFirebase(form.mainPhoto, "jewellery");
-      const photo1URL = await uploadImageToFirebase(form.photo1, "jewellery");
-      const photo2URL = await uploadImageToFirebase(form.photo2, "jewellery");
-      const photo3URL = await uploadImageToFirebase(form.photo3, "jewellery");
+      // Upload photos to Firebase when provided
+      // If editing, only upload files that are set (if user didn't upload new files, we keep existing URLs by not including them)
+      let mainPhotoURL = form.mainPhoto;
+      let photo1URL = form.photo1;
+      let photo2URL = form.photo2;
+      let photo3URL = form.photo3;
 
+      // when editing, form.mainPhoto may be null meaning keep existing mainPhoto on server
+      if (form.mainPhoto && typeof form.mainPhoto !== "string") {
+        mainPhotoURL = await uploadImageToFirebase(form.mainPhoto, "jewellery");
+      }
+      if (form.photo1 && typeof form.photo1 !== "string") {
+        photo1URL = await uploadImageToFirebase(form.photo1, "jewellery");
+      }
+      if (form.photo2 && typeof form.photo2 !== "string") {
+        photo2URL = await uploadImageToFirebase(form.photo2, "jewellery");
+      }
+      if (form.photo3 && typeof form.photo3 !== "string") {
+        photo3URL = await uploadImageToFirebase(form.photo3, "jewellery");
+      }
+
+      // Build payload. If editing and some photo fields are null, server should handle keeping existing photos.
       const payload = {
         name: form.name,
         description: form.description,
-        price: form.price,
-        quantity: form.quantity,
+        price: Number(form.price),
+        quantity: Number(form.quantity),
         gender: form.gender,
         category: form.category,
+        subcategory: form.subcategory || null, // include if present
         occasion: form.occasion,
-        mainPhoto: mainPhotoURL,
-        photos: [photo1URL, photo2URL, photo3URL],
       };
+
+      if (mainPhotoURL && typeof mainPhotoURL === "string") payload.mainPhoto = mainPhotoURL;
+      // For additional photos, send an array only when at least one is present; prefer to send exactly three when creating
+      const photosArr = [];
+      if (photo1URL) photosArr.push(photo1URL);
+      if (photo2URL) photosArr.push(photo2URL);
+      if (photo3URL) photosArr.push(photo3URL);
+      if (photosArr.length) payload.photos = photosArr;
 
       if (editId) {
         await axios.put(`${API_URL}/${editId}`, payload);
@@ -144,12 +191,20 @@ export default function ProductsTable() {
   }
 
   function openEditForm(product) {
+    // Pre-populate; keep photo fields null so admin can choose to upload new ones
     setForm({
-      ...product,
-      mainPhoto: null,
+      name: product.name || "",
+      description: product.description || "",
+      price: product.price || "",
+      quantity: product.quantity || "",
+      mainPhoto: null, // admin can upload new main photo if desired
       photo1: null,
       photo2: null,
       photo3: null,
+      gender: product.gender || "",
+      category: product.category || "",
+      subcategory: product.subcategory || "",
+      occasion: product.occasion || "",
     });
     setEditId(product._id);
     setOpen(true);
@@ -167,6 +222,7 @@ export default function ProductsTable() {
       photo3: null,
       gender: "",
       category: "",
+      subcategory: "",
       occasion: "",
     });
     setErrors({});
@@ -180,6 +236,17 @@ export default function ProductsTable() {
       p.description.toLowerCase().includes(query.toLowerCase()) ||
       String(p.price).includes(query)
   );
+
+  // when category changes in form, clear subcategory if not valid
+  useEffect(() => {
+    if (!form.category) return;
+    const allowed = allowedSubcategories[form.category] || [];
+    if (form.subcategory && allowed.length && !allowed.map(s => s.toLowerCase()).includes(String(form.subcategory).toLowerCase())) {
+      setForm(f => ({ ...f, subcategory: "" }));
+      setErrors(e => ({ ...e, subcategory: undefined }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.category]);
 
   return (
     <section className="products-card">
@@ -232,6 +299,23 @@ export default function ProductsTable() {
             ))}
           </TextField>
 
+          {/* Subcategory select - dynamic based on selected Category */}
+          <TextField
+            select
+            label="Subcategory (optional)"
+            name="subcategory"
+            value={form.subcategory}
+            onChange={handleChange}
+            error={!!errors.subcategory}
+            helperText={errors.subcategory || "Choose a subcategory relevant to the selected category"}
+            disabled={!form.category || !(allowedSubcategories[form.category] && allowedSubcategories[form.category].length)}
+          >
+            <MenuItem value="">-- None --</MenuItem>
+            {(allowedSubcategories[form.category] || []).map((s) => (
+              <MenuItem key={s} value={s}>{s}</MenuItem>
+            ))}
+          </TextField>
+
           <TextField select label="Occasion" name="occasion" value={form.occasion} onChange={handleChange} error={!!errors.occasion} helperText={errors.occasion} required>
             <MenuItem value="Everyday">Everyday</MenuItem>
             <MenuItem value="Bridal">Bridal</MenuItem>
@@ -239,13 +323,13 @@ export default function ProductsTable() {
           </TextField>
 
           <div>
-            <label>Main Photo *</label>
+            <label>Main Photo {editId ? "(upload to replace)" : "*"} </label>
             <input type="file" name="mainPhoto" accept="image/*" onChange={handleChange} />
             {errors.mainPhoto && <p style={{ color: "red" }}>{errors.mainPhoto}</p>}
           </div>
 
           <div>
-            <label>Other Photos (photo1, photo2, photo3)</label>
+            <label>Other Photos (photo1, photo2, photo3) {editId ? "(upload to replace)" : ""}</label>
             <input type="file" name="photo1" accept="image/*" onChange={handleChange} />
             <input type="file" name="photo2" accept="image/*" onChange={handleChange} />
             <input type="file" name="photo3" accept="image/*" onChange={handleChange} />
@@ -274,6 +358,7 @@ export default function ProductsTable() {
               <TableCell>Quantity</TableCell>
               <TableCell>Gender</TableCell>
               <TableCell>Category</TableCell>
+              <TableCell>Subcategory</TableCell> {/* new column */}
               <TableCell>Occasion</TableCell>
               <TableCell align="right">Operation</TableCell>
             </TableRow>
@@ -288,6 +373,7 @@ export default function ProductsTable() {
                 <TableCell>{p.quantity}</TableCell>
                 <TableCell>{p.gender}</TableCell>
                 <TableCell>{p.category}</TableCell>
+                <TableCell>{p.subcategory || "-"}</TableCell>
                 <TableCell>{p.occasion}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit">
@@ -305,7 +391,7 @@ export default function ProductsTable() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} align="center">No products found.</TableCell>
+                <TableCell colSpan={10} align="center">No products found.</TableCell>
               </TableRow>
             )}
           </TableBody>

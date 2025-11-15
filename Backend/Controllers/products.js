@@ -1,3 +1,4 @@
+// controllers/products.js
 import Product from "../Models/products.js";
 
 // Create a new product
@@ -11,23 +12,16 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
-// export const getProducts = async (req, res) => {
-//   try {
-//     const products = await Product.find().sort({ createdAt: -1 });
-//     res.json({ success: true, products });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
+// Get products (supports category, subcategory, occasion, gender, new, since, q, limit, skip)
 export const getProducts = async (req, res) => {
   try {
-    const { category, occasion, gender, new: isNew, since, limit, skip, q } = req.query;
+    const { category, subcategory, occasion, gender, new: isNew, since, limit, skip, q } = req.query;
 
     const filter = {};
 
-    // Category / Occasion / Gender filters
+    // Category / Subcategory / Occasion / Gender filters
     if (category) filter.category = category;
+    if (subcategory) filter.subcategory = subcategory;
     if (occasion) filter.occasion = occasion;
     if (gender) filter.gender = gender;
 
@@ -38,7 +32,7 @@ export const getProducts = async (req, res) => {
       filter.createdAt = { $gte: dateFrom };
     }
 
-    // Custom date filter
+    // Custom date filter (since)
     if (since) {
       const dateFrom = new Date(since);
       if (!isNaN(dateFrom)) {
@@ -46,7 +40,7 @@ export const getProducts = async (req, res) => {
       }
     }
 
-    // Simple search support
+    // Simple text search (requires text index on Product collection)
     if (q) {
       filter.$text = { $search: q };
     }
@@ -70,7 +64,6 @@ export const getProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // Get single product by ID
 export const getProductById = async (req, res) => {
