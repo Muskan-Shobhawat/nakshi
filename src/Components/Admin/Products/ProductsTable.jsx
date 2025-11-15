@@ -84,6 +84,7 @@ export default function ProductsTable() {
     else if (parseInt(form.quantity, 10) < 1) newErrors.quantity = "Quantity must be at least 1";
     if (!form.gender) newErrors.gender = "Gender is required";
     if (!form.category) newErrors.category = "Category is required";
+    if (!form.subcategory) newErrors.subcategory = "Subcategory is required";
     if (!form.occasion) newErrors.occasion = "Occasion is required";
     if (!form.mainPhoto && !editId) newErrors.mainPhoto = "Main photo is required";
     // photos required when creating; when editing we allow keeping existing photos if user doesn't upload new ones
@@ -308,6 +309,7 @@ export default function ProductsTable() {
             onChange={handleChange}
             error={!!errors.subcategory}
             helperText={errors.subcategory || "Choose a subcategory relevant to the selected category"}
+            required
             disabled={!form.category || !(allowedSubcategories[form.category] && allowedSubcategories[form.category].length)}
           >
             <MenuItem value="">-- None --</MenuItem>

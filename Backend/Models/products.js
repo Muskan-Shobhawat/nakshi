@@ -53,6 +53,7 @@ const productSchema = new mongoose.Schema(
     subcategory: {
       type: String,
       trim: true,
+        required: true,
       default: null,
       validate: {
         validator: function (v) {
