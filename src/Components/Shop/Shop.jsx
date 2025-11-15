@@ -310,13 +310,9 @@ export default function Shop() {
     : "All Jewellery";
 
   const getSecondImage = (item) => {
-    if (Array.isArray(item?.photos) && item.photos.length > 1) {
-      return item.photos[1]; // TRUE second image
-    }
-    if (Array.isArray(item?.photos) && item.photos.length > 0) {
-      return item.photos[0]; // fallback: first photo
-    }
-    return item.mainPhoto || ""; // last fallback
+    if (item?.photos?.[1]) return item.photos[1];
+    if (item?.photos?.[0]) return item.photos[0];
+    return item.mainPhoto || "";
   };
 
   // drawer handlers
