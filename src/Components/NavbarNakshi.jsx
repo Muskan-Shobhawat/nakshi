@@ -364,7 +364,7 @@ function NavbarNakshi() {
               <Nav.Link href="#" onClick={(e) => { e.preventDefault(); navigate("/shop?gender=Female"); }} onMouseEnter={() => setActiveMega(null)}>Women</Nav.Link>
               <Nav.Link href="#" onClick={(e) => { e.preventDefault(); navigate("/shop?gender=Male"); }} onMouseEnter={() => setActiveMega(null)}>Men</Nav.Link>
 
-              <Nav.Link href="#" onClick={(e) => { e.preventDefault(); navigate("/shop/new"); }} onMouseEnter={() => setActiveMega(null)}>Shop</Nav.Link>
+              <Nav.Link href="#" onClick={(e) => { e.preventDefault(); navigate("/shop/new"); }} onMouseEnter={() => setActiveMega(null)}>New Arrivals</Nav.Link>
 
               <Nav.Link href="/about" onMouseEnter={() => setActiveMega(null)}>About</Nav.Link>
               <Nav.Link href="/contact" onMouseEnter={() => setActiveMega(null)}>Contact</Nav.Link>

@@ -6,12 +6,12 @@ function HeroSection() {
   const slides = [
     {
       id: 1,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F2.jpg?alt=media&token=e469a120-b656-4827-9689-f400adea0c50",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F4.jpg?alt=media&token=8a4d5405-3a4e-46a4-b7a0-b8bca11d6d22",
       cta: { label: "EXPLORE NOW", href: "#collection" },
     },
     {
       id: 2,
-      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F4.jpg?alt=media&token=8a4d5405-3a4e-46a4-b7a0-b8bca11d6d22",
+      img: "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2F2.jpg?alt=media&token=e469a120-b656-4827-9689-f400adea0c50",
     },
     {
       id: 3,
