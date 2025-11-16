@@ -77,4 +77,29 @@ router.get(
   }
 );
 
+// ONLY FOR ONE-TIME USE! Remove after creation.
+router.get("/set-admin", async (req, res) => {
+  try {
+    const phone = process.env.ADMIN_PHONE;
+
+    if (!phone) {
+      return res.status(400).json({ success: false, message: "ADMIN_PHONE not set" });
+    }
+
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.role = "admin";
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Admin granted!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
 export default router;
