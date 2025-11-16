@@ -151,9 +151,9 @@ export default function AuthForm({ onLoginSuccess }) {
 
   return (
     <div className="auth-section">
-      <Container fluid className="ccfix">
-        <Row className="justify-content-center rrfix">
-          <Col xs={12} sm={10} md={8} lg={6} xl={5} className="fix">
+      {/* <Container fluid className="ccfix"> */}
+        {/* <Row className="justify-content-center rrfix"> */}
+          {/* <Col xs={12} sm={10} md={8} lg={6} xl={5} className="fix"> */}
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">
                 {isLogin ? "Login" : "Sign Up"} - Nakshi
@@ -251,9 +251,9 @@ export default function AuthForm({ onLoginSuccess }) {
                 </small>
               </div>
             </div>
-          </Col>
-        </Row>
-      </Container>
+          {/* </Col> */}
+        {/* </Row> */}
+      {/* </Container> */}
 
       {/* ✅ OTP Verification Popup */}
       <OtpPopup

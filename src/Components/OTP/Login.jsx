@@ -21,7 +21,9 @@ export default function Login({ onLoginSuccess }) {
     if (!formData.phone) newErrors.phone = "Phone number is required.";
     else if (!/^[6789]\d{9}$/.test(formData.phone))
       newErrors.phone = "Invalid phone number format.";
+
     if (!formData.password) newErrors.password = "Password is required.";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -40,73 +42,90 @@ export default function Login({ onLoginSuccess }) {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        toast.error(data.message || "Login failed.", { position: "bottom-center" });
+        toast.error(data.message || "Login failed.", {
+          position: "bottom-center",
+        });
         return;
       }
 
+      // Store JWT
       localStorage.setItem("token", data.token);
+
       toast.success("Login successful!", { position: "bottom-center" });
+
+      // Call callback if provided
       if (typeof onLoginSuccess === "function") onLoginSuccess(data.user);
-      setTimeout(() => (window.location.href = "/"), 2000);
+
+      // 👉 Redirect logic based on ROLE
+      setTimeout(() => {
+        if (data.user?.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
+      }, 1500);
+
     } catch (err) {
       console.error("Login error:", err);
-      toast.error("Login failed. Please try again.", { position: "bottom-center" });
+      toast.error("Login failed. Please try again.", {
+        position: "bottom-center",
+      });
     }
   };
 
   return (
     <div className="auth-section">
-      <Container fluid className="ccfix">
       <ToastContainer />
-            <div className="auth-card">
-              <h3 className="text-center mb-4 text-brown">Login - Nakshi</h3>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                  <Form.Label>
-                    <PhoneIcon /> Phone Number
-                  </Form.Label>
-                  <Form.Control
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="Enter phone number"
-                    maxLength="10"
-                    required
-                  />
-                  {errors.phone && <p className="error">{errors.phone}</p>}
-                </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>
-                    <LockIcon /> Password
-                  </Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter password"
-                    required
-                  />
-                  {errors.password && <p className="error">{errors.password}</p>}
-                </Form.Group>
+      <div className="auth-card">
+        <h3 className="text-center mb-4 text-brown">Login - Nakshi</h3>
 
-                <Button className="gold-btn w-100" type="submit">
-                  Login
-                </Button>
-              </Form>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>
+              <PhoneIcon /> Phone Number
+            </Form.Label>
+            <Form.Control
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              maxLength="10"
+              required
+            />
+            {errors.phone && <p className="error">{errors.phone}</p>}
+          </Form.Group>
 
-              <div className="text-center mt-3">
-                <small>
-                  Don’t have an account?{" "}
-                  <a href="/register" className="switch-link">
-                    Sign Up
-                  </a>
-                </small>
-              </div>
-            </div>
-      </Container>
+          <Form.Group className="mb-3">
+            <Form.Label>
+              <LockIcon /> Password
+            </Form.Label>
+            <Form.Control
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              required
+            />
+            {errors.password && <p className="error">{errors.password}</p>}
+          </Form.Group>
+
+          <Button className="gold-btn w-100" type="submit">
+            Login
+          </Button>
+        </Form>
+
+        <div className="text-center mt-3">
+          <small>
+            Don’t have an account?{" "}
+            <a href="/register" className="switch-link">
+              Sign Up
+            </a>
+          </small>
+        </div>
+      </div>
     </div>
   );
 }

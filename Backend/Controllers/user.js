@@ -51,6 +51,7 @@ export const register = async (req, res) => {
 };
 
 // ---------------- LOGIN ----------------
+
 export const login = async (req, res) => {
   try {
     const { phone, password } = req.body;
@@ -85,11 +86,11 @@ export const login = async (req, res) => {
       });
     }
 
-    const token = jwt.sign(
-      { id: user._id, phone: user.phone },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // include role in token
+    const tokenPayload = { id: user._id, phone: user.phone, role: user.role };
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     return res.json({
       success: true,
@@ -99,6 +100,7 @@ export const login = async (req, res) => {
         id: user._id,
         name: user.name,
         phone: user.phone,
+        role: user.role, // return role
       },
     });
   } catch (err) {
@@ -109,3 +111,4 @@ export const login = async (req, res) => {
     });
   }
 };
+

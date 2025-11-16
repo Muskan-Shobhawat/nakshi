@@ -69,7 +69,7 @@ export default function Register() {
 
   return (
     <div className="auth-section">
-      <Container fluid className="ccfix">
+      {/* <Container fluid className="ccfix"> */}
       <ToastContainer />
             <div className="auth-card">
               <h3 className="text-center mb-4 text-brown">Sign Up - Nakshi</h3>
@@ -153,7 +153,7 @@ export default function Register() {
                 </small>
               </div>
             </div>
-      </Container>
+      {/* </Container> */}
 
       <OtpPopup
         phone={signupPhone}

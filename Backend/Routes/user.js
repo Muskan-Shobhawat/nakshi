@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../Middleware/auth.js";
+import { verifyToken, requireRole } from "../Middleware/auth.js";
 import { register, login } from "../Controllers/user.js";
 import { sendOtp, verifyOtp } from "../Controllers/otp.js";
 import User from "../Models/user.js";
@@ -53,5 +53,28 @@ router.get("/:id", verifyToken, async (req, res) => {
   }
 });
 
+// ---------- ADMIN (example protected route) ----------
+/**
+ * Accessible only to users with role === "admin".
+ * Usage: GET /api/user/admin/dashboard
+ */
+router.get(
+  "/admin/dashboard",
+  verifyToken,
+  requireRole("admin"),
+  async (req, res) => {
+    try {
+      // simple admin payload - you can expand this
+      res.status(200).json({
+        success: true,
+        message: "Welcome to the admin dashboard",
+        user: req.user, // contains decoded token (id, phone, role) if your token includes it
+      });
+    } catch (err) {
+      console.error("Admin dashboard error:", err);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
+);
 
 export default router;
