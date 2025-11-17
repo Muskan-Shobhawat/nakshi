@@ -208,21 +208,21 @@ export default function Checkout() {
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  // keep cart total saved for other components if needed
+  // keep cart total saved for other components if needed (still optional)
   useEffect(() => {
     if (!isNaN(total) && total > 0) sessionStorage.setItem("cartTotal", total.toString());
     else sessionStorage.removeItem("cartTotal");
   }, [total]);
 
   // Proceed to checkout (we keep payment separate)
-  // We'll save delivery details & cart summary in sessionStorage and navigate to /payment
+  // We now pass data via react-router state (no sessionStorage)
   const handleProceed = () => {
     if (!isAddressFilled) {
       toast.error("Please enter a valid address before proceeding.", { position: "bottom-center" });
       return;
     }
 
-    // save delivery info to sessionStorage for the payment screen
+    // save delivery info in object
     const deliveryPayload = {
       name: user.name,
       phone: user.phone,
@@ -233,10 +233,17 @@ export default function Checkout() {
       total,
       itemsCount: items.length,
     };
-    sessionStorage.setItem("checkoutDelivery", JSON.stringify(deliveryPayload));
 
-    // navigate to payment page (your separate payment component should read sessionStorage checkoutDelivery)
-    navigate("/payment");
+    // navigate to payment and pass state (no sessionStorage)
+    navigate("/payment", {
+      state: {
+        deliveryPayload,
+        subtotal,
+        tax,
+        total,
+        items,
+      },
+    });
   };
 
   // Loading & empty states

@@ -1,3 +1,75 @@
-/* optional small tweaks */
-.payment-qr { max-width: 320px; margin: 0 auto; display:block; }
-.payment-preview img { border-radius: 8px; }
+/* src/CSS/Order/Payment.css
+   Uses vw/vh units only per request
+*/
+
+.payment-root {
+  padding: 3vh 3vw;
+  box-sizing: border-box;
+  min-height: 80vh;
+}
+
+/* QR card */
+.payment-qr {
+  width: 94vw;
+  max-width: 60vw;
+  margin: 0 auto;
+  padding: 2.2vh 2.4vw;
+  background: #fff;
+  border-radius: 1.2vh;
+  box-shadow: 0 0.6vh 1.6vh rgba(0,0,0,0.06);
+}
+
+/* keep QR centered and constrained */
+.qr-wrap {
+  max-width: 32vw;
+  max-height: 32vh;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.8vh;
+  background: #fff;
+}
+
+/* preview */
+.preview-wrap {
+  text-align: center;
+  margin-top: 1.2vh;
+}
+
+.preview-img {
+  max-width: 44vw;
+  max-height: 40vh;
+  object-fit: cover;
+  border-radius: 0.8vh;
+  box-shadow: 0 0.4vh 1.2vh rgba(0,0,0,0.08);
+}
+
+/* small screens adjustments */
+@media (max-width: 768px) {
+  .payment-qr { max-width: 92vw; padding: 2vh 2vw; }
+  .qr-wrap { max-width: 60vw; max-height: 40vh; }
+  .preview-img { max-width: 86vw; max-height: 36vh; }
+}
+
+/* Buttons spacing */
+.payment-root .btn {
+  padding: 1.2vh 3vw;
+  border-radius: 0.8vh;
+}
+
+/* Alerts and success layout */
+.payment-root .alert {
+  border-radius: 1.0vh;
+  padding: 1.6vh 1.6vw;
+}
+
+/* ensure inputs look consistent */
+.payment-root input[type="file"] {
+  font-size: 1.6vh;
+}
+
+/* small visual helpers */
+.payment-root h5 { margin-bottom: 0.6vh; font-size: 2.0vh; }
+.payment-root p { font-size: 1.6vh; }

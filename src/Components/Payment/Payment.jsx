@@ -1,19 +1,34 @@
 // src/components/Payment/Payment.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Form, Image, Alert, Spinner } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
+import "../../CSS/Payment/Payment.css";
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
 const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://i.imgur.com/6KQ2Z8B.png"; // replace with your PhonePe QR
 
-export default function Payment({ amount = "", onComplete }) {
+export default function Payment({ onComplete }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state || {};
+  const { subtotal, tax, total, items = [], deliveryPayload = {} } = state;
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(deliveryPayload?.name || "");
+  const [phone, setPhone] = useState(deliveryPayload?.phone || "");
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [doneMessage, setDoneMessage] = useState(null);
   const [error, setError] = useState("");
+
+  // if user lands here without state, redirect to cart
+  useEffect(() => {
+    if (typeof total === "undefined" || total === null) {
+      // no totals passed — send them back to cart
+      navigate("/cart", { replace: true });
+    }
+  }, [total, navigate]);
 
   // helper to generate order id
   const makeOrderId = () =>
@@ -46,7 +61,7 @@ export default function Payment({ amount = "", onComplete }) {
       setError("Please upload a payment screenshot before confirming.");
       return;
     }
-    // optional: require user name/phone
+    // optional: require user phone
     if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
       setError("Please enter a valid 10-digit phone number.");
       return;
@@ -58,12 +73,16 @@ export default function Payment({ amount = "", onComplete }) {
 
     const payloadMeta = {
       orderId: id,
-      amount: amount || null,
+      amount: total || null,
+      subtotal: subtotal || null,
+      tax: tax || null,
       name: name || null,
       phone,
       method: "PhonePe-QR",
       status: "pending",
       createdAt: new Date().toISOString(),
+      items: items || [],
+      delivery: deliveryPayload || {},
     };
 
     // If backend present, try to POST multipart/form-data to `${API}orders`
@@ -76,8 +95,7 @@ export default function Payment({ amount = "", onComplete }) {
         const res = await fetch(`${API}orders`, {
           method: "POST",
           body: formData,
-          // don't set content-type to let browser set multipart boundary
-          // include token if you expect auth: Authorization: Bearer <token>
+          // include token if auth required
           headers: {
             // 'Authorization': `Bearer ${localStorage.getItem('token')}` // uncomment if needed
           },
@@ -123,19 +141,22 @@ export default function Payment({ amount = "", onComplete }) {
     if (typeof onComplete === "function") onComplete({ orderId, status: "pending" });
   };
 
+  const fmtINR = (n) =>
+    Number(n ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
   return (
-    <Container className="py-4">
+    <Container className="py-4 payment-root">
       {!doneMessage ? (
         <>
           <Row className="justify-content-center mb-3">
             <Col xs={12} md={8} lg={6}>
-              <div className="p-3 border rounded text-center">
+              <div className="payment-qr p-3 border rounded text-center">
                 <h5 className="mb-2">Pay with PhonePe</h5>
                 <p className="mb-2">Scan this QR using PhonePe / Google Pay / any UPI app</p>
-                <div style={{ maxWidth: 320, margin: "0 auto" }}>
+                <div className="qr-wrap">
                   <Image src={DEFAULT_QR} fluid rounded alt="PhonePe QR" />
                 </div>
-                <p className="mt-3 mb-0">Amount: {amount ? `₹${amount}` : "Enter at checkout"}</p>
+                <p className="mt-3 mb-0">Amount: {total ? `₹${fmtINR(total)}` : "Enter at checkout"}</p>
               </div>
             </Col>
           </Row>
@@ -170,12 +191,12 @@ export default function Payment({ amount = "", onComplete }) {
                 </Form.Group>
 
                 {preview && (
-                  <div className="mb-3" style={{ textAlign: "center" }}>
+                  <div className="mb-3 preview-wrap">
                     <p className="small mb-1">Preview</p>
                     <img
                       src={preview}
                       alt="preview"
-                      style={{ maxWidth: "260px", maxHeight: "260px", objectFit: "cover", borderRadius: 8 }}
+                      className="preview-img"
                     />
                   </div>
                 )}
@@ -213,10 +234,10 @@ export default function Payment({ amount = "", onComplete }) {
             </Alert>
 
             <div className="text-center mt-3">
-              <Button variant="outline-primary" onClick={() => window.location.href = "/"}>
+              <Button variant="outline-primary" onClick={() => navigate("/")}>
                 Continue shopping
               </Button>{" "}
-              <Button variant="primary" onClick={() => window.location.href = "/orders"}>
+              <Button variant="primary" onClick={() => navigate("/orders")}>
                 View my orders
               </Button>
             </div>
