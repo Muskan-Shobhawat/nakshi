@@ -6,7 +6,7 @@ import CategoryGrid from "./Components/Home/CategoryGrid.jsx";
 import StorySection from "./Components/Home/StorySection.jsx";
 import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop/Shop.jsx";
-import DeliveryDetails from "./Components/Orders/DeliveryDetails.jsx";
+// import DeliveryDetails from "./Components/Orders/DeliveryDetails.jsx";
 import Cart from "./Components/Orders/Cart.jsx";
 import ProductDetails from "./Components/ProductDetail/ProductDetails.jsx";
 import {
@@ -144,7 +144,7 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <Cart />
-            <DeliveryDetails />
+            {/* <DeliveryDetails /> */}
           </Layout>
         </ProtectedRoute>
       ),
