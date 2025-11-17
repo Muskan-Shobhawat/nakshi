@@ -5,7 +5,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
-const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://i.imgur.com/6KQ2Z8B.png"; // fallback
+const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b"; // fallback
+// const DEFAULT_QR = "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b"; // fallback
 
 export default function Payment({ onComplete }) {
   const location = useLocation();
@@ -226,7 +227,7 @@ export default function Payment({ onComplete }) {
             <h4>Thank you for shopping with us!</h4>
             <p>Please wait for <strong>15 to 20 minutes</strong> while we confirm your payment.</p>
             <p>Your order id is: <strong>{orderId}</strong></p>
-            <p className="mb-0">We will update your order status in the admin panel shortly.</p>
+            <p className="mb-0">We will update your order status shortly.</p>
           </Alert>
 
           <div className="done-actions">
