@@ -9,7 +9,7 @@ import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop/Shop.jsx";
 // import DeliveryDetails from "./Components/Orders/DeliveryDetails.jsx";
 import Cart from "./Components/Orders/Cart.jsx";
-import Payment from "./Components/Orders/Payment.jsx";
+import Payment from "./Components/Payment/Payment.jsx";
 import ProductDetails from "./Components/ProductDetail/ProductDetails.jsx";
 import {
   createBrowserRouter,
