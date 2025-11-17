@@ -107,7 +107,7 @@ export default function Checkout() {
     );
   }, []);
 
-  // validate address: must contain 6-digit pincode and word "India" (same logic as before)
+  // validate address: must contain 6-digit pincode and word "India"
   const validateAddress = (text) => {
     if (!text || !text.trim()) return false;
     const pincodeRegex = /\b\d{6}\b/;
@@ -208,21 +208,19 @@ export default function Checkout() {
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  // keep cart total saved for other components if needed (still optional)
+  // keep cart total saved for other components if needed
   useEffect(() => {
     if (!isNaN(total) && total > 0) sessionStorage.setItem("cartTotal", total.toString());
     else sessionStorage.removeItem("cartTotal");
   }, [total]);
 
-  // Proceed to checkout (we keep payment separate)
-  // We now pass data via react-router state (no sessionStorage)
+  // Proceed to checkout -> navigate to payment with state (no sessionStorage)
   const handleProceed = () => {
     if (!isAddressFilled) {
       toast.error("Please enter a valid address before proceeding.", { position: "bottom-center" });
       return;
     }
 
-    // save delivery info in object
     const deliveryPayload = {
       name: user.name,
       phone: user.phone,
@@ -232,18 +230,11 @@ export default function Checkout() {
       tax,
       total,
       itemsCount: items.length,
+      items, // pass items list if payment needs it
     };
 
-    // navigate to payment and pass state (no sessionStorage)
-    navigate("/payment", {
-      state: {
-        deliveryPayload,
-        subtotal,
-        tax,
-        total,
-        items,
-      },
-    });
+    // navigate to payment passing state (no sessionStorage)
+    navigate("/payment", { state: { deliveryPayload } });
   };
 
   // Loading & empty states

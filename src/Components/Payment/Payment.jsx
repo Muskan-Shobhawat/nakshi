@@ -1,34 +1,37 @@
 // src/components/Payment/Payment.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Form, Image, Alert, Spinner } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
-const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://i.imgur.com/6KQ2Z8B.png"; // replace with your PhonePe QR
+const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://i.imgur.com/6KQ2Z8B.png"; // fallback
 
 export default function Payment({ onComplete }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state || {};
-  const { subtotal, tax, total, items = [], deliveryPayload = {} } = state;
+  const deliveryPayload = location?.state?.deliveryPayload || null;
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
-  const [name, setName] = useState(deliveryPayload?.name || "");
-  const [phone, setPhone] = useState(deliveryPayload?.phone || "");
+  const [txnId, setTxnId] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [doneMessage, setDoneMessage] = useState(null);
   const [error, setError] = useState("");
 
-  // if user lands here without state, redirect to cart
+  // If no deliveryPayload (user opened /payment directly), redirect to /cart
   useEffect(() => {
-    if (typeof total === "undefined" || total === null) {
-      // no totals passed — send them back to cart
+    if (!deliveryPayload) {
       navigate("/cart", { replace: true });
     }
-  }, [total, navigate]);
+  }, [deliveryPayload, navigate]);
+
+  // derive amount and read-only name/phone/address
+  const amount = deliveryPayload?.total ?? "";
+  const name = deliveryPayload?.name ?? "";
+  const phone = deliveryPayload?.phone ?? "";
+  const address = deliveryPayload?.address ?? "";
 
   // helper to generate order id
   const makeOrderId = () =>
@@ -42,29 +45,48 @@ export default function Payment({ onComplete }) {
       setPreview("");
       return;
     }
-    // optional size limit (5MB)
-    if (f.size > 5 * 1024 * 1024) {
-      setError("Screenshot too large. Max 5MB allowed.");
+
+    const allowed = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowed.includes(f.type)) {
+      setError("Only JPG / JPEG / PNG files are allowed.");
       setFile(null);
       setPreview("");
       return;
     }
+
+    if (f.size > 10 * 1024 * 1024) {
+      setError("File is too large. Maximum allowed size is 10MB.");
+      setFile(null);
+      setPreview("");
+      return;
+    }
+
     setFile(f);
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target.result);
     reader.readAsDataURL(f);
   };
 
+  // Transaction ID validation: required, alphanumeric, letters MUST be uppercase (A-Z) and digits 0-9
+  const validTxn = (t) => {
+    if (!t) return false;
+    // only uppercase letters and digits, at least 4 characters (adjust as you need)
+    return /^[A-Z0-9]{4,}$/.test(t);
+  };
+
   const submitOrder = async () => {
     setError("");
     if (!file) {
       setError("Please upload a payment screenshot before confirming.");
-      return;
+      return false;
     }
-    // optional: require user phone
     if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
-      setError("Please enter a valid 10-digit phone number.");
-      return;
+      setError("Invalid phone in delivery details.");
+      return false;
+    }
+    if (!validTxn(txnId)) {
+      setError("Transaction ID is required and must contain only uppercase letters (A-Z) and digits (0-9).");
+      return false;
     }
 
     setLoading(true);
@@ -73,19 +95,16 @@ export default function Payment({ onComplete }) {
 
     const payloadMeta = {
       orderId: id,
-      amount: total || null,
-      subtotal: subtotal || null,
-      tax: tax || null,
+      amount: amount || null,
       name: name || null,
       phone,
+      address,
       method: "PhonePe-QR",
+      txnId,
       status: "pending",
       createdAt: new Date().toISOString(),
-      items: items || [],
-      delivery: deliveryPayload || {},
     };
 
-    // If backend present, try to POST multipart/form-data to `${API}orders`
     if (API) {
       try {
         const formData = new FormData();
@@ -95,9 +114,9 @@ export default function Payment({ onComplete }) {
         const res = await fetch(`${API}orders`, {
           method: "POST",
           body: formData,
-          // include token if auth required
           headers: {
-            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // uncomment if needed
+            // optionally add Authorization if your orders endpoint requires it
+            // Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
@@ -106,7 +125,6 @@ export default function Payment({ onComplete }) {
         if (!res.ok) {
           // fallback: still treat as local if backend not implemented
           console.warn("Order API returned non-ok:", data);
-          // save locally as fallback
           saveLocalOrder(payloadMeta, preview);
           setDoneMessage("Order saved locally (server returned an error). Admin will see it when you inform them.");
         } else {
@@ -114,7 +132,6 @@ export default function Payment({ onComplete }) {
         }
       } catch (err) {
         console.error("Order submit error:", err);
-        // fallback to local save
         saveLocalOrder(payloadMeta, preview);
         setDoneMessage("Could not reach server — order saved locally. Admin will see it when you inform them.");
       } finally {
@@ -126,9 +143,10 @@ export default function Payment({ onComplete }) {
       setLoading(false);
       setDoneMessage("No backend configured — order stored locally. Admin will see it when you inform them.");
     }
+
+    return true;
   };
 
-  // saves order into localStorage 'pendingOrders' (admin later can read)
   const saveLocalOrder = (meta, screenshotDataUrl) => {
     const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
     existing.unshift({ meta, screenshot: screenshotDataUrl });
@@ -136,113 +154,86 @@ export default function Payment({ onComplete }) {
   };
 
   const handleConfirmClick = async () => {
-    await submitOrder();
-    // optionally call parent handler
-    if (typeof onComplete === "function") onComplete({ orderId, status: "pending" });
+    const ok = await submitOrder();
+    if (ok && typeof onComplete === "function") onComplete({ orderId, status: "pending" });
   };
 
-  const fmtINR = (n) =>
-    Number(n ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-
   return (
-    <Container className="py-4 payment-root">
+    <Container className="payment-root">
       {!doneMessage ? (
-        <>
-          <Row className="justify-content-center mb-3">
-            <Col xs={12} md={8} lg={6}>
-              <div className="payment-qr p-3 border rounded text-center">
-                <h5 className="mb-2">Pay with PhonePe</h5>
-                <p className="mb-2">Scan this QR using PhonePe / Google Pay / any UPI app</p>
-                <div className="qr-wrap">
-                  <Image src={DEFAULT_QR} fluid rounded alt="PhonePe QR" />
-                </div>
-                <p className="mt-3 mb-0">Amount: {total ? `₹${fmtINR(total)}` : "Enter at checkout"}</p>
-              </div>
-            </Col>
-          </Row>
+        <div className="payment-card">
+          <h3 className="payment-title">Confirm Payment</h3>
 
-          <Row className="justify-content-center">
-            <Col xs={12} md={8} lg={6}>
+          <div className="payment-grid">
+            <div className="left-col">
+              <div className="qr-box">
+                <h5>Scan to pay</h5>
+                <img src={DEFAULT_QR} alt="PhonePe QR" className="qr-img" />
+                <p className="amount-txt">Amount: {amount ? `₹${Number(amount).toLocaleString("en-IN")}` : "₹0"}</p>
+              </div>
+
+              <div className="delivery-summary">
+                <h6>Delivery Details</h6>
+                <div className="row"><label>Name</label><div className="val">{name}</div></div>
+                <div className="row"><label>Phone</label><div className="val">{phone}</div></div>
+                <div className="row"><label>Address</label><div className="val addr">{address}</div></div>
+              </div>
+            </div>
+
+            <div className="right-col">
               <Form>
-                <Form.Group className="mb-2">
-                  <Form.Label>Your name (optional)</Form.Label>
+                <Form.Group className="mb-3">
+                  <Form.Label>Transaction ID (required) </Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={txnId}
+                    onChange={(e) => setTxnId(e.target.value.trim().toUpperCase())}
+                    placeholder="E.g. ABCD1234"
+                    maxLength={64}
                   />
+                  <small className="muted">Only uppercase letters A–Z and digits 0–9. Min 4 chars.</small>
                 </Form.Group>
 
-                <Form.Group className="mb-2">
-                  <Form.Label>Your phone (for order communication)</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    placeholder="10-digit phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    maxLength={10}
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-2">
-                  <Form.Label>Upload payment screenshot (required)</Form.Label>
-                  <Form.Control type="file" accept="image/*" onChange={handleFile} />
+                <Form.Group className="mb-3">
+                  <Form.Label>Upload payment screenshot (JPG / PNG / JPEG, ≤ 10MB)</Form.Label>
+                  <Form.Control type="file" accept="image/jpeg,image/jpg,image/png" onChange={handleFile} />
                 </Form.Group>
 
                 {preview && (
-                  <div className="mb-3 preview-wrap">
+                  <div className="preview-wrap">
                     <p className="small mb-1">Preview</p>
-                    <img
-                      src={preview}
-                      alt="preview"
-                      className="preview-img"
-                    />
+                    <img src={preview} alt="preview" className="preview-img" />
                   </div>
                 )}
 
                 {error && <Alert variant="danger">{error}</Alert>}
 
-                <div className="d-flex gap-2">
-                  <Button variant="secondary" onClick={() => { setFile(null); setPreview(""); setError(""); }}>
+                <div className="actions">
+                  <Button variant="secondary" onClick={() => { setFile(null); setPreview(""); setError(""); setTxnId(""); }}>
                     Reset
                   </Button>
-
                   <Button variant="primary" onClick={handleConfirmClick} disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden />
-                        <span className="ms-2">Submitting...</span>
-                      </>
-                    ) : (
-                      "Confirm Payment"
-                    )}
+                    {loading ? <><Spinner animation="border" size="sm" /> Submitting...</> : "Confirm Payment"}
                   </Button>
                 </div>
               </Form>
-            </Col>
-          </Row>
-        </>
-      ) : (
-        <Row className="justify-content-center">
-          <Col xs={12} md={8} lg={6}>
-            <Alert variant="success" className="text-center">
-              <h4>Thank you for shopping with us!</h4>
-              <p>Please wait for <strong>15 to 20 minutes</strong> while we confirm your payment.</p>
-              <p>Your order id is: <strong>{orderId}</strong></p>
-              <p className="mb-0">We will update your order status in the admin panel shortly.</p>
-            </Alert>
-
-            <div className="text-center mt-3">
-              <Button variant="outline-primary" onClick={() => navigate("/")}>
-                Continue shopping
-              </Button>{" "}
-              <Button variant="primary" onClick={() => navigate("/orders")}>
-                View my orders
-              </Button>
             </div>
-          </Col>
-        </Row>
+          </div>
+        </div>
+      ) : (
+        <div className="done-card">
+          <Alert variant="success" className="text-center">
+            <h4>Thank you for shopping with us!</h4>
+            <p>Please wait for <strong>15 to 20 minutes</strong> while we confirm your payment.</p>
+            <p>Your order id is: <strong>{orderId}</strong></p>
+            <p className="mb-0">We will update your order status in the admin panel shortly.</p>
+          </Alert>
+
+          <div className="done-actions">
+            <Button variant="outline-primary" onClick={() => navigate("/")}>Continue shopping</Button>{" "}
+            <Button variant="primary" onClick={() => navigate("/orders")}>View my orders</Button>
+          </div>
+        </div>
       )}
     </Container>
   );
