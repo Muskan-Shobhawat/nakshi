@@ -23,8 +23,8 @@ import TrendingSection from "./Components/Home/TrendingSection.jsx";
 import GenderShowcase from "./Components/Home/GenderShowcase.jsx";
 import Highlight from "./Components/Home/Highlight.jsx";
 import AccountPage from "./Components/UserBased/AccountPage.jsx";
-import Contact from "./Components/Contact/Contact.jsx";
-import About from "./Components/About/About.jsx";
+// import Contact from "./Components/Contact/Contact.jsx";
+// import About from "./Components/About/About.jsx";
 import Login from "./Components/OTP/Login.jsx";
 import Register from "./Components/OTP/Register.jsx";
 import React from "react";
@@ -173,22 +173,22 @@ function App() {
         </ProtectedRoute>
       ),
     },
-    {
-      path: "/contact",
-      element: (
-        <Layout>
-          <Contact />
-        </Layout>
-      ),
-    },
-    {
-      path: "/about",
-      element: (
-        <Layout>
-          <About />
-        </Layout>
-      ),
-    },
+    // {
+    //   path: "/contact",
+    //   element: (
+    //     <Layout>
+    //       <Contact />
+    //     </Layout>
+    //   ),
+    // },
+    // {
+    //   path: "/about",
+    //   element: (
+    //     <Layout>
+    //       <About />
+    //     </Layout>
+    //   ),
+    // },
     {
       path: "/login",
       element: (

@@ -366,8 +366,8 @@ function NavbarNakshi() {
 
               <Nav.Link href="#" onClick={(e) => { e.preventDefault(); navigate("/shop/new"); }} onMouseEnter={() => setActiveMega(null)}>New Arrivals</Nav.Link>
 
-              <Nav.Link href="/about" onMouseEnter={() => setActiveMega(null)}>About</Nav.Link>
-              <Nav.Link href="/contact" onMouseEnter={() => setActiveMega(null)}>Contact</Nav.Link>
+              {/* <Nav.Link href="/about" onMouseEnter={() => setActiveMega(null)}>About</Nav.Link> */}
+              {/* <Nav.Link href="/contact" onMouseEnter={() => setActiveMega(null)}>Contact</Nav.Link> */}
             </Nav>
           </div>
 
@@ -422,9 +422,9 @@ function NavbarNakshi() {
                 <button className="mv-link" onClick={() => setMobilePanel("earrings")}>Earrings</button>
                 <button className="mv-link" onClick={() => setMobilePanel("rings")}>Rings</button>
 
-                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/collections"); }}>Collections</Nav.Link>
-                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/about"); }}>About</Nav.Link>
-                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/contact"); }}>Contact</Nav.Link>
+                <Nav.Link onClick={() => { setMenuOpen(false); navigate("/shop/new"); }}>New Arrival</Nav.Link>
+                {/* <Nav.Link onClick={() => { setMenuOpen(false); navigate("/about"); }}>About</Nav.Link> */}
+                {/* <Nav.Link onClick={() => { setMenuOpen(false); navigate("/contact"); }}>Contact</Nav.Link> */}
 
                 {!isLoggedIn && (
                   <Button id="navbtn" size="sm" onClick={() => { navigate("/login"); setMenuOpen(false); }} className="mt-2">Login / Signup</Button>
