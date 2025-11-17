@@ -1,3 +1,4 @@
+// src/App.jsx
 import "./App.css";
 import NavbarNakshi from "./Components/NavbarNakshi.jsx";
 import HeroSection from "./Components/Home/HeroSection.jsx";
@@ -8,6 +9,7 @@ import FooterNakshi from "./Components/FooterNakshi.jsx";
 import Shop from "./Components/Shop/Shop.jsx";
 // import DeliveryDetails from "./Components/Orders/DeliveryDetails.jsx";
 import Cart from "./Components/Orders/Cart.jsx";
+import Payment from "./Components/Orders/Payment.jsx";
 import ProductDetails from "./Components/ProductDetail/ProductDetails.jsx";
 import {
   createBrowserRouter,
@@ -41,10 +43,11 @@ function Layout({ children }) {
 }
 
 // ProtectedRoute: checks token presence
+// NOTE: as requested, unauthenticated users will be redirected to "/"
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return children;
 }
@@ -144,7 +147,16 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <Cart />
-            {/* <DeliveryDetails /> */}
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/payment",
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <Payment />
           </Layout>
         </ProtectedRoute>
       ),
@@ -173,22 +185,6 @@ function App() {
         </ProtectedRoute>
       ),
     },
-    // {
-    //   path: "/contact",
-    //   element: (
-    //     <Layout>
-    //       <Contact />
-    //     </Layout>
-    //   ),
-    // },
-    // {
-    //   path: "/about",
-    //   element: (
-    //     <Layout>
-    //       <About />
-    //     </Layout>
-    //   ),
-    // },
     {
       path: "/login",
       element: (
