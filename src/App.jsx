@@ -40,7 +40,7 @@ function Layout({ children }) {
   );
 }
 
-// ✅ Protected Route Component
+// ProtectedRoute: checks token presence
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -49,7 +49,29 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// ✅ Redirect if already logged in
+// AdminRoute: checks both token AND stored user role === "admin"
+function AdminRoute({ children }) {
+  const token = localStorage.getItem("token");
+  const userJSON = localStorage.getItem("user");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!userJSON) {
+    // if token but no user stored, treat as not admin and redirect to home
+    return <Navigate to="/" replace />;
+  }
+  try {
+    const user = JSON.parse(userJSON);
+    if (user?.role === "admin") {
+      return children;
+    }
+    return <Navigate to="/" replace />;
+  } catch (err) {
+    return <Navigate to="/" replace />;
+  }
+}
+
+// GuestOnly remains same (redirect if token exists)
 function GuestOnly({ children }) {
   const token = localStorage.getItem("token");
   if (token) {
@@ -130,9 +152,9 @@ function App() {
     {
       path: "/admin",
       element: (
-        <ProtectedRoute>
+        <AdminRoute>
           <AdminPanel />
-        </ProtectedRoute>
+        </AdminRoute>
       ),
       children: [
         { index: true, element: <Navigate to="members" /> },

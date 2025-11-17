@@ -1,5 +1,6 @@
+// src/Components/OTP/Login.jsx
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import LockIcon from "@mui/icons-material/Lock";
 import PhoneIcon from "@mui/icons-material/Phone";
 import "../../CSS/OTP/AuthForm.css";
@@ -48,23 +49,23 @@ export default function Login({ onLoginSuccess }) {
         return;
       }
 
-      // Store JWT
+      // Store JWT and user (important: user.role is needed client-side for admin route)
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success("Login successful!", { position: "bottom-center" });
 
       // Call callback if provided
       if (typeof onLoginSuccess === "function") onLoginSuccess(data.user);
 
-      // 👉 Redirect logic based on ROLE
+      // Redirect by role (admin -> /admin)
       setTimeout(() => {
         if (data.user?.role === "admin") {
           window.location.href = "/admin";
         } else {
           window.location.href = "/";
         }
-      }, 1500);
-
+      }, 800);
     } catch (err) {
       console.error("Login error:", err);
       toast.error("Login failed. Please try again.", {
