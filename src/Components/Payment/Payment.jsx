@@ -4,16 +4,20 @@ import { Container, Row, Col, Button, Form, Image, Alert, Spinner } from "react-
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
+// Firebase helpers (same file you used for product uploads)
 import { ref as fbRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../Firebase/Firebase.js"; // your existing firebase export
+import { storage } from "../Firebase/Firebase.js";
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
-const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b";
+const DEFAULT_QR =
+  import.meta.env.VITE_PHONEPE_QR ||
+  "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b";
 
 export default function Payment({ onComplete }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const deliveryPayload = location?.state?.deliveryPayload || null;
+  // we're expecting deliveryPayload via location.state (from Checkout)
+  const deliveryPayload = location?.state?.deliveryPayload ?? null;
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
@@ -23,29 +27,24 @@ export default function Payment({ onComplete }) {
   const [doneMessage, setDoneMessage] = useState(null);
   const [error, setError] = useState("");
 
-  // redirect if user reached /payment directly
+  // redirect if user opened /payment directly
   useEffect(() => {
     if (!deliveryPayload) {
       navigate("/cart", { replace: true });
     }
   }, [deliveryPayload, navigate]);
 
-  // readonly fields
+  // readonly fields from delivery payload
   const amount = deliveryPayload?.total ?? "";
   const name = deliveryPayload?.name ?? "";
   const phone = deliveryPayload?.phone ?? "";
   const address = deliveryPayload?.address ?? "";
 
-  // helper to generate order id
+  // Order id generator
   const makeOrderId = () =>
     "ORD" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 7).toUpperCase();
 
-  // validate txn ID
-  const validTxn = (t) => {
-    if (!t) return false;
-    return /^[A-Z0-9]{4,}$/.test(t);
-  };
-
+  // file change handler + preview
   const handleFile = (e) => {
     setError("");
     const f = e.target.files && e.target.files[0];
@@ -76,26 +75,33 @@ export default function Payment({ onComplete }) {
     reader.readAsDataURL(f);
   };
 
-  // Upload to Firebase Storage and return public URL
-  const uploadToFirebase = (fileToUpload) => {
-    return new Promise((resolve, reject) => {
+  // txn validation: uppercase alnum only, min length 4
+  const validTxn = (t) => {
+    if (!t) return false;
+    return /^[A-Z0-9]{4,}$/.test(t);
+  };
+
+  // upload screenshot to Firebase and return URL
+  const uploadScreenshotToFirebase = (fileToUpload) =>
+    new Promise((resolve, reject) => {
       try {
-        const filename = `orders/${Date.now()}-${fileToUpload.name.replace(/\s+/g, "_")}`;
-        const storageRef = fbRef(storage, filename);
+        const ts = Date.now();
+        const safeName = fileToUpload.name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9._-]/g, "");
+        const path = `orders/${ts}-${safeName}`;
+        const storageRef = fbRef(storage, path);
         const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
 
         uploadTask.on(
           "state_changed",
-          () => {
-            /* you can show progress here if wanted */
-          },
+          // progress - we ignore for now but could add progress state
+          () => {},
           (err) => reject(err),
           async () => {
             try {
               const url = await getDownloadURL(uploadTask.snapshot.ref);
               resolve(url);
-            } catch (e) {
-              reject(e);
+            } catch (err2) {
+              reject(err2);
             }
           }
         );
@@ -103,14 +109,8 @@ export default function Payment({ onComplete }) {
         reject(err);
       }
     });
-  };
 
-  const saveLocalOrder = (meta, screenshotDataUrl) => {
-    const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
-    existing.unshift({ meta, screenshot: screenshotDataUrl });
-    localStorage.setItem("pendingOrders", JSON.stringify(existing));
-  };
-
+  // submit order: upload to Firebase, then POST to backend with screenshotUrl
   const submitOrder = async () => {
     setError("");
     if (!file) {
@@ -130,6 +130,7 @@ export default function Payment({ onComplete }) {
     const id = makeOrderId();
     setOrderId(id);
 
+    // Build payload meta
     const payloadMeta = {
       orderId: id,
       amount: amount || null,
@@ -140,49 +141,49 @@ export default function Payment({ onComplete }) {
       txnId,
       status: "pending",
       createdAt: new Date().toISOString(),
+      items: deliveryPayload?.items ?? null, // optional: include cart items if available
     };
 
     try {
-      // 1) Upload screenshot to Firebase and get URL
-      const screenshotUrl = await uploadToFirebase(file);
+      // 1) upload screenshot to firebase (frontend)
+      const screenshotUrl = await uploadScreenshotToFirebase(file);
 
-      // 2) Send order meta + screenshotUrl to backend
+      // 2) POST to backend orders endpoint
       if (API) {
+        // include token if your backend requires auth (recommended)
         const token = localStorage.getItem("token");
-        const body = {
-          ...payloadMeta,
-          screenshot: screenshotUrl,
-        };
-
         const res = await fetch(`${API}orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ meta: payloadMeta, screenshotUrl }),
         });
 
         const data = await res.json().catch(() => null);
 
         if (!res.ok) {
-          console.warn("Order API returned non-ok:", data);
-          // fallback: save local copy with screenshot dataURL preview
+          console.warn("Order API non-ok response:", data);
+          // fallback: save locally
           saveLocalOrder(payloadMeta, preview);
           setDoneMessage("Order saved locally (server returned an error). Admin will see it when you inform them.");
         } else {
           setDoneMessage(data?.message || "Payment submitted. We'll verify and update order status soon.");
         }
       } else {
-        // no API configured: fallback to local save
+        // No API configured — local fallback
         saveLocalOrder(payloadMeta, preview);
         setDoneMessage("No backend configured — order stored locally. Admin will see it when you inform them.");
       }
+
+      // call parent callback
+      if (typeof onComplete === "function") onComplete({ orderId: id, status: "pending" });
     } catch (err) {
-      console.error("Order submit / upload error:", err);
-      // fallback local save
+      console.error("Order submit/upload error:", err);
+      // fallback local store
       saveLocalOrder(payloadMeta, preview);
-      setDoneMessage("Could not reach server or upload failed — order saved locally. Admin will see it when you inform them.");
+      setDoneMessage("Upload failed — order stored locally. Contact admin to notify them.");
     } finally {
       setLoading(false);
     }
@@ -190,11 +191,15 @@ export default function Payment({ onComplete }) {
     return true;
   };
 
+  // local fallback storing (keeps same behavior you had)
+  const saveLocalOrder = (meta, screenshotDataUrl) => {
+    const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
+    existing.unshift({ meta, screenshot: screenshotDataUrl });
+    localStorage.setItem("pendingOrders", JSON.stringify(existing));
+  };
+
   const handleConfirmClick = async () => {
-    const ok = await submitOrder();
-    if (ok) {
-      if (typeof onComplete === "function") onComplete({ orderId, status: "pending" });
-    }
+    await submitOrder();
   };
 
   return (
@@ -222,7 +227,7 @@ export default function Payment({ onComplete }) {
             <div className="right-col">
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>Transaction ID (required) </Form.Label>
+                  <Form.Label>Transaction ID (required)</Form.Label>
                   <Form.Control
                     type="text"
                     value={txnId}
