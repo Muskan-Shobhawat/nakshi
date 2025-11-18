@@ -4,9 +4,11 @@ import { Container, Row, Col, Button, Form, Image, Alert, Spinner } from "react-
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
+import { ref as fbRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../../Firebase/Firebase.js"; // your existing firebase export
+
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
-const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b"; // fallback
-// const DEFAULT_QR = "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b"; // fallback
+const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b";
 
 export default function Payment({ onComplete }) {
   const location = useLocation();
@@ -21,14 +23,14 @@ export default function Payment({ onComplete }) {
   const [doneMessage, setDoneMessage] = useState(null);
   const [error, setError] = useState("");
 
-  // If no deliveryPayload (user opened /payment directly), redirect to /cart
+  // redirect if user reached /payment directly
   useEffect(() => {
     if (!deliveryPayload) {
       navigate("/cart", { replace: true });
     }
   }, [deliveryPayload, navigate]);
 
-  // derive amount and read-only name/phone/address
+  // readonly fields
   const amount = deliveryPayload?.total ?? "";
   const name = deliveryPayload?.name ?? "";
   const phone = deliveryPayload?.phone ?? "";
@@ -37,6 +39,12 @@ export default function Payment({ onComplete }) {
   // helper to generate order id
   const makeOrderId = () =>
     "ORD" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 7).toUpperCase();
+
+  // validate txn ID
+  const validTxn = (t) => {
+    if (!t) return false;
+    return /^[A-Z0-9]{4,}$/.test(t);
+  };
 
   const handleFile = (e) => {
     setError("");
@@ -68,11 +76,39 @@ export default function Payment({ onComplete }) {
     reader.readAsDataURL(f);
   };
 
-  // Transaction ID validation: required, alphanumeric, letters MUST be uppercase (A-Z) and digits 0-9
-  const validTxn = (t) => {
-    if (!t) return false;
-    // only uppercase letters and digits, at least 4 characters (adjust as you need)
-    return /^[A-Z0-9]{4,}$/.test(t);
+  // Upload to Firebase Storage and return public URL
+  const uploadToFirebase = (fileToUpload) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const filename = `orders/${Date.now()}-${fileToUpload.name.replace(/\s+/g, "_")}`;
+        const storageRef = fbRef(storage, filename);
+        const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
+
+        uploadTask.on(
+          "state_changed",
+          () => {
+            /* you can show progress here if wanted */
+          },
+          (err) => reject(err),
+          async () => {
+            try {
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(url);
+            } catch (e) {
+              reject(e);
+            }
+          }
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  const saveLocalOrder = (meta, screenshotDataUrl) => {
+    const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
+    existing.unshift({ meta, screenshot: screenshotDataUrl });
+    localStorage.setItem("pendingOrders", JSON.stringify(existing));
   };
 
   const submitOrder = async () => {
@@ -106,57 +142,59 @@ export default function Payment({ onComplete }) {
       createdAt: new Date().toISOString(),
     };
 
-    if (API) {
-      try {
-        const formData = new FormData();
-        formData.append("screenshot", file);
-        formData.append("meta", JSON.stringify(payloadMeta));
+    try {
+      // 1) Upload screenshot to Firebase and get URL
+      const screenshotUrl = await uploadToFirebase(file);
+
+      // 2) Send order meta + screenshotUrl to backend
+      if (API) {
+        const token = localStorage.getItem("token");
+        const body = {
+          ...payloadMeta,
+          screenshot: screenshotUrl,
+        };
 
         const res = await fetch(`${API}orders`, {
           method: "POST",
-          body: formData,
           headers: {
-            // optionally add Authorization if your orders endpoint requires it
-            // Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
+          body: JSON.stringify(body),
         });
 
         const data = await res.json().catch(() => null);
 
         if (!res.ok) {
-          // fallback: still treat as local if backend not implemented
           console.warn("Order API returned non-ok:", data);
+          // fallback: save local copy with screenshot dataURL preview
           saveLocalOrder(payloadMeta, preview);
           setDoneMessage("Order saved locally (server returned an error). Admin will see it when you inform them.");
         } else {
           setDoneMessage(data?.message || "Payment submitted. We'll verify and update order status soon.");
         }
-      } catch (err) {
-        console.error("Order submit error:", err);
+      } else {
+        // no API configured: fallback to local save
         saveLocalOrder(payloadMeta, preview);
-        setDoneMessage("Could not reach server — order saved locally. Admin will see it when you inform them.");
-      } finally {
-        setLoading(false);
+        setDoneMessage("No backend configured — order stored locally. Admin will see it when you inform them.");
       }
-    } else {
-      // no API configured: save locally
+    } catch (err) {
+      console.error("Order submit / upload error:", err);
+      // fallback local save
       saveLocalOrder(payloadMeta, preview);
+      setDoneMessage("Could not reach server or upload failed — order saved locally. Admin will see it when you inform them.");
+    } finally {
       setLoading(false);
-      setDoneMessage("No backend configured — order stored locally. Admin will see it when you inform them.");
     }
 
     return true;
   };
 
-  const saveLocalOrder = (meta, screenshotDataUrl) => {
-    const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
-    existing.unshift({ meta, screenshot: screenshotDataUrl });
-    localStorage.setItem("pendingOrders", JSON.stringify(existing));
-  };
-
   const handleConfirmClick = async () => {
     const ok = await submitOrder();
-    if (ok && typeof onComplete === "function") onComplete({ orderId, status: "pending" });
+    if (ok) {
+      if (typeof onComplete === "function") onComplete({ orderId, status: "pending" });
+    }
   };
 
   return (

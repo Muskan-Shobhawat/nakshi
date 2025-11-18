@@ -6,6 +6,7 @@ import userRoutes from "./Routes/user.js"; // adjust the path if different
 import productRoutes from "./Routes/products.js"; // adjust the path if different
 import otpRoutes from "./Routes/otp.js";
 import cartRoutes from "./Routes/cart.js";
+import ordersRouter from "./Routes/order.js"; // adjust path
 
 
 dotenv.config();
@@ -46,6 +47,8 @@ app.use("/api/user", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/user", otpRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", ordersRouter);
+
 
 
 // 404 handler (returns JSON, not HTML)
