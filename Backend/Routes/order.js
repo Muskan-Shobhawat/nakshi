@@ -5,7 +5,7 @@ import {
   getOrders,
   getOrderById,
   updateOrderStatus,
-} from "../Controllers/orders.js";
+} from "../Controllers/order.js";
 import { verifyToken, requireRole } from "../Middleware/auth.js"; // optional protection
 
 const router = express.Router();

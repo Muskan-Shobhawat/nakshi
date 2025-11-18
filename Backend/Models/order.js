@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema(
     screenshot: { type: String }, // firebase download URL
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: "product" },
         name: String,
         price: Number,
         quantity: Number,
