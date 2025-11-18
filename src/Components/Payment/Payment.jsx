@@ -4,9 +4,9 @@ import { Container, Row, Col, Button, Form, Image, Alert, Spinner } from "react-
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
-// Firebase helpers (same file you used for product uploads)
-import { ref as fbRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../Firebase/Firebase.js";
+// Firebase helpers
+import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../../Firebase/Firebase.js"; // your existing Firebase config export
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
 const DEFAULT_QR =
@@ -16,8 +16,7 @@ const DEFAULT_QR =
 export default function Payment({ onComplete }) {
   const location = useLocation();
   const navigate = useNavigate();
-  // we're expecting deliveryPayload via location.state (from Checkout)
-  const deliveryPayload = location?.state?.deliveryPayload ?? null;
+  const deliveryPayload = location?.state?.deliveryPayload || null;
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
@@ -34,17 +33,47 @@ export default function Payment({ onComplete }) {
     }
   }, [deliveryPayload, navigate]);
 
-  // readonly fields from delivery payload
+  // derive amount and read-only name/phone/address
   const amount = deliveryPayload?.total ?? "";
   const name = deliveryPayload?.name ?? "";
   const phone = deliveryPayload?.phone ?? "";
   const address = deliveryPayload?.address ?? "";
 
-  // Order id generator
+  // helper to generate order id
   const makeOrderId = () =>
     "ORD" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 7).toUpperCase();
 
-  // file change handler + preview
+  // Upload file to firebase storage and return download URL
+  async function uploadToFirebase(file, folder = "orders") {
+    if (!file) throw new Error("No file provided");
+    const timestamp = Date.now();
+    // sanitize filename
+    const safeName = (file.name || "ss").replace(/\s+/g, "-").toLowerCase();
+    const path = `${folder}/${timestamp}-${Math.random().toString(36).slice(2,8)}-${safeName}`;
+    const ref = storageRef(storage, path);
+
+    return new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(ref, file);
+
+      uploadTask.on(
+        "state_changed",
+        // progress - optional
+        () => {},
+        // error
+        (err) => reject(err),
+        // complete
+        async () => {
+          try {
+            const url = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(url);
+          } catch (err) {
+            reject(err);
+          }
+        }
+      );
+    });
+  }
+
   const handleFile = (e) => {
     setError("");
     const f = e.target.files && e.target.files[0];
@@ -75,42 +104,11 @@ export default function Payment({ onComplete }) {
     reader.readAsDataURL(f);
   };
 
-  // txn validation: uppercase alnum only, min length 4
   const validTxn = (t) => {
     if (!t) return false;
     return /^[A-Z0-9]{4,}$/.test(t);
   };
 
-  // upload screenshot to Firebase and return URL
-  const uploadScreenshotToFirebase = (fileToUpload) =>
-    new Promise((resolve, reject) => {
-      try {
-        const ts = Date.now();
-        const safeName = fileToUpload.name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9._-]/g, "");
-        const path = `orders/${ts}-${safeName}`;
-        const storageRef = fbRef(storage, path);
-        const uploadTask = uploadBytesResumable(storageRef, fileToUpload);
-
-        uploadTask.on(
-          "state_changed",
-          // progress - we ignore for now but could add progress state
-          () => {},
-          (err) => reject(err),
-          async () => {
-            try {
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              resolve(url);
-            } catch (err2) {
-              reject(err2);
-            }
-          }
-        );
-      } catch (err) {
-        reject(err);
-      }
-    });
-
-  // submit order: upload to Firebase, then POST to backend with screenshotUrl
   const submitOrder = async () => {
     setError("");
     if (!file) {
@@ -130,7 +128,6 @@ export default function Payment({ onComplete }) {
     const id = makeOrderId();
     setOrderId(id);
 
-    // Build payload meta
     const payloadMeta = {
       orderId: id,
       amount: amount || null,
@@ -141,49 +138,54 @@ export default function Payment({ onComplete }) {
       txnId,
       status: "pending",
       createdAt: new Date().toISOString(),
-      items: deliveryPayload?.items ?? null, // optional: include cart items if available
     };
 
     try {
-      // 1) upload screenshot to firebase (frontend)
-      const screenshotUrl = await uploadScreenshotToFirebase(file);
+      // 1) Upload screenshot to Firebase and get URL
+      const screenshotUrl = await uploadToFirebase(file, "orders");
 
-      // 2) POST to backend orders endpoint
-      if (API) {
-        // include token if your backend requires auth (recommended)
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API}orders`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ meta: payloadMeta, screenshotUrl }),
-        });
+      // 2) POST order metadata + screenshotUrl to backend
+      const body = {
+        meta: payloadMeta,
+        screenshotUrl,
+      };
 
-        const data = await res.json().catch(() => null);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API}orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // include auth header if your orders endpoint requires it:
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
 
-        if (!res.ok) {
-          console.warn("Order API non-ok response:", data);
-          // fallback: save locally
-          saveLocalOrder(payloadMeta, preview);
-          setDoneMessage("Order saved locally (server returned an error). Admin will see it when you inform them.");
-        } else {
-          setDoneMessage(data?.message || "Payment submitted. We'll verify and update order status soon.");
-        }
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.warn("Order API returned non-ok:", data);
+        // if server returned an error, still show local-success fallback
+        setDoneMessage("Order saved locally (server returned an error). Admin will see it when you inform them.");
+        // optionally save local fallback
+        saveLocalOrder(payloadMeta, preview, screenshotUrl);
       } else {
-        // No API configured — local fallback
-        saveLocalOrder(payloadMeta, preview);
-        setDoneMessage("No backend configured — order stored locally. Admin will see it when you inform them.");
+        setDoneMessage(data?.message || "Payment submitted. We'll verify and update order status soon.");
       }
-
-      // call parent callback
-      if (typeof onComplete === "function") onComplete({ orderId: id, status: "pending" });
     } catch (err) {
       console.error("Order submit/upload error:", err);
-      // fallback local store
-      saveLocalOrder(payloadMeta, preview);
-      setDoneMessage("Upload failed — order stored locally. Contact admin to notify them.");
+      // if Firebase permission error or network error, show clear message
+      if (err?.code === "storage/unauthorized" || /unauthorized/i.test(String(err.message))) {
+        setError(
+          "Upload failed: Firebase Storage permission denied. Please check your Firebase Storage rules or authenticate the user."
+        );
+      } else {
+        setError("Order submit/upload failed. See console for details.");
+      }
+      // fallback: save locally so order is not lost
+      saveLocalOrder(payloadMeta, preview, null);
+      setLoading(false);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -191,15 +193,18 @@ export default function Payment({ onComplete }) {
     return true;
   };
 
-  // local fallback storing (keeps same behavior you had)
-  const saveLocalOrder = (meta, screenshotDataUrl) => {
+  const saveLocalOrder = (meta, screenshotDataUrl, screenshotUrl = null) => {
     const existing = JSON.parse(localStorage.getItem("pendingOrders") || "[]");
-    existing.unshift({ meta, screenshot: screenshotDataUrl });
+    existing.unshift({ meta, screenshot: screenshotDataUrl, screenshotUrl });
     localStorage.setItem("pendingOrders", JSON.stringify(existing));
   };
 
   const handleConfirmClick = async () => {
-    await submitOrder();
+    const ok = await submitOrder();
+    if (ok) {
+      setDoneMessage("Thank you! Your order has been submitted.");
+      if (typeof onComplete === "function") onComplete({ orderId, status: "pending" });
+    }
   };
 
   return (
@@ -227,7 +232,7 @@ export default function Payment({ onComplete }) {
             <div className="right-col">
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>Transaction ID (required)</Form.Label>
+                  <Form.Label>Transaction ID (required) </Form.Label>
                   <Form.Control
                     type="text"
                     value={txnId}
