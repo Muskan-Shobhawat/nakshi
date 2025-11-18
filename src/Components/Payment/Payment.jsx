@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../../CSS/Payment/Payment.css";
 
 import { ref as fbRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../../Firebase/Firebase.js"; // your existing firebase export
+import { storage } from "../Firebase/Firebase.js"; // your existing firebase export
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
 const DEFAULT_QR = import.meta.env.VITE_PHONEPE_QR || "https://firebasestorage.googleapis.com/v0/b/nakshi-69052.firebasestorage.app/o/jewellery%2FPhonePe.jpg?alt=media&token=62ecf4c6-6a81-4e4c-a805-bed08057536b";
