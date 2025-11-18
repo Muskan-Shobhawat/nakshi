@@ -6,7 +6,7 @@ import "../../CSS/Payment/Payment.css";
 
 // Firebase helpers
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../../Firebase/Firebase.js"; // your existing Firebase config export
+import { storage } from "../Firebase/Firebase.js"; // your existing Firebase config export
 
 const API = import.meta.env.VITE_APP_BACKEND_URI || "";
 const DEFAULT_QR =
