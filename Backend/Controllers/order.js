@@ -1,94 +1,48 @@
-// Controllers/orders.js
 import Order from "../Models/order.js";
+import { storage } from "../..//src/Components/Firebase/Firebase.js";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-/**
- * Create new order.
- * Expect body like:
- * {
- *   orderId, name, phone, address, amount, method, txnId, screenshot, items, meta
- * }
- *
- * (Assumes screenshot URL is uploaded from frontend to Firebase already)
- */
 export const createOrder = async (req, res) => {
   try {
-    // If you used FormData and meta string: allow both ways
-    let payload = req.body;
-    if (payload?.meta && typeof payload.meta === "string") {
-      try {
-        payload = { ...payload, ...JSON.parse(payload.meta) };
-      } catch (e) {
-        // ignore parse error
-      }
+    const screenshotFile = req.file; // multer file buffer
+    const meta = JSON.parse(req.body.meta);
+
+    if (!screenshotFile) {
+      return res.status(400).json({ success: false, message: "Screenshot required" });
     }
 
-    const requiredFields = ["orderId", "phone", "amount", "txnId", "screenshot"];
-    for (const f of requiredFields) {
-      if (!payload[f]) {
-        return res.status(400).json({ success: false, message: `Missing required field: ${f}` });
-      }
-    }
+    // Generate Firebase storage path
+    const filename = `orders/${Date.now()}-${screenshotFile.originalname}`;
+    const storageRef = ref(storage, filename);
 
+    // Upload buffer to Firebase Storage
+    await uploadBytes(storageRef, screenshotFile.buffer, {
+      contentType: screenshotFile.mimetype
+    });
+
+    // Get download URL
+    const screenshotURL = await getDownloadURL(storageRef);
+
+    // Save order to MongoDB
     const order = new Order({
-      orderId: payload.orderId,
-      name: payload.name,
-      phone: payload.phone,
-      address: payload.address,
-      amount: payload.amount,
-      method: payload.method || "PhonePe-QR",
-      txnId: payload.txnId,
-      screenshot: payload.screenshot,
-      items: Array.isArray(payload.items) ? payload.items : [],
-      meta: payload.meta || {},
-      status: payload.status || "pending",
+      ...meta,
+      screenshot: screenshotURL
     });
 
     await order.save();
-    res.status(201).json({ success: true, message: "Order created", orderId: order.orderId, order });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order placed successfully",
+      order
+    });
+
   } catch (err) {
-    console.error("createOrder error:", err);
-    res.status(500).json({ success: false, message: err.message || "Server error" });
-  }
-};
-
-export const getOrders = async (req, res) => {
-  try {
-    const q = {};
-    if (req.query.status) q.status = req.query.status;
-    const orders = await Order.find(q).sort({ createdAt: -1 }).lean();
-    res.json({ success: true, total: orders.length, orders });
-  } catch (err) {
-    console.error("getOrders error:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const getOrderById = async (req, res) => {
-  try {
-    const order = await Order.findOne({ orderId: req.params.id }).lean();
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-    res.json({ success: true, order });
-  } catch (err) {
-    console.error("getOrderById error:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-export const updateOrderStatus = async (req, res) => {
-  try {
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ success: false, message: "Status required" });
-
-    const order = await Order.findOneAndUpdate(
-      { orderId: req.params.id },
-      { status },
-      { new: true }
-    );
-
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-    res.json({ success: true, message: "Status updated", order });
-  } catch (err) {
-    console.error("updateOrderStatus error:", err);
-    res.status(500).json({ success: false, message: err.message });
+    console.error("Order Creation Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error creating order",
+      error: err.message
+    });
   }
 };
