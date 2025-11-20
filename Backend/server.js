@@ -17,8 +17,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // local dev
   "https://nakshifrontend-two.vercel.app", // vercel deployment
-   "https://nakshijewellers.com",
-  
+  "https://nakshijewellers.com",
+
 ];
 
 // middlewares
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  
+
   // Preflight request
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
@@ -63,15 +63,15 @@ app.use((err, req, res, next) => {
 });
 
 // db + server
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 console.log("Mongo URI:", process.env.MONGO_URI);
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    app.listen(PORT, () =>
-      console.log(`API server running on http://localhost:${PORT}`)
-    );
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server running on port ${port}`);
+    });
   })
   .catch((err) => {
     console.error("Mongo connection error:", err);
