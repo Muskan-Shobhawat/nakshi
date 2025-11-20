@@ -18,13 +18,13 @@ const allowedOrigins = [
   "http://localhost:5173", // local dev
   "https://nakshifrontend-two.vercel.app", // vercel deployment
   "https://nakshijewellers.com",
-
+ "https://www.nakshijewellers.com",
 ];
 
 // middlewares
 app.use((req, res, next) => {
   const allowedOrigin = "https://nakshijewellers.com";
-  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Origin", allowedOrigins);
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Headers",
