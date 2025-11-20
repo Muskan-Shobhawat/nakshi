@@ -22,22 +22,34 @@ const allowedOrigins = [
 ];
 
 // middlewares
-app.use((req, res, next) => {
-  const allowedOrigin = "https://nakshijewellers.com";
-  res.header("Access-Control-Allow-Origin", allowedOrigins);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+// app.use((req, res, next) => {
+//   const allowedOrigin = "https://nakshijewellers.com";
+//   res.header("Access-Control-Allow-Origin", allowedOrigins);
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+//   );
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 
-  // Preflight request
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
+//   // Preflight request
+//   if (req.method === "OPTIONS") {
+//     return res.sendStatus(204);
+//   }
+//   next();
+// });
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+}));
 
 app.use(express.json()); // parse JSON
 app.use(express.urlencoded({ extended: true }));
