@@ -1,4 +1,3 @@
-// Models/Order.js
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
@@ -8,9 +7,9 @@ const orderSchema = new mongoose.Schema(
     phone: { type: String },
     address: { type: String },
     amount: { type: Number },
-    method: { type: String }, // e.g. "PhonePe-QR"
-    txnId: { type: String }, // transaction id (uppercase alnum)
-    screenshot: { type: String }, // firebase download URL
+    method: { type: String }, 
+    txnId: { type: String }, 
+    screenshot: { type: String }, 
     items: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: "product" },
